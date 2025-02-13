@@ -1,6 +1,5 @@
 import "@/app/globals.css";
 import { routing } from "@/app/i18n/routing";
-import { ModeToggle } from "@/components/theme-changer-button";
 import { ThemeProvider } from "@/components/ui/providers/theme-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
@@ -59,9 +58,6 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider messages={messages}>
-            <div className="fixed top-4 right-4 z-50">
-              <ModeToggle />
-            </div>
             {children}
           </NextIntlClientProvider>
         </ThemeProvider>

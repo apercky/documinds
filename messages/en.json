@@ -1,10 +1,24 @@
 {
     "HomePage": {
-      "title": "Hello to DOCUMINDS!",
-      "about": "Go to the about page"
+      "title": "Documents That Understand You!",
+      "subtitle": "Chat with your documents and unlock their hidden insights. Our secure, AI-powered search transforms complex information into natural conversations, letting you explore your private data through simple questions. Get precise answers, discover connections, and make your documents work smarter for you.",
+      "about": "About",
+      "gotoDashboard": "Go to Dashboard"
     },
     "Metadata": {
-      "title": "DOCUMINDS",
+      "title": "Welcome to Documinds",
       "description": "A Chat-Based Private Document Search with RAG"
+    },
+    "Navigation": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "settings": "Settings"
+    },
+    "UserNav": {
+      "profile": "Profile",
+      "billing": "Billing",
+      "settings": "Settings",
+      "logout": "Log out",
+      "userAvatar": "User avatar"
     }
   }

@@ -1,10 +1,24 @@
 {
     "HomePage": {
-      "title": "Benvenuto in DOCUMINDS!",
-      "about": "Vai alla pagina di informazioni"
+      "title": "Documents That Understand You!",
+      "subtitle": "Chat con i tuoi documenti e scopri le loro insights nascosti. Il nostro motore di ricerca privato basato su RAG trasforma le informazioni complesse in conversazioni naturali, permettendoti di esplorare i tuoi dati privati attraverso semplici domande. Ottieni risposte precise, scopri connessioni e rendi i tuoi documenti più intelligenti per te.",
+      "about": "Chi siamo",
+      "gotoDashboard": "Vai al Pannello di Amministrazione"
     },
     "Metadata": {
-      "title": "DOCUMINDS",
-      "description": "Un motore di ricerca documentale basato su RAG"
+      "title": "Documinds",
+      "description": "Un motore di ricerca documentale privato basato su RAG"
+    },
+    "Navigation": {
+      "dashboard": "Dashboard",
+      "users": "Utenti",
+      "settings": "Impostazioni"
+    },
+    "UserNav": {
+      "profile": "Profilo",
+      "billing": "Fatturazione",
+      "settings": "Impostazioni",
+      "logout": "Esci",
+      "userAvatar": "Avatar utente"
     }
   }
