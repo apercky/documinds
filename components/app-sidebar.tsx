@@ -21,7 +21,10 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useLocale } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
+import { AnimatedText } from "./animated-text";
 import { NavMain } from "./nav-main";
 
 // This is sample data.
@@ -138,16 +141,24 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const locale = useLocale();
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Image
-          src="/logo.svg"
-          alt="Logo"
-          className="h-8 w-8 dark:invert"
-          width={48}
-          height={48}
-        />
+        <Link
+          href="/"
+          locale={locale}
+          className="mr-6 flex items-center space-x-2 group"
+        >
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            className="h-8 w-8 dark:invert"
+            width={48}
+            height={48}
+          />
+          <AnimatedText text="DOCUMINDS" className="text-1xl pl-2" />
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <NavProjects projects={data.projects} />
