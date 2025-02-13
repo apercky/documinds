@@ -79,7 +79,7 @@ export const { Link, redirect, usePathname, useRouter } =
 ### Shadcn
 -- Use the new package installation method, for example to install button component:
 ```bash
-npx shadcn@latest add button
+npx shadcn@latest add button --legacy-peer-deps
 ```
 
 ### Async Request APIs
