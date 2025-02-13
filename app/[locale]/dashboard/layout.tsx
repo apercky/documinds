@@ -35,7 +35,7 @@ export default function AdminLayout({
             </div>
           </header>
 
-          <main className="flex flex-1 h-[calc(100vh-4rem)] flex-col gap-4 pt-0 p-6 overflow-y-auto bg-background dark:bg-background">
+          <main className="flex flex-1 h-[calc(100vh-4rem)] flex-col gap-4 overflow-y-auto bg-background dark:bg-background">
             {children}
           </main>
         </SidebarInset>

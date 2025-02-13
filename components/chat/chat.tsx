@@ -17,8 +17,8 @@ export default function Chat() {
 
   return (
     <div className="mt-6 h-[calc(100vh-100px)] bg-background rounded-lg flex flex-col">
-      <div className="flex-1 overflow-hidden">
-        <ChatMessageList>
+      <div className="flex-1 w-full overflow-hidden [&_*]:scrollbar-none">
+        <ChatMessageList className="scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {messages.map((message) => (
             <ChatBubble
               key={message.id}
@@ -35,8 +35,9 @@ export default function Chat() {
               />
               <ChatBubbleMessage
                 variant={message.role === "user" ? "sent" : "received"}
+                className="whitespace-pre-wrap"
               >
-                {message.content.replace("\n", "<br />")}
+                {message.content}
               </ChatBubbleMessage>
             </ChatBubble>
           ))}
@@ -63,7 +64,7 @@ export default function Chat() {
             value={input}
             onChange={handleInputChange}
             placeholder="Type your message..."
-            className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
+            className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           />
           <div className="flex items-center p-3 pt-0 justify-between">
             <Button type="submit" size="sm" className="ml-auto gap-1.5">
