@@ -1,5 +1,6 @@
 {
     "HomePage": {
+      "appName": "DOCUMINDS",
       "title": "Documents That Understand You!",
       "subtitle": "Chat con i tuoi documenti e scopri le loro insights nascosti. Il nostro motore di ricerca privato basato su RAG trasforma le informazioni complesse in conversazioni naturali, permettendoti di esplorare i tuoi dati privati attraverso semplici domande. Ottieni risposte precise, scopri connessioni e rendi i tuoi documenti più intelligenti per te.",
       "about": "Chi siamo",
