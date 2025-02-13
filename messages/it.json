@@ -1,0 +1,10 @@
+{
+    "HomePage": {
+      "title": "Benvenuto in DOCUMINDS!",
+      "about": "Vai alla pagina di informazioni"
+    },
+    "Metadata": {
+      "title": "DOCUMINDS",
+      "description": "Un motore di ricerca documentale basato su RAG"
+    }
+  }

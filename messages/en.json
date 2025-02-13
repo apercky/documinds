@@ -1,0 +1,10 @@
+{
+    "HomePage": {
+      "title": "Hello to DOCUMINDS!",
+      "about": "Go to the about page"
+    },
+    "Metadata": {
+      "title": "DOCUMINDS",
+      "description": "A Chat-Based Private Document Search with RAG"
+    }
+  }

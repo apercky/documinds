@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+---
+
+# Basic rules
+- The fewer lines of code, the better.
+- Proceed like a senior developer or like a 10x engineer.
+- Answer in short.
+- Do not delete comments.
+- Break this large change into the required steps. Only include the truly necessary steps.
