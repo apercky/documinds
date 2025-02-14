@@ -29,7 +29,7 @@ export default function Chat() {
                 src={
                   message.role === "user"
                     ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop"
-                    : "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop"
+                    : "https://no-image.png"
                 }
                 fallback={message.role === "user" ? "US" : "AI"}
               />
@@ -44,11 +44,7 @@ export default function Chat() {
 
           {isLoading && (
             <ChatBubble variant="received">
-              <ChatBubbleAvatar
-                className="h-8 w-8 shrink-0"
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop"
-                fallback="AI"
-              />
+              <ChatBubbleAvatar className="h-8 w-8 shrink-0" fallback="AI" />
               <ChatBubbleMessage isLoading />
             </ChatBubble>
           )}
