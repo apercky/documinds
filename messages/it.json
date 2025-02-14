@@ -21,5 +21,10 @@
       "settings": "Impostazioni",
       "logout": "Esci",
       "userAvatar": "Avatar utente"
+    },
+    "Languages": {
+      "en": "Inglese",
+      "it": "Italiano",
+      "switchLanguage": "Cambia lingua"
     }
   }

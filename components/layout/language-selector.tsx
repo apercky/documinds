@@ -1,6 +1,6 @@
 "use client";
 
-import { routing, usePathname, useRouter } from "@/app/i18n/routing";
+import { usePathname, useRouter } from "@/app/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,31 +8,49 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { locales } from "@/config/locales";
 import { Languages } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 export function LanguageSelector() {
   const router = useRouter();
   const pathname = usePathname();
+  const currentLocale = useLocale();
+  const t = useTranslations("Languages");
 
   const handleLanguageChange = (locale: string) => {
-    router.push(pathname, { locale });
+    if (locale === currentLocale) return;
+
+    // Remove the locale from the pathname if it exists
+    const pathnameWithoutLocale = pathname.replace(`/${currentLocale}`, "");
+    const newPathname = pathnameWithoutLocale || "/";
+
+    router.replace(newPathname, { locale });
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative cursor-pointer pr-4"
+        >
           <Languages className="h-4 w-4" />
-          <span className="sr-only">Switch language</span>
+          <span className="sr-only">{t("switchLanguage")}</span>
+          <span className="absolute top-0 right-2 text-[10px] font-bold">
+            {currentLocale.toUpperCase()}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {routing.locales.map((locale) => (
+        {locales.map((locale) => (
           <DropdownMenuItem
             key={locale}
             onClick={() => handleLanguageChange(locale)}
+            className="cursor-pointer"
           >
-            {locale.toUpperCase()}
+            {t(locale)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
