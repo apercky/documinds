@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   console.log(messages);
   try {
     const result = streamText({
-      model: anthropicModel,
+      model: openaiModel,
       messages,
     });
 
