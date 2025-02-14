@@ -235,6 +235,35 @@ export class VectorStoreManager {
     // Add updated documents
     await vectorStore.addDocuments(documents);
   }
+
+  /**
+   * Gets all collections ordered by name
+   */
+  async getCollections(): Promise<{ name: string; documentCount: number }[]> {
+    const collections = await this.client.listCollections();
+
+    // Get count for each collection
+    const collectionsWithCount = await Promise.all(
+      collections.map(async (col) => {
+        const collection = await this.client.getCollection({
+          name: col,
+          embeddingFunction: {
+            generate: (texts: string[]) =>
+              this.embeddings.embedDocuments(texts),
+          },
+        });
+        const count = await collection.count();
+
+        return {
+          name: col,
+          documentCount: count,
+        };
+      })
+    );
+
+    // Sort by name
+    return collectionsWithCount.sort((a, b) => a.name.localeCompare(b.name));
+  }
 }
 
 // Export singleton instance
