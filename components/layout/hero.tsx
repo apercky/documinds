@@ -25,7 +25,7 @@ export function Hero() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-20rem)] text-foreground">
+    <div className="flex flex-col items-center justify-center h-[calc(100vh-11rem)]  text-foreground">
       <motion.main
         variants={container}
         initial="hidden"
