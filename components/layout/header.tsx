@@ -13,8 +13,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted/40 dark:bg-muted/40 shadow-md backdrop-blur-xl">
-      <div className="container flex h-20 items-center">
-        <div className="p-4 flex">
+      <div className="flex w-full px-8 h-20 items-center">
+        <div className="flex items-center">
           <Link
             href="/"
             locale={locale}
