@@ -32,7 +32,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
   // If no markdown is detected, return plain text
   if (!containsMarkdown(content)) {
     return (
-      <div className={cn("whitespace-pre-wrap break-words", className)}>
+      <div className={cn("whitespace-pre-wrap break-words text-sm", className)}>
         {content}
       </div>
     );
@@ -45,7 +45,9 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
       const isInline = !match;
 
       return isInline ? (
-        <code className={cn("bg-muted px-1 py-0.5 rounded-md", className)}>
+        <code
+          className={cn("bg-muted px-1 py-0.5 rounded-md text-xs", className)}
+        >
           {children}
         </code>
       ) : (
@@ -54,7 +56,13 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
             language={language}
             style={oneDark}
             PreTag="div"
-            customStyle={{ margin: 0, background: "transparent" }}
+            customStyle={{
+              margin: 0,
+              background: "transparent",
+              fontSize: "0.8rem",
+              padding: "0.5rem",
+            }}
+            wrapLongLines={true}
           >
             {String(children).replace(/\n$/, "")}
           </SyntaxHighlighter>
@@ -63,68 +71,68 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
     },
     // Customize other markdown elements to match our design
     h1: ({ children, ...props }) => (
-      <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0" {...props}>
+      <h1 className="text-lg font-bold mt-4 mb-2 first:mt-0" {...props}>
         {children}
       </h1>
     ),
     h2: ({ children, ...props }) => (
-      <h2 className="text-xl font-bold mt-5 mb-3" {...props}>
+      <h2 className="text-base font-bold mt-3 mb-2" {...props}>
         {children}
       </h2>
     ),
     h3: ({ children, ...props }) => (
-      <h3 className="text-lg font-bold mt-4 mb-2" {...props}>
+      <h3 className="text-sm font-bold mt-2 mb-1" {...props}>
         {children}
       </h3>
     ),
     p: ({ children, ...props }) => (
       <p
-        className="my-2 break-words overflow-wrap-anywhere whitespace-pre-line"
+        className="my-1 break-words overflow-wrap-anywhere whitespace-pre-line text-sm"
         {...props}
       >
         {children}
       </p>
     ),
     ul: ({ children, ...props }) => (
-      <ul className="my-2 list-disc pl-6" {...props}>
+      <ul className="my-1 list-disc pl-4 text-sm" {...props}>
         {children}
       </ul>
     ),
     ol: ({ children, ...props }) => (
-      <ol className="my-2 list-decimal pl-6" {...props}>
+      <ol className="my-1 list-decimal pl-4 text-sm" {...props}>
         {children}
       </ol>
     ),
     blockquote: ({ children, ...props }) => (
       <blockquote
-        className="border-l-2 border-border pl-4 my-2 italic"
+        className="border-l-2 border-border pl-3 my-1 italic text-sm"
         {...props}
       >
         {children}
       </blockquote>
     ),
     a: ({ children, ...props }) => (
-      <a className="text-primary hover:text-primary/80 underline" {...props}>
+      <a
+        className="text-primary hover:text-primary/80 underline text-sm"
+        {...props}
+      >
         {children}
       </a>
     ),
     pre: ({ children, ...props }) => (
-      <pre
-        className="my-2 overflow-x-auto max-w-[calc(100vw-4rem)] whitespace-pre-wrap"
-        {...props}
-      >
+      <pre className="my-1 whitespace-pre-wrap text-xs" {...props}>
         {children}
       </pre>
     ),
     img: ({ ...props }) => (
-      <img className="rounded-lg my-4 max-w-full h-auto" {...props} />
+      <img className="rounded-lg my-2 max-w-full h-auto" {...props} />
     ),
   };
 
   return (
     <div
       className={cn(
-        "prose prose-sm dark:prose-invert max-w-none break-words",
+        "prose prose-xs dark:prose-invert max-w-none break-words text-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
         className
       )}
     >

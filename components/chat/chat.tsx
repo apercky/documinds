@@ -43,7 +43,10 @@ export default function Chat() {
           ))}
 
           {isLoading && (
-            <ChatBubble variant="received">
+            <ChatBubble
+              variant="received"
+              className="justify-center items-center"
+            >
               <ChatBubbleAvatar className="h-8 w-8 shrink-0" fallback="AI" />
               <ChatBubbleMessage isLoading />
             </ChatBubble>
