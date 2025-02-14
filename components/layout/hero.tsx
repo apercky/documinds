@@ -1,12 +1,13 @@
 "use client";
 
-import { Link } from "@/app/i18n/routing";
-
+import { useRouter } from "@/app/i18n/routing";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { InteractiveHoverButton } from "../magicui/interactive-hover-button";
 
 export function Hero() {
+  const router = useRouter();
   const t = useTranslations("HomePage");
 
   const container = {
@@ -25,12 +26,12 @@ export function Hero() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-[calc(100vh-11rem)]  text-foreground">
+    <div className="flex items-center justify-center min-h-[calc(100vh-7.5rem)]">
       <motion.main
         variants={container}
         initial="hidden"
         animate="show"
-        className="flex flex-col items-center justify-center gap-8 p-8"
+        className="flex flex-col items-center justify-center gap-8"
       >
         <motion.div variants={item}>
           <Image
@@ -62,31 +63,14 @@ export function Hero() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <Link
-            href="/dashboard"
-            className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium transition-all bg-background border border-primary rounded-lg group"
-          >
-            <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-primary group-hover:translate-x-0 ease">
-              <svg
-                className="w-6 h-6 text-background"
-                fill="none"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  stroke="currentColor"
-                ></path>
-              </svg>
-            </span>
-            <span className="absolute flex items-center justify-center w-full h-full text-primary transition-all duration-300 transform group-hover:translate-x-full ease">
+          <div className="flex items-center justify-center pb-4">
+            <InteractiveHoverButton
+              onClick={() => router.push("/dashboard")}
+              className=" items-center justify-center px-10 py-3 overflow-hidden font-medium transition-all bg-background text-foreground border border-primary rounded-lg group"
+            >
               {t("gotoDashboard")}
-            </span>
-            <span className="relative invisible">{t("gotoDashboard")}</span>
-          </Link>
+            </InteractiveHoverButton>
+          </div>
         </motion.div>
       </motion.main>
     </div>
