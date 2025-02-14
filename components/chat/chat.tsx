@@ -16,7 +16,7 @@ export default function Chat() {
     useChat();
 
   return (
-    <div className="mt-6 h-[calc(100vh-100px)] bg-background rounded-lg flex flex-col">
+    <div className="mt-6 h-[calc(100vh-75px)] bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg flex flex-col">
       <div className="flex-1 w-full overflow-hidden [&_*]:scrollbar-none">
         <ChatMessageList className="scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {messages.map((message) => (
