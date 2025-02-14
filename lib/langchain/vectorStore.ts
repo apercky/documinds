@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 // utils/vectorStore.ts
 import { Chroma } from "@langchain/community/vectorstores/chroma";
@@ -52,21 +52,14 @@ class ChromaClientManager {
 
   public static getInstance(): ChromaClient {
     if (!ChromaClientManager.instance) {
-      ChromaClientManager.instance = new ChromaClient({
-        path: ChromaClientManager.config.url,
-        auth: ChromaClientManager.config.auth,
-      });
+      ChromaClientManager.instance = new ChromaClient();
     }
     return ChromaClientManager.instance;
   }
 
   public static updateConfig(config: Partial<ChromaConfig>): void {
     ChromaClientManager.config = { ...ChromaClientManager.config, ...config };
-    // Reset instance to apply new config
-    ChromaClientManager.instance = new ChromaClient({
-      path: ChromaClientManager.config.url,
-      auth: ChromaClientManager.config.auth,
-    });
+    ChromaClientManager.instance = new ChromaClient();
   }
 }
 
@@ -129,7 +122,6 @@ export class VectorStoreManager {
       // Try to get existing collection
       const vectorStore = await Chroma.fromExistingCollection(this.embeddings, {
         collectionName,
-        url: ChromaClientManager.config.url,
         collectionMetadata: {
           "hnsw:space": distance,
           ...metadata,
@@ -138,11 +130,9 @@ export class VectorStoreManager {
       return vectorStore;
     } catch (error) {
       console.warn(error);
-      // Use underscore to indicate intentionally unused parameter
       // If collection doesn't exist, create a new one
       return await Chroma.fromDocuments([], this.embeddings, {
         collectionName,
-        url: ChromaClientManager.config.url,
         collectionMetadata: {
           "hnsw:space": distance,
           ...metadata,
