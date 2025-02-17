@@ -48,68 +48,96 @@ const data = {
 const createNavData = (
   collections: typeof data.collections,
   pathname: string,
-  currentCollection: string | null
-) => ({
-  navMain: [
-    {
-      title: "Collections",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: pathname.startsWith("/dashboard"),
-      items: collections.map((collection) => ({
-        title: collection.title,
-        url: `/dashboard?collection=${collection.id}`,
-        isActive: currentCollection === collection.id,
-      })),
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "/dashboard",
-        },
-        {
-          title: "Get Started",
-          url: "/dashboard",
-        },
-        {
-          title: "Tutorials",
-          url: "/dashboard",
-        },
-        {
-          title: "Changelog",
-          url: "/dashboard",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "/dashboard/admin",
-        },
-        {
-          title: "Team",
-          url: "/dashboard/admin",
-        },
-        {
-          title: "Billing",
-          url: "/dashboard/admin",
-        },
-        {
-          title: "Limits",
-          url: "/dashboard/admin",
-        },
-      ],
-    },
-  ],
-});
+  currentCollection: string | null,
+  locale: string
+) => {
+  // Helper function to check if a path matches the current pathname
+  const isPathActive = (path: string) => {
+    const localePath = `/${locale}${path}`;
+    return pathname === localePath;
+  };
+
+  // Helper function to check if a section is active
+  const isSectionActive = (path: string) => {
+    const localePath = `/${locale}${path}`;
+    return pathname.startsWith(localePath);
+  };
+
+  return {
+    navMain: [
+      {
+        title: "Collections",
+        url: "#",
+        icon: SquareTerminal,
+        isActive:
+          isPathActive("/dashboard") ||
+          (isSectionActive("/dashboard") && !pathname.includes("/dashboard/")),
+        items: collections.map((collection) => ({
+          title: collection.title,
+          url: `/dashboard?collection=${collection.id}`,
+          isActive: currentCollection === collection.id,
+        })),
+      },
+      {
+        title: "Documentation",
+        url: "#",
+        icon: BookOpen,
+        isActive:
+          isSectionActive("/dashboard/") && !pathname.includes("/admin"),
+        items: [
+          {
+            title: "Introduction",
+            url: "/dashboard/introduction",
+            isActive: isPathActive("/dashboard/introduction"),
+          },
+          {
+            title: "Get Started",
+            url: "/dashboard/get-started",
+            isActive: isPathActive("/dashboard/get-started"),
+          },
+          {
+            title: "Tutorials",
+            url: "/dashboard/tutorials",
+            isActive: isPathActive("/dashboard/tutorials"),
+          },
+          {
+            title: "Changelog",
+            url: "/dashboard/changelog",
+            isActive: isPathActive("/dashboard/changelog"),
+          },
+        ],
+      },
+      {
+        title: "Settings",
+        url: "#",
+        icon: Settings2,
+        isActive: isSectionActive("/dashboard/admin"),
+        items: [
+          {
+            title: "General",
+            url: "/dashboard/admin",
+            isActive: isPathActive("/dashboard/admin"),
+          },
+          {
+            title: "Team",
+            url: "/dashboard/admin/team",
+            isActive: isPathActive("/dashboard/admin/team"),
+          },
+          {
+            title: "Billing",
+            url: "/dashboard/admin/billing",
+            isActive: isPathActive("/dashboard/admin/billing"),
+          },
+          {
+            title: "Limits",
+            url: "/dashboard/admin/limits",
+            isActive: isPathActive("/dashboard/admin/limits"),
+          },
+        ],
+      },
+    ],
+  };
+};
 
 function SidebarLogo() {
   const { state } = useSidebar();
@@ -143,8 +171,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const currentCollection =
     searchParams.get("collection") || data.collections[0].id;
+  const locale = useLocale();
 
-  const navData = createNavData(data.collections, pathname, currentCollection);
+  const navData = createNavData(
+    data.collections,
+    pathname,
+    currentCollection,
+    locale
+  );
 
   return (
     <Sidebar collapsible="icon" {...props}>

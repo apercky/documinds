@@ -1,40 +1,68 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
+import { vectorStore } from "@/lib/langchain/vectorStore";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  // custom settings, e.g.
-  compatibility: "strict", // strict mode, enable when using the OpenAI API
+  compatibility: "strict",
 });
 
-const ANTHROPIC_MODEL = "claude-3-5-sonnet-20240620";
 const OPENAI_MODEL = "gpt-4o-mini-2024-07-18";
-
-const anthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  // custom settings
-});
+const MAX_CONTEXT_DOCS = 4;
 
 const openaiModel = openai(OPENAI_MODEL);
-const anthropicModel = anthropic(ANTHROPIC_MODEL);
+
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages, collection } = await req.json();
 
-  console.log(messages);
+  if (!collection) {
+    return new Response("Collection name is required", { status: 400 });
+  }
+
   try {
+    // Get the last user message for similarity search
+    const lastUserMessage = messages
+      .slice()
+      .reverse()
+      .find((message: { role: string }) => message.role === "user");
+
+    if (!lastUserMessage) {
+      return new Response("No user message found", { status: 400 });
+    }
+
+    // Perform similarity search on the collection
+    const searchResults = await vectorStore.similaritySearch(
+      lastUserMessage.content,
+      collection,
+      MAX_CONTEXT_DOCS
+    );
+
+    // Create context from search results
+    const context = searchResults.map((doc) => doc.pageContent).join("\n\n");
+
+    // Add system message with context
+    const augmentedMessages = [
+      {
+        role: "system",
+        content: `You are a helpful AI assistant. Use the following context to answer the user's questions:\n\n${context}`,
+      },
+      ...messages,
+    ];
+
     const result = streamText({
       model: openaiModel,
-      messages,
+      messages: augmentedMessages,
     });
 
-    console.log(result);
     return result.toDataStreamResponse();
   } catch (error) {
-    console.error(error);
-    return new Response("Internal Server Error", { status: 500 });
+    console.error("Chat API error:", error);
+    return new Response(
+      error instanceof Error ? error.message : "Internal Server Error",
+      { status: 500 }
+    );
   }
 }

@@ -49,7 +49,10 @@ export function NavMain({ items }: NavMainProps) {
           item.isActive || item.items?.some((subItem) => subItem.isActive)
       )
       .map((item) => item.title);
-    setOpenSections(activeSections);
+
+    if (activeSections.length > 0) {
+      setOpenSections(activeSections);
+    }
   }, [items]);
 
   return (
