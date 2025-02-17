@@ -1,11 +1,12 @@
 "use client";
 
-import { BookOpen, Settings2, SquareTerminal } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { BookOpen, PlusCircle, Settings2, SquareTerminal } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as React from "react";
 
 import { NavUser } from "./nav-user";
 
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -169,9 +170,17 @@ function SidebarLogo() {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const router = useRouter();
   const currentCollection =
     searchParams.get("collection") || data.collections[0].id;
   const locale = useLocale();
+
+  const handleNewChat = () => {
+    // Preserve the collection but reset the chat by forcing a new URL
+    router.push(
+      `/${locale}/dashboard?collection=${currentCollection}&new=${Date.now()}`
+    );
+  };
 
   const navData = createNavData(
     data.collections,
@@ -186,6 +195,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
+        <div className="flex justify-end items-center px-4 mb-2 mt-4">
+          <Button
+            onClick={handleNewChat}
+            className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
+            size="sm"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span className="font-medium">New Chat</span>
+          </Button>
+        </div>
         <NavMain items={navData.navMain} />
       </SidebarContent>
       <SidebarFooter>
