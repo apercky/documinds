@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -77,9 +78,7 @@ export function CollectionsTab() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-8">Loading collections...</div>
-    );
+    return <LoadingIndicator text="Loading collections..." className="py-8" />;
   }
 
   if (error) {
