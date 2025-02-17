@@ -14,13 +14,25 @@ const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-small";
 const embeddings = new OpenAIEmbeddings({
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: OPENAI_EMBEDDING_MODEL_NAME,
+  batchSize: 512,
   stripNewLines: true,
   maxConcurrency: 5,
   timeout: 10000,
 });
 
 // Create ChromaDB client
-const client = new ChromaClient();
+const client = new ChromaClient({
+  path: process.env.CHROMA_URL || "http://localhost:8000",
+  ...(process.env.NODE_ENV === "production" && {
+    auth: {
+      provider: "basic",
+      credentials: {
+        username: process.env.CHROMA_USER,
+        password: process.env.CHROMA_PASSWORD,
+      },
+    },
+  }),
+});
 
 // Vector store manager functions
 export const vectorStore = {
@@ -67,7 +79,15 @@ export const vectorStore = {
     // Process documents in batches
     for (let i = 0; i < documents.length; i += batchSize) {
       const batch = documents.slice(i, i + batchSize);
-      await vectorStore.addDocuments(batch);
+      await vectorStore.addDocuments(batch, {
+        ids: batch.map((doc) => doc.metadata?.id || crypto.randomUUID()),
+        documents: batch.map((doc) => doc.pageContent),
+        metadatas: batch.map((doc) => doc.metadata),
+        uris: batch.map((doc) => doc.metadata?.uri || ""),
+        embeddings: batch.map((doc) =>
+          embeddings.embedDocuments([doc.pageContent])
+        ),
+      });
       console.log(
         `Processed batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(
           documents.length / batchSize
