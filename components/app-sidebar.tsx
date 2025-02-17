@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Settings2, SquareTerminal } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
 import type * as React from "react";
 
 import { NavUser } from "./nav-user";
@@ -27,28 +28,40 @@ const data = {
     email: "antonio_perchinumio@otb.net",
     avatar: "/avatars/shadcn.jpg",
   },
+  collections: [
+    {
+      title: "OneStore",
+      id: "onestore",
+    },
+    {
+      title: "RBO",
+      id: "rbo",
+    },
+    {
+      title: "Clienteling",
+      id: "clienteling",
+    },
+  ],
+};
+
+// Create navigation data with collections
+const createNavData = (
+  collections: typeof data.collections,
+  pathname: string,
+  currentCollection: string | null
+) => ({
   navMain: [
     {
       title: "Collections",
       url: "#",
       icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "OneStore",
-          url: "/dashboard",
-        },
-        {
-          title: "RBO",
-          url: "/dashboard",
-        },
-        {
-          title: "Clienteling",
-          url: "/dashboard",
-        },
-      ],
+      isActive: pathname.startsWith("/dashboard"),
+      items: collections.map((collection) => ({
+        title: collection.title,
+        url: `/dashboard?collection=${collection.id}`,
+        isActive: currentCollection === collection.id,
+      })),
     },
-
     {
       title: "Documentation",
       url: "#",
@@ -96,24 +109,7 @@ const data = {
       ],
     },
   ],
-  // projects: [
-  //   {
-  //     name: "Design Engineering",
-  //     url: "#",
-  //     icon: Frame,
-  //   },
-  //   {
-  //     name: "Sales & Marketing",
-  //     url: "#",
-  //     icon: PieChart,
-  //   },
-  //   {
-  //     name: "Travel",
-  //     url: "#",
-  //     icon: Map,
-  //   },
-  // ],
-};
+});
 
 function SidebarLogo() {
   const { state } = useSidebar();
@@ -143,14 +139,20 @@ function SidebarLogo() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const currentCollection =
+    searchParams.get("collection") || data.collections[0].id;
+
+  const navData = createNavData(data.collections, pathname, currentCollection);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
-        {/* <NavProjects projects={data.projects} /> */}
-        <NavMain items={data.navMain} />
+        <NavMain items={navData.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
