@@ -1,17 +1,8 @@
 "use client";
 
-import {
-  BookOpen,
-  Bot,
-  Frame,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
+import { BookOpen, Settings2, SquareTerminal } from "lucide-react";
 import type * as React from "react";
 
-import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
 
 import {
@@ -32,50 +23,32 @@ import { NavMain } from "./nav-main";
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Antonio Perchinumio",
+    email: "antonio_perchinumio@otb.net",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
-      title: "Playground",
+      title: "Collections",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "OneStore",
+          url: "/dashboard",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "RBO",
+          url: "/dashboard",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Clienteling",
+          url: "/dashboard",
         },
       ],
     },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
+
     {
       title: "Documentation",
       url: "#",
@@ -83,19 +56,19 @@ const data = {
       items: [
         {
           title: "Introduction",
-          url: "#",
+          url: "/dashboard",
         },
         {
           title: "Get Started",
-          url: "#",
+          url: "/dashboard",
         },
         {
           title: "Tutorials",
-          url: "#",
+          url: "/dashboard",
         },
         {
           title: "Changelog",
-          url: "#",
+          url: "/dashboard",
         },
       ],
     },
@@ -106,40 +79,40 @@ const data = {
       items: [
         {
           title: "General",
-          url: "#",
+          url: "/dashboard/admin",
         },
         {
           title: "Team",
-          url: "#",
+          url: "/dashboard/admin",
         },
         {
           title: "Billing",
-          url: "#",
+          url: "/dashboard/admin",
         },
         {
           title: "Limits",
-          url: "#",
+          url: "/dashboard/admin",
         },
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+  // projects: [
+  //   {
+  //     name: "Design Engineering",
+  //     url: "#",
+  //     icon: Frame,
+  //   },
+  //   {
+  //     name: "Sales & Marketing",
+  //     url: "#",
+  //     icon: PieChart,
+  //   },
+  //   {
+  //     name: "Travel",
+  //     url: "#",
+  //     icon: Map,
+  //   },
+  // ],
 };
 
 function SidebarLogo() {
@@ -176,7 +149,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>

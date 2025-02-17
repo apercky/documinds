@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AdminPage() {
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 flex flex-col gap-4 px-8">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
       <Tabs defaultValue="collections" className="w-full">
