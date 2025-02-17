@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import ReactMarkdown, { Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -13,6 +14,17 @@ interface MarkdownMessageProps {
 }
 
 export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
+  // Preprocess content to remove excessive newlines
+  const processContent = (text: string): string => {
+    return (
+      text
+        // Replace multiple blank lines with a single one
+        .replace(/\n\s*\n\s*\n/g, "\n\n")
+        // Trim whitespace at the start and end
+        .trim()
+    );
+  };
+
   // Function to detect if text contains markdown
   const containsMarkdown = (text: string): boolean => {
     const markdownPatterns = [
@@ -29,17 +41,20 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
     return markdownPatterns.some((pattern) => pattern.test(text));
   };
 
+  const processedContent = processContent(content);
+
   // If no markdown is detected, return plain text
-  if (!containsMarkdown(content)) {
+  if (!containsMarkdown(processedContent)) {
     return (
-      <div className={cn("whitespace-pre-wrap break-words text-sm", className)}>
-        {content}
+      <div className={cn("whitespace-pre-line break-words text-sm", className)}>
+        {processedContent}
       </div>
     );
   }
 
   const components: Components = {
-    code({ className, children }) {
+    // Previous component definitions remain the same
+    code({ className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || "");
       const language = match ? match[1] : "";
       const isInline = !match;
@@ -47,6 +62,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
       return isInline ? (
         <code
           className={cn("bg-muted px-1 py-0.5 rounded-md text-xs", className)}
+          {...props}
         >
           {children}
         </code>
@@ -69,7 +85,6 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
         </div>
       );
     },
-    // Customize other markdown elements to match our design
     h1: ({ children, ...props }) => (
       <h1 className="text-lg font-bold mt-4 mb-2 first:mt-0" {...props}>
         {children}
@@ -86,22 +101,24 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
       </h3>
     ),
     p: ({ children, ...props }) => (
-      <p
-        className="my-1 break-words overflow-wrap-anywhere whitespace-pre-line text-sm"
-        {...props}
-      >
+      <p className="my-1 break-words overflow-wrap-anywhere text-sm" {...props}>
         {children}
       </p>
     ),
     ul: ({ children, ...props }) => (
-      <ul className="my-1 list-disc pl-4 text-sm" {...props}>
+      <ul className="my-1 list-disc pl-4 text-sm space-y-1" {...props}>
         {children}
       </ul>
     ),
     ol: ({ children, ...props }) => (
-      <ol className="my-1 list-decimal pl-4 text-sm" {...props}>
+      <ol className="my-1 list-decimal pl-4 text-sm space-y-1" {...props}>
         {children}
       </ol>
+    ),
+    li: ({ children, ...props }) => (
+      <li className="my-0.5" {...props}>
+        {children}
+      </li>
     ),
     blockquote: ({ children, ...props }) => (
       <blockquote
@@ -120,13 +137,22 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
       </a>
     ),
     pre: ({ children, ...props }) => (
-      <pre className="my-1 whitespace-pre-wrap text-xs" {...props}>
+      <pre className="my-1 text-xs" {...props}>
         {children}
       </pre>
     ),
-    img: ({ ...props }) => (
-      <img className="rounded-lg my-2 max-w-full h-auto" {...props} />
-    ),
+    img: ({ src, alt }) => {
+      if (!src) return null;
+      return (
+        <Image
+          src={src}
+          alt={alt || ""}
+          width={800}
+          height={400}
+          className="rounded-lg my-2 max-w-full h-auto"
+        />
+      );
+    },
   };
 
   return (
@@ -141,7 +167,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
         rehypePlugins={[rehypeRaw]}
         components={components}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );

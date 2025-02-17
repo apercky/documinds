@@ -14,6 +14,30 @@ export async function GET() {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const { name } = await request.json();
+
+    if (!name) {
+      return NextResponse.json(
+        { error: "Collection name is required" },
+        { status: 400 }
+      );
+    }
+
+    // Create a new collection
+    await vectorStore.createOrGetCollection({ collectionName: name });
+
+    return NextResponse.json({ message: "Collection created successfully" });
+  } catch (error) {
+    console.error("Error creating collection:", error);
+    return NextResponse.json(
+      { error: "Failed to create collection" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const { collectionName } = await request.json();

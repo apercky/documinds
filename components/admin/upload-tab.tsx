@@ -10,22 +10,36 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { CreateCollectionDialog } from "./create-collection-dialog";
+
+interface Collection {
+  name: string;
+  documentCount: number;
+}
+
+const collectionNameSchema = z
+  .string()
+  .min(3, "Collection name must be at least 3 characters")
+  .max(63, "Collection name must be less than 63 characters")
+  .regex(
+    /^[a-z0-9-]+$/,
+    "Only lowercase letters, numbers, and hyphens are allowed"
+  );
 
 const uploadSchema = z.object({
-  collectionName: z
-    .string()
-    .min(3, "Collection name must be at least 3 characters")
-    .max(63, "Collection name must be less than 63 characters")
-    .regex(
-      /^[a-z0-9-]+$/,
-      "Only lowercase letters, numbers, and hyphens are allowed"
-    ),
+  collectionName: collectionNameSchema,
 });
 
 type UploadFormValues = z.infer<typeof uploadSchema>;
@@ -34,6 +48,7 @@ export function UploadTab() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [collections, setCollections] = useState<Collection[]>([]);
 
   const form = useForm<UploadFormValues>({
     resolver: zodResolver(uploadSchema),
@@ -41,6 +56,23 @@ export function UploadTab() {
       collectionName: "",
     },
   });
+
+  const fetchCollections = async () => {
+    try {
+      const response = await fetch("/api/store/collections");
+      if (!response.ok) throw new Error("Failed to fetch collections");
+      const collections = await response.json();
+      setCollections(collections);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch collections"
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchCollections();
+  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
@@ -57,6 +89,12 @@ export function UploadTab() {
     },
   });
 
+  const handleCollectionCreated = async (collectionName: string) => {
+    setError(null);
+    await fetchCollections();
+    form.setValue("collectionName", collectionName);
+  };
+
   const handleUpload = async (values: UploadFormValues) => {
     if (files.length === 0) {
       setError("Please select files to upload");
@@ -67,27 +105,15 @@ export function UploadTab() {
     setError(null);
 
     try {
-      const documents = await Promise.all(
-        files.map(async (file) => {
-          const text = await file.text();
-          return {
-            content: text,
-            metadata: {
-              source: file.name,
-              type: file.type,
-              size: file.size,
-            },
-          };
-        })
-      );
+      const formData = new FormData();
+      formData.append("collectionName", values.collectionName);
+      files.forEach((file) => {
+        formData.append("file", file);
+      });
 
       const response = await fetch("/api/store/upload", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          documents,
-          collectionName: values.collectionName,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -96,6 +122,7 @@ export function UploadTab() {
 
       setFiles([]);
       form.reset();
+      await fetchCollections();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to upload documents"
@@ -114,23 +141,45 @@ export function UploadTab() {
               onSubmit={form.handleSubmit(handleUpload)}
               className="space-y-6"
             >
-              <FormField
-                control={form.control}
-                name="collectionName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Collection Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter collection name"
-                        {...field}
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <CreateCollectionDialog
+                    onCollectionCreated={handleCollectionCreated}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="collectionName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Collection Name</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                         disabled={uploading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a collection" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {collections.map((collection) => (
+                            <SelectItem
+                              key={collection.name}
+                              value={collection.name}
+                            >
+                              {collection.name} ({collection.documentCount}{" "}
+                              docs)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div
                 {...getRootProps()}
