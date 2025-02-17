@@ -18,6 +18,7 @@ export default function Chat() {
 
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
+      api: "/api/chat/rag",
       body: {
         collection,
       },

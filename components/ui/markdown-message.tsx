@@ -78,7 +78,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
               fontSize: "0.8rem",
               padding: "0.5rem",
             }}
-            wrapLongLines={true}
+            //wrapLongLines={true}
           >
             {String(children).replace(/\n$/, "")}
           </SyntaxHighlighter>
@@ -106,17 +106,23 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
       </p>
     ),
     ul: ({ children, ...props }) => (
-      <ul className="my-1 list-disc pl-4 text-sm space-y-1" {...props}>
+      <ul
+        className="my-1 list-disc pl-4 text-sm space-y-1 [&>li]:whitespace-normal"
+        {...props}
+      >
         {children}
       </ul>
     ),
     ol: ({ children, ...props }) => (
-      <ol className="my-1 list-decimal pl-4 text-sm space-y-1" {...props}>
+      <ol
+        className="my-1 list-decimal pl-4 text-sm space-y-1 [&>li]:whitespace-normal"
+        {...props}
+      >
         {children}
       </ol>
     ),
     li: ({ children, ...props }) => (
-      <li className="my-0.5" {...props}>
+      <li className="my-0.5 whitespace-normal" {...props}>
         {children}
       </li>
     ),
@@ -158,7 +164,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
   return (
     <div
       className={cn(
-        "prose prose-xs dark:prose-invert max-w-none break-words text-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+        "prose prose-xs dark:prose-invert max-w-none break-words text-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_li]:whitespace-normal",
         className
       )}
     >
