@@ -3,7 +3,6 @@ import "server-only";
 // utils/vectorStore.ts
 import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { Document } from "@langchain/core/documents";
-import { Embeddings } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { ChromaClient } from "chromadb";
@@ -11,127 +10,41 @@ import { ChromaClient } from "chromadb";
 // Latest model as of 2024
 const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-small";
 
-// Types for better type safety
-interface ChromaConfig {
-  url: string;
-  auth: {
-    provider: "basic";
-    credentials: {
-      username: string;
-      password: string;
-    };
-  };
-}
-
-interface CollectionConfig {
-  collectionName: string;
-  metadata?: Record<string, unknown>;
-  distance?: "cosine" | "l2" | "ip";
-}
-
-/**
- * Default configuration for the ChromaDB client
- */
-const DEFAULT_CONFIG: ChromaConfig = {
-  url: process.env.CHROMA_URL || "http://localhost:8000",
-  auth: {
-    provider: "basic",
-    credentials: {
-      username: process.env.CHROMA_USER || "your_username",
-      password: process.env.CHROMA_PASSWORD || "your_strong_password",
-    },
-  },
-};
-
-/**
- * Singleton class to manage ChromaDB client instance
- */
-class ChromaClientManager {
-  private static instance: ChromaClient;
-  public static config: ChromaConfig = DEFAULT_CONFIG;
-
-  public static getInstance(): ChromaClient {
-    if (!ChromaClientManager.instance) {
-      ChromaClientManager.instance = new ChromaClient();
-    }
-    return ChromaClientManager.instance;
-  }
-
-  public static updateConfig(config: Partial<ChromaConfig>): void {
-    ChromaClientManager.config = { ...ChromaClientManager.config, ...config };
-    ChromaClientManager.instance = new ChromaClient();
-  }
-}
-
-/**
- * OpenAI embeddings instance with configurable parameters
- */
-export const embeddings = new OpenAIEmbeddings({
+// Create OpenAI embeddings instance
+const embeddings = new OpenAIEmbeddings({
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: OPENAI_EMBEDDING_MODEL_NAME,
-  stripNewLines: true, // Remove unnecessary newlines
-  maxConcurrency: 5, // Limit concurrent requests
-  timeout: 10000, // 10 second timeout
+  stripNewLines: true,
+  maxConcurrency: 5,
+  timeout: 10000,
 });
 
-/**
- * Class to manage vector store operations
- */
-export class VectorStoreManager {
-  private client: ChromaClient;
-  private embeddings: Embeddings;
+// Create ChromaDB client
+const client = new ChromaClient();
 
-  constructor(embeddings: Embeddings = new OpenAIEmbeddings()) {
-    this.client = ChromaClientManager.getInstance();
-    this.embeddings = embeddings;
-  }
-
+// Vector store manager functions
+export const vectorStore = {
   /**
    * Creates or retrieves a collection with retry mechanism
    */
-  async createOrGetCollection(config: CollectionConfig): Promise<VectorStore> {
-    const maxRetries = 3;
-    let lastError: Error | null = null;
-
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        return await this.attemptCollectionCreation(config);
-      } catch (error) {
-        lastError = error as Error;
-        console.warn(`Attempt ${attempt + 1} failed:`, error);
-        await new Promise((resolve) =>
-          setTimeout(resolve, 1000 * Math.pow(2, attempt))
-        );
-      }
-    }
-
-    throw new Error(
-      `Failed to create/get collection after ${maxRetries} attempts: ${lastError?.message}`
-    );
-  }
-
-  /**
-   * Attempts to create or retrieve a collection
-   */
-  private async attemptCollectionCreation(
-    config: CollectionConfig
-  ): Promise<VectorStore> {
+  async createOrGetCollection(config: {
+    collectionName: string;
+    metadata?: Record<string, unknown>;
+    distance?: "cosine" | "l2" | "ip";
+  }): Promise<VectorStore> {
     const { collectionName, metadata = {}, distance = "cosine" } = config;
 
     try {
-      // Try to get existing collection
-      const vectorStore = await Chroma.fromExistingCollection(this.embeddings, {
+      return await Chroma.fromExistingCollection(embeddings, {
         collectionName,
         collectionMetadata: {
           "hnsw:space": distance,
           ...metadata,
         },
       });
-      return vectorStore;
     } catch (error) {
       console.warn(error);
-      // If collection doesn't exist, create a new one
-      return await Chroma.fromDocuments([], this.embeddings, {
+      return await Chroma.fromDocuments([], embeddings, {
         collectionName,
         collectionMetadata: {
           "hnsw:space": distance,
@@ -139,7 +52,7 @@ export class VectorStoreManager {
         },
       });
     }
-  }
+  },
 
   /**
    * Adds documents to a collection with batching
@@ -161,7 +74,7 @@ export class VectorStoreManager {
         )}`
       );
     }
-  }
+  },
 
   /**
    * Performs a similarity search with metadata filtering
@@ -174,14 +87,14 @@ export class VectorStoreManager {
   ): Promise<Document[]> {
     const vectorStore = await this.createOrGetCollection({ collectionName });
     return await vectorStore.similaritySearch(query, k, filter);
-  }
+  },
 
   /**
    * Deletes a collection and all its documents
    */
   async deleteCollection(collectionName: string): Promise<void> {
-    await this.client.deleteCollection({ name: collectionName });
-  }
+    await client.deleteCollection({ name: collectionName });
+  },
 
   /**
    * Gets collection statistics
@@ -190,10 +103,10 @@ export class VectorStoreManager {
     documentCount: number;
     metadata: Record<string, unknown>;
   }> {
-    const collection = await this.client.getCollection({
+    const collection = await client.getCollection({
       name: collectionName,
       embeddingFunction: {
-        generate: (texts: string[]) => this.embeddings.embedDocuments(texts),
+        generate: (texts: string[]) => embeddings.embedDocuments(texts),
       },
     });
     const count = await collection.count();
@@ -201,45 +114,23 @@ export class VectorStoreManager {
 
     return {
       documentCount: count,
-      metadata: metadata,
+      metadata,
     };
-  }
-
-  /**
-   * Updates documents in a collection
-   */
-  async updateDocuments(
-    documents: Document[],
-    collectionName: string,
-    ids: string[]
-  ): Promise<void> {
-    if (documents.length !== ids.length) {
-      throw new Error("Number of documents must match number of IDs");
-    }
-
-    const vectorStore = await this.createOrGetCollection({ collectionName });
-
-    // Delete existing documents
-    await vectorStore.delete({ ids });
-
-    // Add updated documents
-    await vectorStore.addDocuments(documents);
-  }
+  },
 
   /**
    * Gets all collections ordered by name
    */
   async getCollections(): Promise<{ name: string; documentCount: number }[]> {
-    const collections = await this.client.listCollections();
+    const collections = await client.listCollections();
 
     // Get count for each collection
     const collectionsWithCount = await Promise.all(
       collections.map(async (col) => {
-        const collection = await this.client.getCollection({
+        const collection = await client.getCollection({
           name: col,
           embeddingFunction: {
-            generate: (texts: string[]) =>
-              this.embeddings.embedDocuments(texts),
+            generate: (texts: string[]) => embeddings.embedDocuments(texts),
           },
         });
         const count = await collection.count();
@@ -253,11 +144,8 @@ export class VectorStoreManager {
 
     // Sort by name
     return collectionsWithCount.sort((a, b) => a.name.localeCompare(b.name));
-  }
-}
-
-// Export singleton instance
-export const vectorStoreManager = new VectorStoreManager(embeddings);
+  },
+};
 
 // Example usage:
 /*

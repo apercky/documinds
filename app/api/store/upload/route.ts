@@ -1,47 +1,51 @@
-import { documentProcessor } from "@/lib/langchain/documentProcessor";
-import { vectorStoreManager } from "@/lib/langchain/vectorStore";
+import { vectorStore } from "@/lib/langchain/vectorStore";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { NextRequest, NextResponse } from "next/server";
-
-type UploadRequest = {
-  documents: Array<{
-    content: string;
-    metadata: {
-      source: string;
-      type: string;
-      size: number;
-    };
-  }>;
-  collectionName: string;
-};
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as UploadRequest;
-    const { documents, collectionName } = body;
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
+    const collectionName = formData.get("collectionName") as string;
 
-    if (!documents || !collectionName) {
+    if (!file || !collectionName) {
       return NextResponse.json(
-        { error: "Missing documents or collection name" },
+        { error: "File and collection name are required" },
         { status: 400 }
       );
     }
 
-    // Split documents into chunks
-    const splitDocs = await documentProcessor.splitDocuments(documents);
+    // Read file content
+    const text = await file.text();
 
-    // Add the chunked documents to the vector store
-    await vectorStoreManager.addDocuments(splitDocs, collectionName);
+    // Split text into chunks
+    const splitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+      chunkOverlap: 200,
+    });
+
+    const splitDocs = await splitter.createDocuments(
+      [text],
+      [
+        {
+          filename: file.name,
+          filetype: file.type,
+          filesize: file.size,
+        },
+      ]
+    );
+
+    // Add documents to collection
+    await vectorStore.addDocuments(splitDocs, collectionName);
 
     return NextResponse.json({
-      success: true,
-      chunks: splitDocs.length,
+      message: "Documents added successfully",
+      documentCount: splitDocs.length,
     });
   } catch (error) {
-    console.error("Upload error:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    console.error("Error uploading documents:", error);
     return NextResponse.json(
-      { error: "Failed to upload documents: " + errorMessage },
+      { error: "Failed to upload documents" },
       { status: 500 }
     );
   }

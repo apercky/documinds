@@ -1,15 +1,14 @@
-import { vectorStoreManager } from "@/lib/langchain/vectorStore";
+import { vectorStore } from "@/lib/langchain/vectorStore";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const collections = await vectorStoreManager.getCollections();
+    const collections = await vectorStore.getCollections();
     return NextResponse.json(collections);
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    console.error("Error getting collections:", error);
     return NextResponse.json(
-      { error: "Failed to fetch collections: " + errorMessage },
+      { error: "Failed to get collections" },
       { status: 500 }
     );
   }
@@ -26,13 +25,12 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await vectorStoreManager.deleteCollection(collectionName);
-    return NextResponse.json({ success: true });
+    await vectorStore.deleteCollection(collectionName);
+    return NextResponse.json({ message: "Collection deleted successfully" });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    console.error("Error deleting collection:", error);
     return NextResponse.json(
-      { error: "Failed to delete collection: " + errorMessage },
+      { error: "Failed to delete collection" },
       { status: 500 }
     );
   }

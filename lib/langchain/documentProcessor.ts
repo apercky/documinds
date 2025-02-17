@@ -16,17 +16,18 @@ interface ProcessedDocument {
   };
 }
 
-export class DocumentProcessor {
-  private textSplitter: RecursiveCharacterTextSplitter;
+// Create text splitter instance
+const textSplitter = new RecursiveCharacterTextSplitter({
+  chunkSize: CHUNK_SIZE,
+  chunkOverlap: CHUNK_OVERLAP,
+  separators: ["\n\n", "\n", ". ", " ", ""],
+});
 
-  constructor() {
-    this.textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: CHUNK_SIZE,
-      chunkOverlap: CHUNK_OVERLAP,
-      separators: ["\n\n", "\n", ". ", " ", ""],
-    });
-  }
-
+// Export document processor functions
+export const documentProcessor = {
+  /**
+   * Splits documents into smaller chunks for processing
+   */
   async splitDocuments(documents: ProcessedDocument[]): Promise<Document[]> {
     const docs = documents.map(
       (doc) =>
@@ -36,9 +37,6 @@ export class DocumentProcessor {
         })
     );
 
-    return await this.textSplitter.splitDocuments(docs);
-  }
-}
-
-// Export singleton instance
-export const documentProcessor = new DocumentProcessor();
+    return await textSplitter.splitDocuments(docs);
+  },
+};
