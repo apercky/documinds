@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CreateCollectionDialog } from "./create-collection-dialog";
 
 interface Collection {
   name: string;
@@ -77,6 +78,12 @@ export function CollectionsTab() {
     }
   };
 
+  const handleCollectionCreated = async (collectionName: string) => {
+    setError(null);
+    await fetchCollections();
+    console.log("Collection created:", collectionName);
+  };
+
   if (loading) {
     return <LoadingIndicator text="Loading collections..." className="py-8" />;
   }
@@ -87,6 +94,11 @@ export function CollectionsTab() {
 
   return (
     <>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-semibold">Collections</h2>
+        <CreateCollectionDialog onCollectionCreated={handleCollectionCreated} />
+      </div>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {collections.map((collection) => (
           <Card key={collection.name}>

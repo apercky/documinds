@@ -10,6 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ProgressWithText } from "@/components/ui/progress-with-text";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ProcessProgress } from "@/lib/langchain/vectorStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -44,11 +46,20 @@ const uploadSchema = z.object({
 
 type UploadFormValues = z.infer<typeof uploadSchema>;
 
+interface UploadProgress extends ProcessProgress {
+  type: "progress" | "status" | "complete" | "error";
+  message?: string;
+  documentCount?: number;
+}
+
 export function UploadTab() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(
+    null
+  );
 
   const form = useForm<UploadFormValues>({
     resolver: zodResolver(uploadSchema),
@@ -56,6 +67,14 @@ export function UploadTab() {
       collectionName: "",
     },
   });
+
+  // Reset form and state when component mounts
+  useEffect(() => {
+    form.reset();
+    setFiles([]);
+    setError(null);
+    setUploadProgress(null);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchCollections = async () => {
     try {
@@ -105,23 +124,54 @@ export function UploadTab() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append("collectionName", values.collectionName);
-      files.forEach((file) => {
-        formData.append("file", file);
-      });
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData();
+        formData.append("collectionName", values.collectionName);
+        formData.append("file", files[i]);
 
-      const response = await fetch("/api/store/upload", {
-        method: "POST",
-        body: formData,
-      });
+        const response = await fetch("/api/store/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to upload documents");
+        if (!response.ok) {
+          throw new Error(`Failed to upload document ${files[i].name}`);
+        }
+
+        // Set up SSE
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (!reader) {
+          throw new Error("Failed to initialize upload stream");
+        }
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6)) as UploadProgress;
+                setUploadProgress(data);
+
+                if (data.type === "error") {
+                  throw new Error(data.message);
+                }
+              } catch (e) {
+                console.error("Failed to parse SSE data:", e);
+              }
+            }
+          }
+        }
       }
 
       setFiles([]);
-      form.reset();
+      form.setValue("collectionName", values.collectionName);
       await fetchCollections();
     } catch (err) {
       setError(
@@ -129,7 +179,18 @@ export function UploadTab() {
       );
     } finally {
       setUploading(false);
+      // Clear progress after a delay
+      setTimeout(() => setUploadProgress(null), 3000);
     }
+  };
+
+  const getProgressValue = (progress: UploadProgress) => {
+    if (progress.type === "status") return 0;
+    if (progress.type === "complete") return 100;
+    if (progress.type === "progress") {
+      return (progress.currentDocument / progress.totalDocuments) * 100;
+    }
+    return 0;
   };
 
   return (
@@ -142,7 +203,8 @@ export function UploadTab() {
               className="space-y-6"
             >
               <div className="space-y-4">
-                <div className="flex justify-end">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">Upload Documents</h2>
                   <CreateCollectionDialog
                     onCollectionCreated={handleCollectionCreated}
                   />
@@ -215,6 +277,18 @@ export function UploadTab() {
                     ))}
                   </ul>
                 </div>
+              )}
+
+              {uploadProgress && (
+                <ProgressWithText
+                  value={getProgressValue(uploadProgress)}
+                  status={
+                    uploadProgress.type === "progress"
+                      ? uploadProgress.details
+                      : uploadProgress.message
+                  }
+                  className="mt-4"
+                />
               )}
 
               {error && <p className="text-red-500 mt-4">{error}</p>}

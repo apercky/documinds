@@ -34,6 +34,17 @@ const client = new ChromaClient({
   }),
 });
 
+export interface ProcessProgress {
+  currentDocument: number;
+  totalDocuments: number;
+  currentBatch: number;
+  totalBatches: number;
+  status: "preparing" | "embedding" | "storing";
+  details: string;
+}
+
+export type ProgressCallback = (progress: ProcessProgress) => void;
+
 // Vector store manager functions
 export const vectorStore = {
   /**
@@ -67,32 +78,78 @@ export const vectorStore = {
   },
 
   /**
-   * Adds documents to a collection with batching
+   * Adds documents to a collection with batching and progress reporting
    */
   async addDocuments(
     documents: Document[],
     collectionName: string,
-    batchSize: number = 100
+    batchSize: number = 100,
+    onProgress?: ProgressCallback
   ): Promise<void> {
     const vectorStore = await this.createOrGetCollection({ collectionName });
+    const totalDocuments = documents.length;
+    const totalBatches = Math.ceil(totalDocuments / batchSize);
 
     // Process documents in batches
     for (let i = 0; i < documents.length; i += batchSize) {
       const batch = documents.slice(i, i + batchSize);
+      const currentBatch = Math.floor(i / batchSize) + 1;
+
+      onProgress?.({
+        currentDocument: i,
+        totalDocuments,
+        currentBatch,
+        totalBatches,
+        status: "preparing",
+        details: `Preparing batch ${currentBatch}/${totalBatches}`,
+      });
+
+      // Prepare embeddings
+      onProgress?.({
+        currentDocument: i,
+        totalDocuments,
+        currentBatch,
+        totalBatches,
+        status: "embedding",
+        details: `Embedding documents ${i + 1}-${Math.min(
+          i + batch.length,
+          totalDocuments
+        )}/${totalDocuments}`,
+      });
+
+      const embedPromises = batch.map((doc) =>
+        embeddings.embedDocuments([doc.pageContent])
+      );
+      const embeddingResults = await Promise.all(embedPromises);
+
+      onProgress?.({
+        currentDocument: i,
+        totalDocuments,
+        currentBatch,
+        totalBatches,
+        status: "storing",
+        details: `Storing documents ${i + 1}-${Math.min(
+          i + batch.length,
+          totalDocuments
+        )}/${totalDocuments}`,
+      });
+
       await vectorStore.addDocuments(batch, {
         ids: batch.map((doc) => doc.metadata?.id || crypto.randomUUID()),
         documents: batch.map((doc) => doc.pageContent),
         metadatas: batch.map((doc) => doc.metadata),
-        uris: batch.map((doc) => doc.metadata?.uri || ""),
-        embeddings: batch.map((doc) =>
-          embeddings.embedDocuments([doc.pageContent])
-        ),
+        uris: batch.map((doc) => doc.metadata?.filename || ""),
+        embeddings: embeddingResults.flat(),
       });
-      console.log(
-        `Processed batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(
-          documents.length / batchSize
-        )}`
-      );
+
+      onProgress?.({
+        currentDocument: Math.min(i + batchSize, totalDocuments),
+        totalDocuments,
+        currentBatch,
+        totalBatches,
+        status: "storing",
+        details: `Completed batch ${currentBatch}/${totalBatches}`,
+      });
     }
   },
 
@@ -164,6 +221,42 @@ export const vectorStore = {
 
     // Sort by name
     return collectionsWithCount.sort((a, b) => a.name.localeCompare(b.name));
+  },
+
+  /**
+   * Deletes documents from a collection based on metadata criteria
+   */
+  async deleteDocumentsByMetadata(
+    collectionName: string,
+    metadata: Record<string, unknown>
+  ): Promise<{ deletedCount: number }> {
+    try {
+      const collection = await client.getCollection({
+        name: collectionName,
+        embeddingFunction: {
+          generate: (texts: string[]) => embeddings.embedDocuments(texts),
+        },
+      });
+
+      // Get all documents that match the metadata criteria
+      const queryResult = await collection.get({
+        where: metadata,
+      });
+
+      if (!queryResult.ids.length) {
+        return { deletedCount: 0 };
+      }
+
+      // Delete the matching documents
+      await collection.delete({
+        ids: queryResult.ids,
+      });
+
+      return { deletedCount: queryResult.ids.length };
+    } catch (error) {
+      console.error("Error deleting documents by metadata:", error);
+      throw error;
+    }
   },
 };
 
