@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import ReactMarkdown, { Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { darcula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 
@@ -70,7 +70,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
         <div className="bg-muted rounded-md my-0">
           <SyntaxHighlighter
             language={language}
-            style={oneDark}
+            style={darcula}
             PreTag="div"
             customStyle={{
               margin: 0,
