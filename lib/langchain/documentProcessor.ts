@@ -6,7 +6,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 100;
 
-interface ProcessedDocument {
+export interface ProcessedDocument {
   content: string;
   metadata: {
     source: string;

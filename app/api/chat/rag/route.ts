@@ -1,19 +1,49 @@
 import { vectorStore } from "@/lib/langchain/vectorStore";
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import {
+  ChatPromptTemplate,
+  HumanMessagePromptTemplate,
+  MessagesPlaceholder,
+  SystemMessagePromptTemplate,
+} from "@langchain/core/prompts";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { ChatOpenAI } from "@langchain/openai";
+import { LangChainAdapter, Message } from "ai";
+import { formatDocumentsAsString } from "langchain/util/document";
 
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  compatibility: "strict",
+// Initialize the Chat Model with streaming
+const chatModel = new ChatOpenAI({
+  modelName: "gpt-4o-mini",
+  temperature: 0.8,
+  streaming: true,
 });
 
-const OPENAI_MODEL = "gpt-4o-mini-2024-07-18";
-const MAX_CONTEXT_DOCS = 4;
+// Create the main RAG prompt template
+const SYSTEM_TEMPLATE = `You are a helpful AI assistant. Use the following context to answer the user's questions.
+If you don't know the answer, just say that you don't know. Don't try to make up an answer.
 
-const openaiModel = openai(OPENAI_MODEL);
+Context:
+{context}
 
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+Chat History:
+{chat_history}`;
+
+const prompt = ChatPromptTemplate.fromMessages([
+  SystemMessagePromptTemplate.fromTemplate(SYSTEM_TEMPLATE),
+  new MessagesPlaceholder("chat_history"),
+  HumanMessagePromptTemplate.fromTemplate("{input}"),
+]);
+
+// Convert Vercel AI messages to LangChain messages
+function convertToLangChainMessages(messages: Message[]) {
+  return messages.slice(0, -1).map((message) => {
+    if (message.role === "user") {
+      return new HumanMessage(message.content);
+    }
+    return new AIMessage(message.content);
+  });
+}
 
 export async function POST(req: Request) {
   const { messages, collection } = await req.json();
@@ -27,37 +57,40 @@ export async function POST(req: Request) {
     const lastUserMessage = messages
       .slice()
       .reverse()
-      .find((message: { role: string }) => message.role === "user");
+      .find((message: Message) => message.role === "user");
 
     if (!lastUserMessage) {
       return new Response("No user message found", { status: 400 });
     }
 
-    // Perform similarity search on the collection
-    const searchResults = await vectorStore.similaritySearch(
+    // Fetch relevant documents and prepare inputs
+    const docs = await vectorStore.similaritySearch(
       lastUserMessage.content,
       collection,
-      MAX_CONTEXT_DOCS
+      4
     );
 
-    // Create context from search results
-    const context = searchResults.map((doc) => doc.pageContent).join("\n\n");
+    console.log(`Last user message: ${lastUserMessage.content}`);
+    console.log(`Collection: ${collection}`);
+    console.log(`Docs: ${docs.map((doc) => doc.pageContent)}`);
 
-    // Add system message with context
-    const augmentedMessages = [
-      {
-        role: "system",
-        content: `You are a helpful AI assistant. Use the following context to answer the user's questions:\n\n${context}`,
-      },
-      ...messages,
-    ];
+    const inputs = {
+      context: formatDocumentsAsString(docs),
+      chat_history: convertToLangChainMessages(messages),
+      input: lastUserMessage.content,
+    };
 
-    const result = streamText({
-      model: openaiModel,
-      messages: augmentedMessages,
-    });
+    // Create the chain
+    const chain = RunnableSequence.from([
+      prompt,
+      chatModel,
+      new StringOutputParser(),
+    ]);
 
-    return result.toDataStreamResponse();
+    // Start the streaming response
+    const stream = await chain.stream(inputs);
+
+    return LangChainAdapter.toDataStreamResponse(stream);
   } catch (error) {
     console.error("Chat API error:", error);
     return new Response(

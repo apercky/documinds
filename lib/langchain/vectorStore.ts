@@ -20,8 +20,23 @@ const embeddings = new OpenAIEmbeddings({
   timeout: 10000,
 });
 
+const client = new Chroma(embeddings, {
+  url: process.env.CHROMA_URL || "http://localhost:8000",
+  clientParams: {
+    ...(process.env.NODE_ENV === "production" && {
+      auth: {
+        provider: "basic",
+        credentials: {
+          username: process.env.CHROMA_USER,
+          password: process.env.CHROMA_PASSWORD,
+        },
+      },
+    }),
+  },
+});
+
 // Create ChromaDB client
-const client = new ChromaClient({
+const chromaClient = new ChromaClient({
   path: process.env.CHROMA_URL || "http://localhost:8000",
   ...(process.env.NODE_ENV === "production" && {
     auth: {
@@ -170,7 +185,7 @@ export const vectorStore = {
    * Deletes a collection and all its documents
    */
   async deleteCollection(collectionName: string): Promise<void> {
-    await client.deleteCollection({ name: collectionName });
+    await chromaClient.deleteCollection({ name: collectionName });
   },
 
   /**
@@ -180,7 +195,7 @@ export const vectorStore = {
     documentCount: number;
     metadata: Record<string, unknown>;
   }> {
-    const collection = await client.getCollection({
+    const collection = await chromaClient.getCollection({
       name: collectionName,
       embeddingFunction: {
         generate: (texts: string[]) => embeddings.embedDocuments(texts),
@@ -199,12 +214,12 @@ export const vectorStore = {
    * Gets all collections ordered by name
    */
   async getCollections(): Promise<{ name: string; documentCount: number }[]> {
-    const collections = await client.listCollections();
+    const collections = await chromaClient.listCollections();
 
     // Get count for each collection
     const collectionsWithCount = await Promise.all(
       collections.map(async (col) => {
-        const collection = await client.getCollection({
+        const collection = await chromaClient.getCollection({
           name: col,
           embeddingFunction: {
             generate: (texts: string[]) => embeddings.embedDocuments(texts),
@@ -231,7 +246,7 @@ export const vectorStore = {
     metadata: Record<string, unknown>
   ): Promise<{ deletedCount: number }> {
     try {
-      const collection = await client.getCollection({
+      const collection = await chromaClient.getCollection({
         name: collectionName,
         embeddingFunction: {
           generate: (texts: string[]) => embeddings.embedDocuments(texts),

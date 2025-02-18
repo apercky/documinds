@@ -13,13 +13,12 @@ export default function Chat() {
   const searchParams = useSearchParams();
   const collection = searchParams.get("collection");
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "/api/chat/rag",
-      body: {
-        collection,
-      },
-    });
+  const { messages, input, handleInputChange, handleSubmit, status } = useChat({
+    api: "/api/chat/rag",
+    body: {
+      collection,
+    },
+  });
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -47,7 +46,7 @@ export default function Chat() {
             <MemoizedChatBubble key={message.id} message={message} />
           ))}
 
-          {isLoading && (
+          {status === "streaming" && (
             <MemoizedChatBubble
               message={{ role: "assistant", content: "", id: "loading" }}
               isLoading

@@ -1,5 +1,11 @@
+import {
+  documentProcessor,
+  ProcessedDocument,
+} from "@/lib/langchain/documentProcessor";
 import { vectorStore } from "@/lib/langchain/vectorStore";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { DocumentLoader } from "@langchain/core/document_loaders/base";
+import { TextLoader } from "langchain/document_loaders/fs/text";
 import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +28,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let loader: DocumentLoader;
+
+    switch (file.type) {
+      case "application/pdf":
+        loader = new PDFLoader(file);
+        break;
+      case "text/plain":
+        loader = new TextLoader(file);
+        break;
+      default:
+        loader = new TextLoader(file);
+    }
+
+    const docs = await loader.load();
+
     // Delete all documents from the collection
     await vectorStore.deleteDocumentsByMetadata(collectionName, {
       filename: file.name,
@@ -31,13 +52,15 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Read file content
-          const text = await file.text();
-
-          // Split text into chunks
-          const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 1000,
-            chunkOverlap: 200,
+          const documents: ProcessedDocument[] = docs.map((doc) => {
+            return {
+              content: doc.pageContent,
+              metadata: {
+                source: file.name,
+                type: file.type,
+                size: file.size,
+              },
+            };
           });
 
           controller.enqueue(
@@ -47,18 +70,8 @@ export async function POST(request: NextRequest) {
             })
           );
 
-          const splitDocs = await splitter.createDocuments(
-            [text],
-            [
-              {
-                filename: file.name,
-                filetype: file.type,
-                filesize: file.size,
-              },
-            ]
-          );
+          const splitDocs = await documentProcessor.splitDocuments(documents);
 
-          console.log("splitDocs", splitDocs);
           // Add documents to collection with progress updates
           await vectorStore.addDocuments(
             splitDocs,
