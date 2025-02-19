@@ -1,8 +1,8 @@
 import {
   documentProcessor,
   ProcessedDocument,
-} from "@/lib/langchain/documentProcessor";
-import { vectorStore } from "@/lib/langchain/vectorStore";
+} from "@/lib/langchain/document-processor";
+import { vectorStore } from "@/lib/langchain/vector-store";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { DocumentLoader } from "@langchain/core/document_loaders/base";
 import { TextLoader } from "langchain/document_loaders/fs/text";

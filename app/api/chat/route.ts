@@ -1,4 +1,4 @@
-import { vectorStore } from "@/lib/langchain/vectorStore";
+import { vectorStore } from "@/lib/langchain/vector-store";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 

@@ -1,4 +1,4 @@
-import { vectorStore } from "@/lib/langchain/vectorStore";
+import { vectorStore } from "@/lib/langchain/vector-store";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import {

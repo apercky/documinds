@@ -1,4 +1,4 @@
-import { vectorStore } from "@/lib/langchain/vectorStore";
+import { vectorStore } from "@/lib/langchain/vector-store";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {

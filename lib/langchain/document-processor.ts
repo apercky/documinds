@@ -3,7 +3,7 @@ import "server-only";
 import { Document } from "@langchain/core/documents";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
-const CHUNK_SIZE = 1000;
+const CHUNK_SIZE = 500;
 const CHUNK_OVERLAP = 100;
 
 export interface ProcessedDocument {
