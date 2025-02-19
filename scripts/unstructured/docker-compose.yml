@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  unstructured-api:
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:latest
+    container_name: unstructured-api
+    ports:
+      - "8001:8000"
+    command: ["--port", "8000", "--host", "0.0.0.0"]
+    restart: unless-stopped

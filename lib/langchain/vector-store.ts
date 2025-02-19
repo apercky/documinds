@@ -8,7 +8,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { ChromaClient } from "chromadb";
 
 // Latest model as of 2024
-const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-small";
+const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-large";
 
 // Create OpenAI embeddings instance
 const embeddings = new OpenAIEmbeddings({
@@ -20,20 +20,20 @@ const embeddings = new OpenAIEmbeddings({
   timeout: 10000,
 });
 
-const client = new Chroma(embeddings, {
-  url: process.env.CHROMA_URL || "http://localhost:8000",
-  clientParams: {
-    ...(process.env.NODE_ENV === "production" && {
-      auth: {
-        provider: "basic",
-        credentials: {
-          username: process.env.CHROMA_USER,
-          password: process.env.CHROMA_PASSWORD,
-        },
-      },
-    }),
-  },
-});
+// const client = new Chroma(embeddings, {
+//   url: process.env.CHROMA_URL || "http://localhost:8000",
+//   clientParams: {
+//     ...(process.env.NODE_ENV === "production" && {
+//       auth: {
+//         provider: "basic",
+//         credentials: {
+//           username: process.env.CHROMA_USER,
+//           password: process.env.CHROMA_PASSWORD,
+//         },
+//       },
+//     }),
+//   },
+// });
 
 // Create ChromaDB client
 const chromaClient = new ChromaClient({
@@ -98,7 +98,7 @@ export const vectorStore = {
   async addDocuments(
     documents: Document[],
     collectionName: string,
-    batchSize: number = 100,
+    batchSize: number = 5,
     onProgress?: ProgressCallback
   ): Promise<void> {
     const vectorStore = await this.createOrGetCollection({ collectionName });
@@ -131,6 +131,11 @@ export const vectorStore = {
           totalDocuments
         )}/${totalDocuments}`,
       });
+
+      const normalizedBatch = batch.map((doc) => ({
+        ...doc,
+        pageContent: doc.pageContent.toLowerCase(), // Normalize to lowercase
+      }));
 
       const embedPromises = batch.map((doc) =>
         embeddings.embedDocuments([doc.pageContent])

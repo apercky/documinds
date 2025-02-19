@@ -1,3 +1,4 @@
+//import CustomPDFLoader from "@/lib/langchain/custom-pdf-loader";
 import {
   documentProcessor,
   ProcessedDocument,
@@ -12,6 +13,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
+  console.log("POST method called");
   const encoder = new TextEncoder();
   const customEncode = (chunk: object) =>
     encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`);

@@ -14,8 +14,9 @@ import { formatDocumentsAsString } from "langchain/util/document";
 
 // Initialize the Chat Model with streaming
 const chatModel = new ChatOpenAI({
-  modelName: "gpt-4o-mini",
+  modelName: "gpt-4o",
   temperature: 0.8,
+  maxRetries: 5,
   streaming: true,
 });
 
@@ -27,7 +28,10 @@ Context:
 {context}
 
 Chat History:
-{chat_history}`;
+{chat_history}
+
+Respond in the language of the user's question.
+Respond in markdown format.`;
 
 const prompt = ChatPromptTemplate.fromMessages([
   SystemMessagePromptTemplate.fromTemplate(SYSTEM_TEMPLATE),
