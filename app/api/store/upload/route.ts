@@ -4,6 +4,7 @@ import {
   ProcessedDocument,
 } from "@/lib/langchain/document-processor";
 import { vectorStore } from "@/lib/langchain/vector-store";
+import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { DocumentLoader } from "@langchain/core/document_loaders/base";
 import { TextLoader } from "langchain/document_loaders/fs/text";
@@ -35,6 +36,9 @@ export async function POST(request: NextRequest) {
     switch (file.type) {
       case "application/pdf":
         loader = new PDFLoader(file);
+        break;
+      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        loader = new DocxLoader(file);
         break;
       case "text/plain":
         loader = new TextLoader(file);
