@@ -2,9 +2,14 @@ version: '3.8'
 
 services:
   unstructured-api:
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:latest
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:0.0.80
     container_name: unstructured-api
+    platform: linux/arm64
     ports:
       - "8001:8000"
+    environment:
+      - LOG_LEVEL=DEBUG
+      - METRICS_ENABLED=false
+      - VALIDATE_TYPES=false
     command: ["--port", "8000", "--host", "0.0.0.0"]
     restart: unless-stopped

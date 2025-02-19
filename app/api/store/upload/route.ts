@@ -5,7 +5,10 @@ import {
 } from "@/lib/langchain/document-processor";
 import { vectorStore } from "@/lib/langchain/vector-store";
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import {
+  UnstructuredLoader,
+  UnstructuredLoaderOptions,
+} from "@langchain/community/document_loaders/fs/unstructured";
 import { DocumentLoader } from "@langchain/core/document_loaders/base";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { NextRequest } from "next/server";
@@ -24,6 +27,12 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File;
     const collectionName = formData.get("collectionName") as string;
 
+    console.log("File details:", {
+      name: file?.name,
+      type: file?.type,
+      size: file?.size,
+    });
+
     if (!file || !collectionName) {
       return new Response(
         customEncode({ error: "File and collection name are required" }),
@@ -33,12 +42,35 @@ export async function POST(request: NextRequest) {
 
     let loader: DocumentLoader;
 
+    const buffer = Buffer.from(await file.arrayBuffer());
+    console.log("Buffer size:", buffer.length);
+
+    const options: UnstructuredLoaderOptions = {
+      apiUrl: process.env.UNSTRUCTURED_API_URL,
+      strategy: "auto",
+      chunkingStrategy: "by_title",
+      multiPageSections: true,
+    };
+
+    console.log("Unstructured API URL:", options.apiUrl);
+
     switch (file.type) {
       case "application/pdf":
-        loader = new PDFLoader(file);
+        console.log(
+          "Processing PDF file with options:",
+          JSON.stringify(options, null, 2)
+        );
+        loader = new UnstructuredLoader(
+          {
+            buffer,
+            fileName: file.name,
+          },
+          options
+        );
         break;
       case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         loader = new DocxLoader(file);
+
         break;
       case "text/plain":
         loader = new TextLoader(file);
