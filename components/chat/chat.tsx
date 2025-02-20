@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { useChat } from "@ai-sdk/react";
-import { CornerDownLeft } from "lucide-react";
+import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 import { MemoizedChatBubble } from "./chat-bubble-message";
@@ -14,13 +14,14 @@ export default function Chat() {
   const collection = searchParams.get("collection");
   const chatId = searchParams.get("chatId") || undefined;
 
-  const { messages, input, handleInputChange, handleSubmit, status } = useChat({
-    api: "/api/chat/rag",
-    body: {
-      collection,
-    },
-    id: chatId,
-  });
+  const { messages, input, handleInputChange, handleSubmit, status, stop } =
+    useChat({
+      api: "/api/chat/rag",
+      body: {
+        collection,
+      },
+      id: chatId,
+    });
 
   useEffect(() => {
     console.log("chatId", chatId);
@@ -53,10 +54,23 @@ export default function Chat() {
           ))}
 
           {status === "streaming" && (
-            <MemoizedChatBubble
-              message={{ role: "assistant", content: "", id: "loading" }}
-              isLoading
-            />
+            <>
+              <div className="flex justify-center mt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => stop()}
+                >
+                  <StopCircle className="h-4 w-4" />
+                  Stop generating
+                </Button>
+              </div>
+              <MemoizedChatBubble
+                message={{ role: "assistant", content: "", id: "loading" }}
+                isLoading
+              />
+            </>
           )}
         </ChatMessageList>
       </div>
