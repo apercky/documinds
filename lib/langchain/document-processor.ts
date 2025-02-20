@@ -2,6 +2,7 @@ import "server-only";
 
 import { Document } from "@langchain/core/documents";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import Tesseract from "tesseract.js";
 
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 200;
@@ -23,6 +24,11 @@ const textSplitter = new RecursiveCharacterTextSplitter({
   separators: ["\n\n", "\n", ". ", " ", ""],
 });
 
+const extractTextFromImage = async (base64Image: string): Promise<string> => {
+  const { data } = await Tesseract.recognize(base64Image, "it+eng");
+  return data.text.trim();
+};
+
 // Export document processor functions
 export const documentProcessor = {
   /**
@@ -41,8 +47,10 @@ export const documentProcessor = {
   },
 
   async processUnstructuredDocs(docs: Document[]): Promise<Document[]> {
-    const processedDocs = docs.map((doc) => {
+    const processedDocs = docs.map(async (doc) => {
       let combinedText = doc.pageContent || "";
+
+      console.log("doc", JSON.stringify(doc.metadata, null, 2));
 
       if (doc.metadata && doc.metadata.type) {
         // Convert type to lowercase for consistency.
@@ -51,13 +59,15 @@ export const documentProcessor = {
         if (typeLower === "image" && doc.metadata.image_base64) {
           // You might choose to run OCR or captioning on the image.
           // Here, we simply add a placeholder.
-
-          combinedText += "\n[Image Content]";
+          const ocrText = await extractTextFromImage(doc.metadata.image_base64);
+          console.log("ocrText", ocrText);
+          combinedText += `\n[Image Content]: ${ocrText}`;
         }
         if (typeLower === "table") {
           // If available, include the table's HTML (or any other representation).
           if (doc.metadata.table_html) {
             combinedText += `\n[Table Content]: ${doc.metadata.table_html}`;
+            console.log("tableHtml", doc.metadata.table_html);
           } else {
             combinedText += "\n[Table Content]";
           }
@@ -71,6 +81,7 @@ export const documentProcessor = {
       });
     });
 
-    return await textSplitter.splitDocuments(processedDocs);
+    const resolvedDocs = await Promise.all(processedDocs);
+    return await textSplitter.splitDocuments(resolvedDocs);
   },
 };

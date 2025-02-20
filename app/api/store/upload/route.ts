@@ -1,10 +1,7 @@
 //import CustomPDFLoader from "@/lib/langchain/custom-pdf-loader";
-import {
-  documentProcessor,
-  ProcessedDocument,
-} from "@/lib/langchain/document-processor";
+import { documentProcessor } from "@/lib/langchain/document-processor";
 import { vectorStore } from "@/lib/langchain/vector-store";
-import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
+//import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import {
   UnstructuredLoader,
   UnstructuredLoaderOptions,
@@ -72,7 +69,13 @@ export async function POST(request: NextRequest) {
         );
         break;
       case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        loader = new DocxLoader(file);
+        loader = new UnstructuredLoader(
+          {
+            buffer,
+            fileName: file.name,
+          },
+          options
+        );
 
         break;
       case "text/plain":
@@ -83,7 +86,7 @@ export async function POST(request: NextRequest) {
     }
 
     const docs = await loader.load();
-    console.log(JSON.stringify(docs, null, 2));
+    //console.log(JSON.stringify(docs, null, 2));
 
     // Delete all documents from the collection
     await vectorStore.deleteDocumentsByMetadata(collectionName, {
@@ -94,16 +97,16 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const documents: ProcessedDocument[] = docs.map((doc) => {
-            return {
-              content: doc.pageContent,
-              metadata: {
-                source: file.name,
-                type: file.type,
-                size: file.size,
-              },
-            };
-          });
+          // const documents: ProcessedDocument[] = docs.map((doc) => {
+          //   return {
+          //     content: doc.pageContent,
+          //     metadata: {
+          //       source: file.name,
+          //       type: file.type,
+          //       size: file.size,
+          //     },
+          //   };
+          // });
 
           controller.enqueue(
             customEncode({
@@ -112,7 +115,9 @@ export async function POST(request: NextRequest) {
             })
           );
 
-          const splitDocs = await documentProcessor.splitDocuments(documents);
+          const splitDocs = await documentProcessor.processUnstructuredDocs(
+            docs
+          );
 
           // Add documents to collection with progress updates
           await vectorStore.addDocuments(
