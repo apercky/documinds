@@ -65,9 +65,29 @@ export default function Chat() {
             onChange={handleInputChange}
             placeholder="Type your message..."
             className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (input.trim()) {
+                  onSubmit(e);
+                }
+              }
+            }}
           />
           <div className="flex items-center p-3 pt-0 justify-between">
-            <Button type="submit" size="sm" className="ml-auto gap-1.5">
+            <p className="text-xs text-muted-foreground">
+              Press{" "}
+              <kbd className="px-1 py-0.5 text-[10px] font-mono border rounded-md">
+                Shift + ↵
+              </kbd>{" "}
+              for new line
+            </p>
+            <Button
+              type="submit"
+              size="sm"
+              className="ml-auto gap-1.5"
+              disabled={!input.trim()}
+            >
               Send Message
               <CornerDownLeft className="size-3.5" />
             </Button>

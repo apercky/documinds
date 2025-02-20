@@ -27,7 +27,7 @@ const data = {
   user: {
     name: "Antonio Perchinumio",
     email: "antonio_perchinumio@otb.net",
-    avatar: "/avatars/shadcn.jpg",
+    avatar: "/avatars/default.svg",
   },
   collections: [
     {

@@ -49,7 +49,10 @@ export async function POST(request: NextRequest) {
       apiUrl: process.env.UNSTRUCTURED_API_URL,
       strategy: "auto",
       chunkingStrategy: "by_title",
+      extractImageBlockTypes: ["Image", "Table"],
       multiPageSections: true,
+      ocrLanguages: ["it", "en"],
+      coordinates: true,
     };
 
     console.log("Unstructured API URL:", options.apiUrl);
@@ -80,6 +83,7 @@ export async function POST(request: NextRequest) {
     }
 
     const docs = await loader.load();
+    console.log(JSON.stringify(docs, null, 2));
 
     // Delete all documents from the collection
     await vectorStore.deleteDocumentsByMetadata(collectionName, {
