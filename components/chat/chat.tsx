@@ -55,6 +55,10 @@ export default function Chat() {
 
           {status === "streaming" && (
             <>
+              <MemoizedChatBubble
+                message={{ role: "assistant", content: "", id: "loading" }}
+                isLoading
+              />
               <div className="flex justify-center mt-2">
                 <Button
                   variant="outline"
@@ -66,10 +70,6 @@ export default function Chat() {
                   Stop generating
                 </Button>
               </div>
-              <MemoizedChatBubble
-                message={{ role: "assistant", content: "", id: "loading" }}
-                isLoading
-              />
             </>
           )}
         </ChatMessageList>

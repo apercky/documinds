@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { MarkdownMessage } from "@/components/ui/markdown-message";
 import { MessageLoading } from "@/components/ui/message-loading";
 import { cn } from "@/lib/utils";
+import { Check, Copy } from "lucide-react";
 import * as React from "react";
+import { useState } from "react";
 
 interface ChatBubbleProps {
   variant?: "sent" | "received";
@@ -44,22 +46,51 @@ export function ChatBubbleMessage({
   className,
   children,
 }: ChatBubbleMessageProps) {
+  const [copied, setCopied] = useState(false);
+  const hasContent = !isLoading && typeof children === "string";
+
+  const copyToClipboard = async () => {
+    if (typeof children === "string") {
+      await navigator.clipboard.writeText(children);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
-    <div
-      className={cn(
-        "rounded-lg p-3 min-w-[60px] max-w-full",
-        variant === "sent" ? "bg-primary text-primary-foreground" : "bg-muted",
-        className
-      )}
-    >
-      {isLoading ? (
-        <div className="flex items-center space-x-2">
-          <MessageLoading />
-        </div>
-      ) : typeof children === "string" && variant === "received" ? (
-        <MarkdownMessage content={children} />
-      ) : (
-        children
+    <div className="relative group">
+      <div
+        className={cn(
+          "rounded-lg p-3 min-w-[60px] max-w-full",
+          variant === "sent"
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted",
+          variant === "received" && hasContent && "pb-8",
+          className
+        )}
+      >
+        {isLoading ? (
+          <div className="flex items-center space-x-2">
+            <MessageLoading />
+          </div>
+        ) : typeof children === "string" && variant === "received" ? (
+          <MarkdownMessage content={children} />
+        ) : (
+          children
+        )}
+      </div>
+      {hasContent && (
+        <ChatBubbleAction
+          icon={
+            copied ? (
+              <Check className="h-3 w-3" />
+            ) : (
+              <Copy className="h-3 w-3" />
+            )
+          }
+          onClick={copyToClipboard}
+          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        />
       )}
     </div>
   );
@@ -99,7 +130,14 @@ export function ChatBubbleAction({
     <Button
       variant="ghost"
       size="icon"
-      className={cn("h-6 w-6", className)}
+      className={cn(
+        "h-6 w-6",
+        "p-4",
+        "hover:bg-slate-200 dark:hover:bg-slate-700",
+        "rounded-md",
+        "transition-colors duration-200",
+        className
+      )}
       onClick={onClick}
     >
       {icon}
