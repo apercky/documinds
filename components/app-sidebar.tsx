@@ -1,11 +1,12 @@
 "use client";
 
 import { BookOpen, PlusCircle, Settings2, SquareTerminal } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import type * as React from "react";
 
 import { NavUser } from "./nav-user";
 
+import { usePathname, useRouter } from "@/app/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -176,10 +177,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const locale = useLocale();
 
   const handleNewChat = () => {
-    // Preserve the collection but reset the chat by forcing a new URL
-    router.push(
-      `/${locale}/dashboard?collection=${currentCollection}&new=${Date.now()}`
+    router.replace(
+      `/dashboard?collection=${currentCollection}&chatId=${Date.now()}`
     );
+    router.refresh();
   };
 
   const navData = createNavData(

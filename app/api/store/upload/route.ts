@@ -13,6 +13,8 @@ import { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+export const maxDuration = 1200;
+
 export async function POST(request: NextRequest) {
   console.log("POST method called");
   const encoder = new TextEncoder();

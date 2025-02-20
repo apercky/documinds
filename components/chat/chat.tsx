@@ -6,19 +6,25 @@ import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { useChat } from "@ai-sdk/react";
 import { CornerDownLeft } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { MemoizedChatBubble } from "./chat-bubble-message";
 
 export default function Chat() {
   const searchParams = useSearchParams();
   const collection = searchParams.get("collection");
+  const chatId = searchParams.get("chatId") || undefined;
 
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     api: "/api/chat/rag",
     body: {
       collection,
     },
+    id: chatId,
   });
+
+  useEffect(() => {
+    console.log("chatId", chatId);
+  }, [chatId]);
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {

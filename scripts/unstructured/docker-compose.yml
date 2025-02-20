@@ -12,6 +12,6 @@ services:
       - METRICS_ENABLED=false
       - VALIDATE_TYPES=false
     command: ["--port", "8000", "--host", "0.0.0.0"]
-    mem_limit: 4g  # Set max memory usage to 4GB
+    mem_limit: 6g  # Set max memory usage to 4GB
     cpus: "2.0"     # Allocate 2 CPU cores
     restart: unless-stopped
