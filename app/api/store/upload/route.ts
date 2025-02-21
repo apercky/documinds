@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           await vectorStore.addDocuments(
             splitDocs,
             collectionName,
-            100,
+            10,
             (progress) => {
               controller.enqueue(
                 customEncode({

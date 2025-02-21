@@ -1,6 +1,5 @@
 import "server-only";
 
-// utils/vectorStore.ts
 import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { Document } from "@langchain/core/documents";
 import { VectorStore } from "@langchain/core/vectorstores";
@@ -14,7 +13,6 @@ const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-large";
 const embeddings = new OpenAIEmbeddings({
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: OPENAI_EMBEDDING_MODEL_NAME,
-  batchSize: 512,
   stripNewLines: true,
   maxConcurrency: 5,
   timeout: 10000,
@@ -132,11 +130,6 @@ export const vectorStore = {
         )}/${totalDocuments}`,
       });
 
-      const normalizedBatch = batch.map((doc) => ({
-        ...doc,
-        pageContent: doc.pageContent.toLowerCase(), // Normalize to lowercase
-      }));
-
       const embedPromises = batch.map((doc) =>
         embeddings.embedDocuments([doc.pageContent])
       );
@@ -189,8 +182,32 @@ export const vectorStore = {
   /**
    * Deletes a collection and all its documents
    */
-  async deleteCollection(collectionName: string): Promise<void> {
-    await chromaClient.deleteCollection({ name: collectionName });
+  async deleteCollection(collectionName: string): Promise<{
+    deletedCount: number;
+  }> {
+    const collection = await chromaClient.getCollection({
+      name: collectionName,
+      embeddingFunction: {
+        generate: (texts: string[]) => embeddings.embedDocuments(texts),
+      },
+    });
+
+    // Get all documents that match the metadata criteria
+    const documents = await collection.get();
+
+    if (documents.ids.length) {
+      await collection.delete({
+        ids: documents.ids,
+      });
+
+      await chromaClient.deleteCollection({ name: collectionName });
+    }
+
+    return {
+      deletedCount: documents.ids.length,
+    };
+
+    //await chromaClient.deleteCollection({ name: collectionName });
   },
 
   /**
@@ -269,7 +286,8 @@ export const vectorStore = {
 
       // Delete the matching documents
       await collection.delete({
-        ids: queryResult.ids,
+        // ids: queryResult.ids,
+        where: metadata,
       });
 
       return { deletedCount: queryResult.ids.length };

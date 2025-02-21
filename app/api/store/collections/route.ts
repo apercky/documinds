@@ -49,8 +49,10 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await vectorStore.deleteCollection(collectionName);
-    return NextResponse.json({ message: "Collection deleted successfully" });
+    const response = await vectorStore.deleteCollection(collectionName);
+    return NextResponse.json({
+      message: `Collection deleted successfully ${response.deletedCount} documents`,
+    });
   } catch (error) {
     console.error("Error deleting collection:", error);
     return NextResponse.json(

@@ -14,15 +14,14 @@ import { formatDocumentsAsString } from "langchain/util/document";
 
 // Initialize the Chat Model with streaming
 const chatModel = new ChatOpenAI({
-  modelName: "gpt-4o",
-  temperature: 0.8,
+  modelName: "gpt-4o-mini",
+  temperature: 0,
   maxRetries: 5,
   streaming: true,
 });
 
 // Create the main RAG prompt template
 const SYSTEM_TEMPLATE = `You are a helpful AI assistant. Use the following context to answer the user's questions.
-If you don't know the answer, just say that you don't know. Don't try to make up an answer.
 
 Context:
 {context}
@@ -30,8 +29,9 @@ Context:
 Chat History:
 {chat_history}
 
-Respond in the language of the user's question.
-Respond in markdown format.`;
+**Respond in the language of the user's question. If you don't know the answer, just say that "Sorry, I don't know.". Don't try to make up an answer.**
+
+**Respond in markdown format.**`;
 
 const prompt = ChatPromptTemplate.fromMessages([
   SystemMessagePromptTemplate.fromTemplate(SYSTEM_TEMPLATE),
@@ -68,11 +68,25 @@ export async function POST(req: Request) {
     }
 
     // Fetch relevant documents and prepare inputs
-    const docs = await vectorStore.similaritySearch(
-      lastUserMessage.content,
-      collection,
-      4
-    );
+    const retrieverVectorStore = await vectorStore.createOrGetCollection({
+      collectionName: collection,
+      distance: "cosine",
+    });
+
+    const retriver = retrieverVectorStore.asRetriever({
+      k: 4,
+    });
+
+    const docs = await retriver.invoke(lastUserMessage.content, {
+      maxConcurrency: 1,
+      metadata: {},
+    });
+
+    //  const docs = await vectorStore.similaritySearch(
+    //    lastUserMessage.content,
+    //    collection,
+    //    4
+    //  );
 
     console.log(`Last user message: ${lastUserMessage.content}`);
     console.log(`Collection: ${collection}`);
