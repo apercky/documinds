@@ -1,26 +1,19 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { CollectionDetailsDialog } from "@/components/admin/collection-details-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { DeleteAlertDialog } from "@/components/ui/delete-alert-dialog";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { CreateCollectionDialog } from "./create-collection-dialog";
 
 interface Collection {
   name: string;
   documentCount: number;
+  metadata?: Record<string, unknown>;
 }
 
 export function CollectionsTab() {
@@ -34,17 +27,25 @@ export function CollectionsTab() {
     isOpen: false,
     collection: null,
   });
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [detailsDialog, setDetailsDialog] = useState<{
+    isOpen: boolean;
+    collection: Collection | null;
+  }>({
+    isOpen: false,
+    collection: null,
+  });
+
+  const t = useTranslations();
 
   const fetchCollections = async () => {
     try {
       const response = await fetch("/api/store/collections");
-      if (!response.ok) throw new Error("Failed to fetch collections");
+      if (!response.ok) throw new Error(t("collections.error.fetch"));
       const collections = await response.json();
       setCollections(collections);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to fetch collections"
+        err instanceof Error ? err.message : t("collections.error.fetch")
       );
     } finally {
       setLoading(false);
@@ -66,26 +67,27 @@ export function CollectionsTab() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete collection");
+        throw new Error(t("collections.error.delete"));
       }
 
       // Refresh collections list
       await fetchCollections();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to delete collection"
+        err instanceof Error ? err.message : t("collections.error.delete")
       );
     }
   };
 
-  const handleCollectionCreated = async (collectionName: string) => {
+  const handleCollectionCreated = async () => {
     setError(null);
     await fetchCollections();
-    console.log("Collection created:", collectionName);
   };
 
   if (loading) {
-    return <LoadingIndicator text="Loading collections..." className="py-8" />;
+    return (
+      <LoadingIndicator text={t("collections.loading")} className="py-8" />
+    );
   }
 
   if (error) {
@@ -95,13 +97,17 @@ export function CollectionsTab() {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold">Collections</h2>
+        <h2 className="text-lg font-semibold">{t("collections.title")}</h2>
         <CreateCollectionDialog onCollectionCreated={handleCollectionCreated} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {collections.map((collection) => (
-          <Card key={collection.name}>
+          <Card
+            key={collection.name}
+            className="cursor-pointer transition-colors hover:bg-muted/50"
+            onClick={() => setDetailsDialog({ isOpen: true, collection })}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 {collection.name}
@@ -110,76 +116,57 @@ export function CollectionsTab() {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-muted-foreground hover:text-red-500"
-                onClick={() =>
+                onClick={(e) => {
+                  e.stopPropagation();
                   setDeleteDialog({
                     isOpen: true,
                     collection: collection.name,
-                  })
-                }
+                  });
+                }}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Documents: {collection.documentCount}
+                {t("collections.documents")}: {collection.documentCount}
               </p>
             </CardContent>
           </Card>
         ))}
         {collections.length === 0 && (
           <div className="col-span-full text-center py-8 text-muted-foreground">
-            No collections found
+            {t("collections.empty")}
           </div>
         )}
       </div>
 
-      <AlertDialog
-        open={deleteDialog.isOpen}
-        onOpenChange={(isOpen: boolean) => {
-          setDeleteDialog({ isOpen, collection: null });
-          setDeleteConfirmText("");
+      <DeleteAlertDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={(isOpen) =>
+          setDeleteDialog({
+            isOpen,
+            collection: isOpen ? deleteDialog.collection : null,
+          })
+        }
+        onConfirm={() => {
+          if (deleteDialog.collection) {
+            handleDelete(deleteDialog.collection);
+          }
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <div className="space-y-4">
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                collection &quot;{deleteDialog.collection}&quot; and all its
-                documents.
-              </AlertDialogDescription>
-              <div className="text-sm text-muted-foreground">
-                Please type <span className="font-bold">DELETE</span> to
-                confirm:
-              </div>
-              <Input
-                type="text"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="Type DELETE to confirm"
-              />
-            </div>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-500 hover:bg-red-600 disabled:bg-red-300"
-              onClick={() => {
-                if (deleteDialog.collection && deleteConfirmText === "DELETE") {
-                  handleDelete(deleteDialog.collection);
-                }
-                setDeleteDialog({ isOpen: false, collection: null });
-                setDeleteConfirmText("");
-              }}
-              disabled={deleteConfirmText !== "DELETE"}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        name={deleteDialog.collection || ""}
+      />
+
+      <CollectionDetailsDialog
+        isOpen={detailsDialog.isOpen}
+        onOpenChange={(isOpen) =>
+          setDetailsDialog({
+            isOpen,
+            collection: isOpen ? detailsDialog.collection : null,
+          })
+        }
+        collection={detailsDialog.collection}
+      />
     </>
   );
 }

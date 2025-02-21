@@ -26,5 +26,85 @@
       "en": "English",
       "it": "Italian",
       "switchLanguage": "Switch language"
+    },
+    "deleteAlert": {
+      "title": "Are you absolutely sure?",
+      "description": "This action cannot be undone. This will permanently delete the collection \"{name}\" and all its documents.",
+      "confirmText": "Please type {action} to confirm:",
+      "cancelButton": "Cancel",
+      "deleteButton": "Delete",
+      "confirmPlaceholder": "Type {action} to confirm"
+    },
+    "collectionDetails": {
+      "title": "Collection Details",
+      "stats": {
+        "title": "Statistics",
+        "documents": "Total Documents"
+      },
+      "settings": {
+        "title": "Settings",
+        "name": "Collection Name",
+        "metadata": "Metadata",
+        "addField": "Add Field",
+        "selectKey": "Select a key",
+        "valuePlaceholder": "Value (max 35 chars)",
+        "inUse": "in use",
+        "cancel": "Cancel",
+        "save": "Save Changes"
+      }
+    },
+    "metadataKeys": {
+      "brand": "Brand",
+      "category": "Category",
+      "displayName": "Display Name",
+      "displayKey": "Display Key"
+    },
+    "validation": {
+      "collection": {
+        "name": {
+          "min": "Collection name must be at least {min} characters",
+          "max": "Collection name must be less than {max} characters",
+          "format": "Only lowercase letters, numbers, and hyphens are allowed"
+        },
+        "metadata": {
+          "key": {
+            "required": "Please select a key"
+          },
+          "value": {
+            "required": "Value is required",
+            "max": "Value must be less than {max} characters",
+            "empty": "Value cannot be empty"
+          }
+        }
+      }
+    },
+    "collections": {
+      "loading": "Loading collections...",
+      "empty": "No collections found",
+      "title": "Collections",
+      "documents": "Documents",
+      "error": {
+        "fetch": "Failed to fetch collections",
+        "update": "Failed to update collection",
+        "delete": "Failed to delete collection",
+        "create": "Failed to create collection"
+      }
+    },
+    "createCollection": {
+      "button": "Create Collection",
+      "title": "Create New Collection",
+      "name": {
+        "label": "Collection Name",
+        "placeholder": "Enter collection name"
+      },
+      "metadata": {
+        "label": "Metadata",
+        "addField": "Add Field",
+        "selectPlaceholder": "Select a key",
+        "valuePlaceholder": "Value (max 35 chars)",
+        "inUse": "in use"
+      },
+      "cancel": "Cancel",
+      "submit": "Create"
     }
-  }
+}

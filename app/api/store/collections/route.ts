@@ -16,7 +16,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name } = await request.json();
+    const { name, metadata } = await request.json();
 
     if (!name) {
       return NextResponse.json(
@@ -26,7 +26,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a new collection
-    await vectorStore.createOrGetCollection({ collectionName: name });
+    await vectorStore.createOrGetCollection({
+      collectionName: name,
+      metadata: metadata || undefined,
+    });
 
     return NextResponse.json({ message: "Collection created successfully" });
   } catch (error) {
