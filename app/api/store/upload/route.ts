@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     const options: UnstructuredLoaderOptions = {
       apiUrl: process.env.UNSTRUCTURED_API_URL,
-      strategy: "auto",
+      strategy: "fast",
       chunkingStrategy: "by_title",
       extractImageBlockTypes: ["Image", "Table"],
       multiPageSections: true,
