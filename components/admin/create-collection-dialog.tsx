@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, type TranslationValues } from "next-intl";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,16 +38,18 @@ const METADATA_KEYS = [
   { value: "display-key", label: "displayKey" },
 ] as const;
 
-type MetadataKey = (typeof METADATA_KEYS)[number]["value"];
-
-const createCollectionNameSchema = (t: (key: string) => string) =>
+const createCollectionNameSchema = (
+  t: <T extends string>(key: T, values?: TranslationValues) => string
+) =>
   z
     .string()
-    .min(3, t("validation.collection.name.min", { min: 3 }))
-    .max(63, t("validation.collection.name.max", { max: 63 }))
-    .regex(/^[a-z0-9-]+$/, t("validation.collection.name.format"));
+    .min(3, { message: t("validation.collection.name.min", { min: 3 }) })
+    .max(63, { message: t("validation.collection.name.max", { max: 63 }) })
+    .regex(/^[a-z0-9-]+$/, { message: t("validation.collection.name.format") });
 
-const createMetadataSchema = (t: (key: string) => string) =>
+const createMetadataSchema = (
+  t: <T extends string>(key: T, values?: TranslationValues) => string
+) =>
   z.array(
     z.object({
       key: z.enum(
@@ -58,12 +60,13 @@ const createMetadataSchema = (t: (key: string) => string) =>
       ),
       value: z
         .string()
-        .min(1, t("validation.collection.metadata.value.required"))
-        .max(35, t("validation.collection.metadata.value.max", { max: 35 }))
-        .refine(
-          (val) => val.trim().length > 0,
-          t("validation.collection.metadata.value.empty")
-        ),
+        .min(1, { message: t("validation.collection.metadata.value.required") })
+        .max(35, {
+          message: t("validation.collection.metadata.value.max", { max: 35 }),
+        })
+        .refine((val) => val.trim().length > 0, {
+          message: t("validation.collection.metadata.value.empty"),
+        }),
     })
   );
 
@@ -81,6 +84,7 @@ export function CreateCollectionDialog({
   const [apiError, setApiError] = useState<string | null>(null);
 
   const t = useTranslations();
+
   const tMetadata = useTranslations("metadataKeys");
   const tCreate = useTranslations("createCollection");
 
