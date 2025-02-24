@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { getCollectionTitle } from "@/utils/messages.utils";
-import { useLocale, useMessages } from "next-intl";
+import { useLocale, useMessages, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatedText } from "./animated-text";
@@ -165,6 +165,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const locale = useLocale();
   const messages = useMessages();
+  const t = useTranslations("Navigation");
   const [collections, setCollections] = useState<Collection[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -228,7 +229,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             size="sm"
           >
             <PlusCircle className="h-4 w-4" />
-            <span className="font-medium">New Chat</span>
+            <span className="font-medium">{t("newChat")}</span>
           </Button>
         </div>
         <NavMain items={navData.navMain} />

@@ -13,7 +13,8 @@
     "Navigation": {
       "dashboard": "Dashboard",
       "users": "Utenti",
-      "settings": "Impostazioni"
+      "settings": "Impostazioni",
+      "newChat": "Nuova Chat"
     },
     "UserNav": {
       "profile": "Profilo",
@@ -112,7 +113,7 @@
       "submit": "Crea"
     },
     "collectionDisplay": {
-      "onestore-user-guide": "OneStore",
-      "rbo-user-guide": "RBO"
+      "onestore-user-guide": "OneStore Guida Utente",
+      "rbo-user-guide": "RBO Guida Utente"
     }
 }
