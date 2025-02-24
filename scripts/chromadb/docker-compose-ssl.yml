@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  chromadb:
+    image: chromadb/chroma:latest
+    volumes:
+      - ./data:/chroma/data
+      - ./config:/chroma/config
+      - ./config/ssl:/chroma/ssl
+    ports:
+      - "8443:8443"  # Changed from 8000 to 8443 for HTTPS
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_FILE=/chroma/config/auth.json
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.basic.BasicAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.basic.BasicAuthServerProvider
+      - PERSIST_DIRECTORY=/chroma/data
+      - CHROMA_SERVER_SSL_ENABLED=true
+      - CHROMA_SERVER_SSL_CERT_PATH=/chroma/ssl/server.crt
+      - CHROMA_SERVER_SSL_KEY_PATH=/chroma/ssl/server.key
+      - CHROMA_SERVER_HTTP_PORT=8443
+    networks:
+      - chroma-net
+
+networks:
+  chroma-net:
+    driver: bridge

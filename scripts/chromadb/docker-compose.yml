@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  chromadb:
+    image: chromadb/chroma:latest
+    volumes:
+      - ./data:/chroma/data
+      - ./config:/chroma/config
+    ports:
+      - "8000:8000"
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_FILE=/chroma/config/auth.json
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.basic.BasicAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.basic.BasicAuthServerProvider
+      - PERSIST_DIRECTORY=/chroma/data
+    networks:
+      - chroma-net
+
+networks:
+  chroma-net:
+    driver: bridge
