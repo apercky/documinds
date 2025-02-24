@@ -110,5 +110,9 @@
       },
       "cancel": "Cancel",
       "submit": "Create"
+    },
+    "collectionDisplay": {
+      "onestore-user-guide": "OneStore",
+      "rbo-user-guide": "RBO"
     }
 }

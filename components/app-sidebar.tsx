@@ -19,7 +19,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { useLocale } from "next-intl";
+import { getCollectionTitle } from "@/utils/messages.utils";
+import { useLocale, useMessages } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatedText } from "./animated-text";
@@ -40,7 +41,8 @@ const createNavData = (
   collections: Collection[],
   pathname: string,
   currentCollection: string | null,
-  locale: string
+  locale: string,
+  messages: unknown
 ) => {
   // Helper function to check if a path matches the current pathname
   const isPathActive = (path: string) => {
@@ -64,9 +66,7 @@ const createNavData = (
           isPathActive("/dashboard") ||
           (isSectionActive("/dashboard") && !pathname.includes("/dashboard/")),
         items: collections.map((collection) => ({
-          title:
-            (collection.metadata?.["display-name"] as string) ||
-            collection.name,
+          title: getCollectionTitle(collection, messages),
           url: `/dashboard?collection=${collection.name}`,
           isActive: currentCollection === collection.name,
         })),
@@ -164,6 +164,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
   const locale = useLocale();
+  const messages = useMessages();
   const [collections, setCollections] = useState<Collection[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -210,7 +211,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     collections,
     pathname,
     currentCollection,
-    locale
+    locale,
+    messages
   );
 
   return (
