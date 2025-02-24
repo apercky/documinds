@@ -50,7 +50,11 @@
         "valuePlaceholder": "Valore (max 35 caratteri)",
         "inUse": "in uso",
         "cancel": "Annulla",
-        "save": "Salva Modifiche"
+        "save": "Salva Modifiche",
+        "edit": "Modifica"
+      },
+      "error": {
+        "update": "Impossibile aggiornare la collezione"
       }
     },
     "metadataKeys": {

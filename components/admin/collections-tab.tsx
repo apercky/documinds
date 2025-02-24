@@ -54,6 +54,7 @@ export function CollectionsTab() {
 
   useEffect(() => {
     fetchCollections();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDelete = async (collectionName: string) => {
@@ -166,6 +167,7 @@ export function CollectionsTab() {
           })
         }
         collection={detailsDialog.collection}
+        onUpdate={fetchCollections}
       />
     </>
   );

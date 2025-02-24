@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET() {
   try {
     const collections = await vectorStore.getCollections();
+
     return NextResponse.json(collections);
   } catch (error) {
     console.error("Error getting collections:", error);

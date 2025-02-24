@@ -4,7 +4,7 @@ import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { Document } from "@langchain/core/documents";
 import { VectorStore } from "@langchain/core/vectorstores";
 import { OpenAIEmbeddings } from "@langchain/openai";
-import { ChromaClient } from "chromadb";
+import { ChromaClient, CollectionMetadata } from "chromadb";
 
 // Latest model as of 2024
 const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-large";
@@ -235,11 +235,17 @@ export const vectorStore = {
   /**
    * Gets all collections ordered by name
    */
-  async getCollections(): Promise<{ name: string; documentCount: number }[]> {
+  async getCollections(): Promise<
+    {
+      name: string;
+      documentCount: number;
+      metadata: CollectionMetadata | undefined;
+    }[]
+  > {
     const collections = await chromaClient.listCollections();
 
     // Get count for each collection
-    const collectionsWithCount = await Promise.all(
+    const collectionsWithCountAndMetadata = await Promise.all(
       collections.map(async (col) => {
         const collection = await chromaClient.getCollection({
           name: col,
@@ -251,13 +257,16 @@ export const vectorStore = {
 
         return {
           name: col,
+          metadata: collection?.metadata,
           documentCount: count,
         };
       })
     );
 
     // Sort by name
-    return collectionsWithCount.sort((a, b) => a.name.localeCompare(b.name));
+    return collectionsWithCountAndMetadata.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
   },
 
   /**
@@ -295,5 +304,27 @@ export const vectorStore = {
       console.error("Error deleting documents by metadata:", error);
       throw error;
     }
+  },
+
+  /**
+   * Updates a collection's metadata
+   */
+  async updateCollection(
+    collectionName: string,
+    metadata: Record<string, unknown>
+  ): Promise<void> {
+    const collection = await chromaClient.getCollection({
+      name: collectionName,
+      embeddingFunction: {
+        generate: (texts: string[]) => embeddings.embedDocuments(texts),
+      },
+    });
+
+    await collection.modify({
+      metadata: {
+        ...collection.metadata,
+        ...metadata,
+      },
+    });
   },
 };

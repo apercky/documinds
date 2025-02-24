@@ -15,7 +15,7 @@ import { formatDocumentsAsString } from "langchain/util/document";
 // Initialize the Chat Model with streaming
 const chatModel = new ChatOpenAI({
   modelName: "gpt-4o-mini",
-  temperature: 0,
+  temperature: 0.0,
   maxRetries: 5,
   streaming: true,
 });
@@ -29,7 +29,7 @@ Context:
 Chat History:
 {chat_history}
 
-**Respond in the language of the user's question. If you don't know the answer, just say that "Sorry, I don't know.". Don't try to make up an answer.**
+**Respond in the language of the user's question. If you don't know the answer, just say that "Sorry, you don't know.". Don't try to make up an answer.**
 
 **Respond in markdown format.**`;
 

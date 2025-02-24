@@ -31,12 +31,7 @@ import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-const METADATA_KEYS = [
-  { value: "brand", label: "brand" },
-  { value: "category", label: "category" },
-  { value: "display-name", label: "displayName" },
-  { value: "display-key", label: "displayKey" },
-] as const;
+import { METADATA_KEYS } from "@/consts/consts";
 
 const createCollectionNameSchema = (
   t: <T extends string>(key: T, values?: TranslationValues) => string

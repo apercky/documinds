@@ -50,7 +50,11 @@
         "valuePlaceholder": "Value (max 35 chars)",
         "inUse": "in use",
         "cancel": "Cancel",
-        "save": "Save Changes"
+        "save": "Save Changes",
+        "edit": "Edit"
+      },
+      "error": {
+        "update": "Failed to update collection"
       }
     },
     "metadataKeys": {

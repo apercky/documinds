@@ -1,12 +1,17 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { METADATA_KEYS } from "@/consts/consts";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 interface CollectionDetailsDialogProps {
   isOpen: boolean;
@@ -16,15 +21,77 @@ interface CollectionDetailsDialogProps {
     documentCount: number;
     metadata?: Record<string, unknown>;
   } | null;
+  onUpdate: () => void;
 }
 
 export function CollectionDetailsDialog({
   isOpen,
   onOpenChange,
   collection,
+  onUpdate,
 }: CollectionDetailsDialogProps) {
   const tDetails = useTranslations("collectionDetails");
   const tMetadata = useTranslations("metadataKeys");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedMetadata, setEditedMetadata] = useState<Record<string, string>>(
+    {}
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const handleEdit = () => {
+    // Initialize with all metadata keys and their current values or empty strings
+    const initialMetadata = METADATA_KEYS.reduce((acc, key) => {
+      const currentValue = collection?.metadata?.[key.value];
+      acc[key.value] = currentValue ? String(currentValue) : "";
+      return acc;
+    }, {} as Record<string, string>);
+
+    setEditedMetadata(initialMetadata);
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const cleanedMetadata = Object.entries(editedMetadata).reduce(
+        (acc, [key, value]) => {
+          if (value.trim()) {
+            acc[key] = value.trim();
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
+      const response = await fetch(
+        `/api/store/collections/${collection?.name}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            metadata: cleanedMetadata,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(tDetails("error.update"));
+      }
+
+      setIsEditing(false);
+      setError(null);
+      onUpdate(); // Call the update callback
+      onOpenChange(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : tDetails("error.update"));
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setError(null);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -49,9 +116,16 @@ export function CollectionDetailsDialog({
           </div>
 
           <div className="grid gap-4">
-            <h3 className="text-lg font-semibold">
-              {tDetails("settings.title")}
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">
+                {tDetails("settings.title")}
+              </h3>
+              {!isEditing && (
+                <Button variant="outline" size="sm" onClick={handleEdit}>
+                  {tDetails("settings.edit")}
+                </Button>
+              )}
+            </div>
 
             <div className="grid gap-2">
               <div className="flex justify-between py-1">
@@ -61,40 +135,54 @@ export function CollectionDetailsDialog({
                 <span className="font-medium">{collection?.name}</span>
               </div>
 
-              {collection?.metadata &&
-                Object.entries(collection.metadata).length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-muted-foreground">
-                      {tDetails("settings.metadata")}
-                    </h4>
-                    <div className="rounded-lg border bg-card">
-                      {Object.entries(collection.metadata).map(
-                        ([key, value]) => (
-                          <div
-                            key={key}
-                            className="flex items-center justify-between p-3 border-b last:border-0"
-                          >
-                            <span className="text-sm font-medium">
-                              {tMetadata(
-                                key as
-                                  | "brand"
-                                  | "category"
-                                  | "displayName"
-                                  | "displayKey"
-                              )}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              {String(value)}
-                            </span>
-                          </div>
-                        )
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  {tDetails("settings.metadata")}
+                </h4>
+                <div className="rounded-lg border bg-card">
+                  {METADATA_KEYS.map((key) => (
+                    <div
+                      key={key.value}
+                      className="flex items-center justify-between p-3 border-b last:border-0"
+                    >
+                      <span className="text-sm font-medium">
+                        {tMetadata(key.label)}
+                      </span>
+                      {isEditing ? (
+                        <Input
+                          className="max-w-[200px]"
+                          value={editedMetadata[key.value] || ""}
+                          onChange={(e) =>
+                            setEditedMetadata((prev) => ({
+                              ...prev,
+                              [key.value]: e.target.value,
+                            }))
+                          }
+                          placeholder={tDetails("settings.valuePlaceholder")}
+                        />
+                      ) : (
+                        <span className="text-sm text-muted-foreground">
+                          {String(collection?.metadata?.[key.value] ?? "-")}
+                        </span>
                       )}
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+
+        {isEditing && (
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancel}>
+              {tDetails("settings.cancel")}
+            </Button>
+            <Button onClick={handleSave}>{tDetails("settings.save")}</Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
