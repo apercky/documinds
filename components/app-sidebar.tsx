@@ -3,7 +3,9 @@
 import { BookOpen, PlusCircle, Settings2, SquareTerminal } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import type * as React from "react";
+import { useEffect, useState } from "react";
 
+import { Collection } from "@/types/collection";
 import { NavUser } from "./nav-user";
 
 import { usePathname, useRouter } from "@/app/i18n/routing";
@@ -23,32 +25,19 @@ import Link from "next/link";
 import { AnimatedText } from "./animated-text";
 import { NavMain } from "./nav-main";
 
-// This is sample data.
+// User data (this should come from your auth system)
 const data = {
   user: {
     name: "Antonio Perchinumio",
     email: "antonio_perchinumio@otb.net",
     avatar: "/avatars/default.svg",
+    brand: "2_20",
   },
-  collections: [
-    {
-      title: "OneStore",
-      id: "onestore",
-    },
-    {
-      title: "RBO",
-      id: "rbo",
-    },
-    {
-      title: "Clienteling",
-      id: "clienteling",
-    },
-  ],
 };
 
 // Create navigation data with collections
 const createNavData = (
-  collections: typeof data.collections,
+  collections: Collection[],
   pathname: string,
   currentCollection: string | null,
   locale: string
@@ -75,9 +64,11 @@ const createNavData = (
           isPathActive("/dashboard") ||
           (isSectionActive("/dashboard") && !pathname.includes("/dashboard/")),
         items: collections.map((collection) => ({
-          title: collection.title,
-          url: `/dashboard?collection=${collection.id}`,
-          isActive: currentCollection === collection.id,
+          title:
+            (collection.metadata?.["display-name"] as string) ||
+            collection.name,
+          url: `/dashboard?collection=${collection.name}`,
+          isActive: currentCollection === collection.name,
         })),
       },
       {
@@ -172,9 +163,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const currentCollection =
-    searchParams.get("collection") || data.collections[0].id;
   const locale = useLocale();
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      try {
+        const response = await fetch("/api/store/collections");
+        if (!response.ok) throw new Error("Failed to fetch collections");
+        const collectionsData: Collection[] = await response.json();
+
+        // Filter collections by user brand and transform to required format
+        const filteredCollections = collectionsData.filter(
+          (col) => col.metadata?.brand === data.user.brand
+        );
+        setCollections(filteredCollections);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch collections";
+        setError(errorMessage);
+        console.error("Error fetching collections:", errorMessage);
+      }
+    };
+
+    fetchCollections();
+  }, []);
+
+  // If there's an error, you might want to show it or handle it appropriately
+  if (error) {
+    console.warn("Collections loading error:", error);
+  }
+
+  const currentCollection =
+    searchParams.get("collection") ||
+    (collections.length > 0 ? collections[0].name : null);
 
   const handleNewChat = () => {
     router.replace(
@@ -184,7 +207,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   const navData = createNavData(
-    data.collections,
+    collections,
     pathname,
     currentCollection,
     locale

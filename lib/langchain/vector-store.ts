@@ -1,10 +1,11 @@
 import "server-only";
 
+import { Collection } from "@/types/collection";
 import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { Document } from "@langchain/core/documents";
 import { VectorStore } from "@langchain/core/vectorstores";
 import { OpenAIEmbeddings } from "@langchain/openai";
-import { ChromaClient, CollectionMetadata } from "chromadb";
+import { ChromaClient } from "chromadb";
 
 // Latest model as of 2024
 const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-large";
@@ -185,29 +186,32 @@ export const vectorStore = {
   async deleteCollection(collectionName: string): Promise<{
     deletedCount: number;
   }> {
-    const collection = await chromaClient.getCollection({
-      name: collectionName,
-      embeddingFunction: {
-        generate: (texts: string[]) => embeddings.embedDocuments(texts),
-      },
-    });
-
-    // Get all documents that match the metadata criteria
-    const documents = await collection.get();
-
-    if (documents.ids.length) {
-      await collection.delete({
-        ids: documents.ids,
+    try {
+      const collection = await chromaClient.getCollection({
+        name: collectionName,
+        embeddingFunction: {
+          generate: (texts: string[]) => embeddings.embedDocuments(texts),
+        },
       });
 
-      await chromaClient.deleteCollection({ name: collectionName });
+      // Get all documents that match the metadata criteria
+      const documents = await collection.get();
+
+      if (documents.ids.length) {
+        await collection.delete({
+          ids: documents.ids,
+        });
+
+        await chromaClient.deleteCollection({ name: collectionName });
+      }
+
+      return {
+        deletedCount: documents.ids.length,
+      };
+    } catch (error) {
+      console.error("Error deleting documents by metadata:", error);
+      return { deletedCount: 0 };
     }
-
-    return {
-      deletedCount: documents.ids.length,
-    };
-
-    //await chromaClient.deleteCollection({ name: collectionName });
   },
 
   /**
@@ -235,13 +239,7 @@ export const vectorStore = {
   /**
    * Gets all collections ordered by name
    */
-  async getCollections(): Promise<
-    {
-      name: string;
-      documentCount: number;
-      metadata: CollectionMetadata | undefined;
-    }[]
-  > {
+  async getCollections(): Promise<Collection[]> {
     const collections = await chromaClient.listCollections();
 
     // Get count for each collection
