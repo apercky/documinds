@@ -11,6 +11,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.8",
     "@ai-sdk/openai": "^1.1.11",
+    "@datastax/langflow-client": "^0.2.0",
     "@dqbd/tiktoken": "^1.0.20",
     "@hookform/resolvers": "^4.0.0",
     "@langchain/community": "^0.3.30",

@@ -99,17 +99,6 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // const documents: ProcessedDocument[] = docs.map((doc) => {
-          //   return {
-          //     content: doc.pageContent,
-          //     metadata: {
-          //       source: file.name,
-          //       type: file.type,
-          //       size: file.size,
-          //     },
-          //   };
-          // });
-
           controller.enqueue(
             customEncode({
               type: "status",
