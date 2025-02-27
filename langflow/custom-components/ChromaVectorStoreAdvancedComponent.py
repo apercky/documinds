@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 
 from chromadb.config import Settings
@@ -107,6 +108,13 @@ class ChromaVectorStoreAdvancedComponent(LCVectorStoreComponent):
             advanced=True,
             info="Limit the number of records to compare when Allow Duplicates is False.",
         ),
+        BoolInput(
+            name="preserve_complex_metadata",
+            display_name="Preserve Complex Metadata",
+            advanced=True,
+            info="If true, complex metadata will be serialized as JSON strings rather than filtered out.",
+            value=True,
+        ),
     ]
 
     @override
@@ -179,6 +187,39 @@ class ChromaVectorStoreAdvancedComponent(LCVectorStoreComponent):
         self.status = chroma_collection_to_data(chroma.get(limit=self.limit))
         return chroma
 
+    def _process_metadata(self, metadata):
+        """Process metadata to handle complex data types."""
+        if not self.preserve_complex_metadata:
+            # Standard approach: filter out complex metadata
+            try:
+                from langchain_community.vectorstores.utils import (
+                    filter_complex_metadata,
+                )
+
+                return filter_complex_metadata(metadata)
+            except ImportError:
+                self.log(
+                    "Warning: Could not import filter_complex_metadata. Complex metadata may cause errors."
+                )
+                return metadata
+        else:
+            # Convert complex types to strings
+            processed_metadata = {}
+            for key, value in metadata.items():
+                if isinstance(value, (str, int, float, bool)):
+                    processed_metadata[key] = value
+                elif value is None:
+                    # Skip None values
+                    continue
+                else:
+                    # Convert complex types to JSON strings
+                    try:
+                        processed_metadata[key] = json.dumps(value)
+                    except (TypeError, ValueError):
+                        # If can't serialize, convert to string
+                        processed_metadata[key] = str(value)
+            return processed_metadata
+
     def _add_documents_to_vector_store(self, vector_store: "Chroma") -> None:
         """Adds documents to the Vector Store."""
         if not self.ingest_data:
@@ -198,7 +239,13 @@ class ChromaVectorStoreAdvancedComponent(LCVectorStoreComponent):
         for _input in self.ingest_data or []:
             if isinstance(_input, Data):
                 if _input not in stored_documents_without_id:
-                    documents.append(_input.to_lc_document())
+                    document = _input.to_lc_document()
+
+                    # Process metadata if present
+                    if hasattr(document, "metadata") and document.metadata:
+                        document.metadata = self._process_metadata(document.metadata)
+
+                    documents.append(document)
             else:
                 msg = "Vector Store Inputs must be Data objects."
                 raise TypeError(msg)
