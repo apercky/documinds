@@ -43,6 +43,19 @@ export function CollectionsTab() {
       if (!response.ok) throw new Error(t("collections.error.fetch"));
       const collections = await response.json();
       setCollections(collections);
+
+      // If details dialog is open, update its collection data with the latest data
+      if (detailsDialog.isOpen && detailsDialog.collection) {
+        const updatedCollection = collections.find(
+          (c: Collection) => c.name === detailsDialog.collection?.name
+        );
+        if (updatedCollection) {
+          setDetailsDialog({
+            isOpen: true,
+            collection: updatedCollection,
+          });
+        }
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : t("collections.error.fetch")

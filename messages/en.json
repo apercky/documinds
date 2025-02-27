@@ -52,10 +52,16 @@
         "inUse": "in use",
         "cancel": "Cancel",
         "save": "Save Changes",
-        "edit": "Edit"
+        "edit": "Edit",
+        "deleteDocuments": "Delete All Documents",
+        "deletingDocuments": "Deleting Documents..."
       },
       "error": {
-        "update": "Failed to update collection"
+        "update": "Failed to update collection",
+        "deleteDocuments": "Failed to delete documents"
+      },
+      "deleteDialog": {
+        "allDocumentsIn": "all documents in"
       }
     },
     "metadataKeys": {

@@ -52,10 +52,16 @@
         "inUse": "in uso",
         "cancel": "Annulla",
         "save": "Salva Modifiche",
-        "edit": "Modifica"
+        "edit": "Modifica",
+        "deleteDocuments": "Elimina Tutti i Documenti",
+        "deletingDocuments": "Eliminazione Documenti..."
       },
       "error": {
-        "update": "Impossibile aggiornare la collezione"
+        "update": "Impossibile aggiornare la collezione",
+        "deleteDocuments": "Impossibile eliminare i documenti"
+      },
+      "deleteDialog": {
+        "allDocumentsIn": "tutti i documenti in"
       }
     },
     "metadataKeys": {

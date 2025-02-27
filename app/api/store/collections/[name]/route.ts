@@ -27,3 +27,32 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { name: string } }
+) {
+  try {
+    const { name } = params;
+
+    if (!name) {
+      return NextResponse.json(
+        { error: "Collection name is required" },
+        { status: 400 }
+      );
+    }
+
+    const result = await vectorStore.deleteCollectionDocuments(name);
+
+    return NextResponse.json({
+      message: "Collection documents deleted successfully",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error("Error deleting collection documents:", error);
+    return NextResponse.json(
+      { error: "Failed to delete collection documents" },
+      { status: 500 }
+    );
+  }
+}

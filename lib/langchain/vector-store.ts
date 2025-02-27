@@ -215,6 +215,38 @@ export const vectorStore = {
   },
 
   /**
+   * Deletes documents from a collection
+   */
+  async deleteCollectionDocuments(collectionName: string): Promise<{
+    deletedCount: number;
+  }> {
+    try {
+      const collection = await chromaClient.getCollection({
+        name: collectionName,
+        embeddingFunction: {
+          generate: (texts: string[]) => embeddings.embedDocuments(texts),
+        },
+      });
+
+      // Get all documents that match the metadata criteria
+      const documents = await collection.get();
+
+      if (documents.ids.length) {
+        await collection.delete({
+          ids: documents.ids,
+        });
+      }
+
+      return {
+        deletedCount: documents.ids.length,
+      };
+    } catch (error) {
+      console.error("Error deleting documents by metadata:", error);
+      return { deletedCount: 0 };
+    }
+  },
+
+  /**
    * Gets collection statistics
    */
   async getCollectionStats(collectionName: string): Promise<{
