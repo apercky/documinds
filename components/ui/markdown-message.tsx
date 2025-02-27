@@ -85,69 +85,108 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
         </div>
       );
     },
-    h1: ({ children, ...props }) => (
-      <h1 className="text-lg font-bold mt-4 mb-2 first:mt-0" {...props}>
-        {children}
-      </h1>
-    ),
-    h2: ({ children, ...props }) => (
-      <h2 className="text-base font-bold mt-3 mb-2" {...props}>
-        {children}
-      </h2>
-    ),
-    h3: ({ children, ...props }) => (
-      <h3 className="text-sm font-bold mt-2 mb-1" {...props}>
-        {children}
-      </h3>
-    ),
-    p: ({ children, ...props }) => (
-      <p className="my-1 break-words overflow-wrap-anywhere text-sm" {...props}>
-        {children}
-      </p>
-    ),
-    ul: ({ children, ...props }) => (
-      <ul
-        className="my-1 list-disc pl-4 text-sm space-y-1 [&>li]:whitespace-normal"
-        {...props}
-      >
-        {children}
-      </ul>
-    ),
-    ol: ({ children, ...props }) => (
-      <ol
-        className="my-1 list-decimal pl-4 text-sm space-y-1 [&>li]:whitespace-normal"
-        {...props}
-      >
-        {children}
-      </ol>
-    ),
-    li: ({ children, ...props }) => (
-      <li className="my-0.5 whitespace-normal" {...props}>
-        {children}
-      </li>
-    ),
-    blockquote: ({ children, ...props }) => (
-      <blockquote
-        className="border-l-2 border-border pl-3 my-1 italic text-sm"
-        {...props}
-      >
-        {children}
-      </blockquote>
-    ),
-    a: ({ children, ...props }) => (
-      <a
-        className="text-primary hover:text-primary/80 underline text-sm"
-        {...props}
-      >
-        {children}
-      </a>
-    ),
-    pre: ({ children, ...props }) => (
-      <pre className="my-1 text-xs" {...props}>
-        {children}
-      </pre>
-    ),
-    img: ({ src, alt }) => {
+    h1: ({ children, node: _node, ...props }) => {
+      return (
+        <h1 className="text-lg font-bold mt-4 mb-2 first:mt-0" {...props}>
+          {children}
+        </h1>
+      );
+    },
+    h2: ({ children, node: _node, ...props }) => {
+      return (
+        <h2 className="text-base font-bold mt-3 mb-2" {...props}>
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ children, node: _node, ...props }) => {
+      return (
+        <h3 className="text-sm font-bold mt-2 mb-1" {...props}>
+          {children}
+        </h3>
+      );
+    },
+    p: ({ children, node: _node, ...props }) => {
+      // Check if this paragraph is inside a list item by examining the node
+      // Use optional chaining to safely access properties
+      const isInListItem =
+        _node &&
+        typeof _node === "object" &&
+        "parent" in _node &&
+        _node.parent &&
+        typeof _node.parent === "object" &&
+        "type" in _node.parent &&
+        _node.parent.type === "listItem";
+
+      // Exclude node from props to prevent it from being rendered in HTML
+      return (
+        <p
+          className={cn(
+            "break-words overflow-wrap-anywhere text-sm",
+            isInListItem ? "my-0 leading-tight" : "my-1"
+          )}
+          {...props}
+        >
+          {children}
+        </p>
+      );
+    },
+    ul: ({ children, node: _node, ...props }) => {
+      return (
+        <ul
+          className="list-disc pl-4 text-sm space-y-0 [&>li]:whitespace-normal leading-none p-0 m-0"
+          {...props}
+        >
+          {children}
+        </ul>
+      );
+    },
+    ol: ({ children, node: _node, ...props }) => {
+      return (
+        <ol
+          className="list-decimal pl-4 text-sm space-y-0 [&>li]:whitespace-normal leading-none p-0 m-0"
+          {...props}
+        >
+          {children}
+        </ol>
+      );
+    },
+    li: ({ children, node: _node, ...props }) => {
+      // Exclude node from props to prevent it from being rendered in HTML
+      return (
+        <li className="whitespace-normal leading-tight p-0 mb-0" {...props}>
+          {children}
+        </li>
+      );
+    },
+    blockquote: ({ children, node: _node, ...props }) => {
+      return (
+        <blockquote
+          className="border-l-2 border-border pl-3 my-1 italic text-sm"
+          {...props}
+        >
+          {children}
+        </blockquote>
+      );
+    },
+    a: ({ children, node: _node, ...props }) => {
+      return (
+        <a
+          className="text-primary hover:text-primary/80 underline text-sm"
+          {...props}
+        >
+          {children}
+        </a>
+      );
+    },
+    pre: ({ children, node: _node, ...props }) => {
+      return (
+        <pre className="my-1 text-xs" {...props}>
+          {children}
+        </pre>
+      );
+    },
+    img: ({ src, alt, node: _node }) => {
       if (!src) return null;
       return (
         <Image
@@ -164,7 +203,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
   return (
     <div
       className={cn(
-        "prose prose-xs dark:prose-invert max-w-none break-words text-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_li]:whitespace-normal",
+        "prose prose-xs dark:prose-invert max-w-none break-words text-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_li]:whitespace-normal [&_ol]:leading-none [&_ul]:leading-none [&_ol]:my-0 [&_ul]:my-0 [&_li_p]:my-0 [&_li_p]:leading-tight",
         className
       )}
     >
