@@ -35,7 +35,17 @@ export async function POST(req: Request) {
       baseUrl: process.env.LANGFLOW_BASE_URL || "",
     });
 
-    const tweaks: Tweaks = {};
+    const tweaks: Tweaks = {
+      "ChatInput-looVc": {},
+      "ParseData-rwSX3": {},
+      "Prompt-da8nw": {},
+      "ChatOutput-zyWXu": {},
+      "OpenAIModel-RwfHQ": {},
+      "CustomComponent-NuPci": {
+        collection_name: collection,
+      },
+      "OpenAIEmbeddings-3DIZ9": {},
+    };
 
     const response = await client
       .flow(process.env.LANGFLOW_FLOW_ID || "")

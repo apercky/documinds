@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { name: string } }
+  { params }: { params: Promise<{ name: string }> }
 ) {
   try {
     const { metadata } = await request.json();
-    const { name } = params;
+    const { name } = await params;
 
     if (!name) {
       return NextResponse.json(

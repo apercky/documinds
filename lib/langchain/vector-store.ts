@@ -201,9 +201,9 @@ export const vectorStore = {
         await collection.delete({
           ids: documents.ids,
         });
-
-        await chromaClient.deleteCollection({ name: collectionName });
       }
+
+      await chromaClient.deleteCollection({ name: collectionName });
 
       return {
         deletedCount: documents.ids.length,

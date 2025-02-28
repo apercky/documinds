@@ -82,11 +82,11 @@ export async function POST(req: Request) {
       metadata: {},
     });
 
-    //  const docs = await vectorStore.similaritySearch(
-    //    lastUserMessage.content,
-    //    collection,
-    //    4
-    //  );
+    // const docs = await vectorStore.similaritySearch(
+    //   lastUserMessage.content,
+    //   collection,
+    //   10
+    // );
 
     console.log(`Last user message: ${lastUserMessage.content}`);
     console.log(`Collection: ${collection}`);

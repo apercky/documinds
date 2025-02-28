@@ -7,12 +7,11 @@ import { useChat } from "@ai-sdk/react";
 import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { MemoizedChatBubble } from "./chat-bubble-message";
 export default function Chat() {
   const searchParams = useSearchParams();
   const collection = searchParams.get("collection");
-  const chatId = searchParams.get("chatId") || uuidv4().toString();
+  const chatId = searchParams.get("chatId") || undefined;
 
   const { messages, input, handleInputChange, handleSubmit, status, stop } =
     useChat({
