@@ -46,6 +46,15 @@ export async function POST(req: Request) {
       },
       "OpenAIEmbeddings-3DIZ9": {},
     };
+    const tweaksAgentic: Tweaks = {
+      "ChatInput-4HspM": {},
+      "ChatOutput-tpsRQ": {},
+      "Chroma DB advanced-FHLNv": {
+        collection_name: collection,
+      },
+      "OpenAIEmbeddings-aJVuv": {},
+      "Agent-ZGp1M": {},
+    };
 
     const response = await client
       .flow(process.env.LANGFLOW_FLOW_ID || "")
