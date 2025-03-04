@@ -1,18 +1,18 @@
 {
-  "id": "43bfa5b1-bbfd-4004-a9e0-e91448ed5945",
+  "id": "465e19bf-7c6c-42a1-b759-c76476648d6f",
   "data": {
     "nodes": [
       {
-        "id": "ChatInput-jDyhK",
+        "id": "ChatInput-4HspM",
         "type": "genericNode",
         "position": {
-          "x": -478.34334150253466,
-          "y": 1004.3951144160762
+          "x": 15,
+          "y": 596.0264274548114
         },
         "data": {
           "description": "Get chat inputs from the Playground.",
           "display_name": "Chat Input",
-          "id": "ChatInput-jDyhK",
+          "id": "ChatInput-4HspM",
           "node": {
             "base_classes": [
               "Message"
@@ -274,24 +274,23 @@
           },
           "type": "ChatInput"
         },
-        "selected": true,
+        "selected": false,
         "measured": {
           "width": 320,
           "height": 227
-        },
-        "dragging": false
+        }
       },
       {
-        "id": "ChatOutput-tRlKm",
+        "id": "ChatOutput-tpsRQ",
         "type": "genericNode",
         "position": {
-          "x": 1493.954438706188,
-          "y": 1140.6295363404333
+          "x": 2374.0064402129487,
+          "y": 680.9088154856903
         },
         "data": {
           "description": "Display a chat message in the Playground.",
           "display_name": "Chat Output",
-          "id": "ChatOutput-tRlKm",
+          "id": "ChatOutput-tpsRQ",
           "node": {
             "base_classes": [
               "Message"
@@ -579,11 +578,11 @@
         "dragging": false
       },
       {
-        "id": "Chroma DB advanced-LNXoV",
+        "id": "Chroma DB advanced-FHLNv",
         "type": "genericNode",
         "position": {
-          "x": 417.725665885847,
-          "y": 638.0777719667026
+          "x": 911.0690073883816,
+          "y": 229.70908500543771
         },
         "data": {
           "node": {
@@ -795,7 +794,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "collection_name",
-                "value": "rbo",
+                "value": "onestore",
                 "display_name": "Collection Name",
                 "advanced": false,
                 "dynamic": false,
@@ -832,7 +831,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "number_of_results",
-                "value": 4,
+                "value": 2,
                 "display_name": "Number of Results",
                 "advanced": false,
                 "dynamic": false,
@@ -1141,21 +1140,20 @@
           },
           "showNode": true,
           "type": "Chroma DB advanced",
-          "id": "Chroma DB advanced-LNXoV"
+          "id": "Chroma DB advanced-FHLNv"
         },
         "selected": false,
         "measured": {
           "width": 320,
           "height": 1078
-        },
-        "dragging": false
+        }
       },
       {
-        "id": "OpenAIEmbeddings-bywpF",
+        "id": "OpenAIEmbeddings-aJVuv",
         "type": "genericNode",
         "position": {
-          "x": -72.17081650130737,
-          "y": 453.36868696126487
+          "x": 421.1725250012273,
+          "y": 45
         },
         "data": {
           "node": {
@@ -1170,7 +1168,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "chunk_size",
-                "value": 1000,
+                "value": 3072,
                 "display_name": "Chunk Size",
                 "advanced": false,
                 "dynamic": false,
@@ -1671,21 +1669,20 @@
           },
           "showNode": true,
           "type": "OpenAIEmbeddings",
-          "id": "OpenAIEmbeddings-bywpF"
+          "id": "OpenAIEmbeddings-aJVuv"
         },
         "selected": false,
         "measured": {
           "width": 320,
           "height": 473
-        },
-        "dragging": false
+        }
       },
       {
-        "id": "Agent-tphpv",
+        "id": "Agent-ZGp1M",
         "type": "genericNode",
         "position": {
-          "x": 999.6071271742003,
-          "y": 591.6798158004598
+          "x": 1361.6851018081286,
+          "y": 186.39972570669153
         },
         "data": {
           "node": {
@@ -2196,7 +2193,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "system_prompt",
-                "value": "You are an intelligent, autonomous research agent with advanced capabilities for information retrieval, reasoning, and task completion. Your core objectives are to:\n\n1. Intelligently query a vector database to retrieve the most relevant and comprehensive context for the given task\n2. Synthesize retrieved information with your existing knowledge\n3. Critically evaluate the retrieved context for comprehensiveness and relevance\n4. Generate precise, actionable responses or complete tasks with high accuracy\n\nRetrieval Strategy:\n- If initial context seems insufficient, autonomously perform additional vector database searches\n- Use multi-step query refinement to expand and deepen contextual understanding\n- Assess retrieved context for potential gaps or need for further investigation\n\nResponse Guidelines:\n- Provide clear, concise, and well-structured answers\n- Explicitly cite sources from retrieved context when possible\n- If the context is inadequate, clearly explain what additional information is needed\n- Maintain objectivity and avoid speculation beyond available evidence\n\nReasoning Process:\n1. Analyze query complexity and information requirements\n2. Retrieve the most relevant context segments using the tool\n3. Evaluate context comprehensiveness\n4. Formulate a response or identify information gaps\n\nResponse:",
+                "value": "You are an intelligent, autonomous research agent with advanced capabilities for information retrieval, reasoning, and task completion. Your core objectives are to:\n\n1. Intelligently query a vector database to retrieve the most relevant and comprehensive context for the given task\n2. Synthesize retrieved information with your existing knowledge\n3. Critically evaluate the retrieved context for comprehensiveness and relevance\n4. Generate precise, actionable responses or complete tasks with high accuracy\n\nRetrieval Strategy:\n- If initial context seems insufficient, autonomously perform additional vector database searches\n- Use multi-step query refinement to expand and deepen contextual understanding\n- Assess retrieved context for potential gaps or need for further investigation\n\nResponse Guidelines:\n- Provide clear, concise, and well-structured answers\n- Explicitly cite sources from retrieved context when possible\n- If the context is inadequate, clearly explain what additional information is needed\n- Maintain objectivity and avoid speculation beyond available evidence\n- If the question cannot be answered based on the given context, simply state that you don't have enough information to provide an answer.\n- Respond in the same language as the user's question.\n\nReasoning Process:\n1. Analyze query complexity and information requirements\n2. Retrieve the most relevant context segments using the tool\n3. Evaluate context comprehensiveness\n4. Formulate a response or identify information gaps\n\nResponse:",
                 "display_name": "Agent Instructions",
                 "advanced": false,
                 "input_types": [
@@ -2365,7 +2362,7 @@
           },
           "showNode": true,
           "type": "Agent",
-          "id": "Agent-tphpv"
+          "id": "Agent-ZGp1M"
         },
         "selected": false,
         "measured": {
@@ -2373,19 +2370,559 @@
           "height": 709
         },
         "dragging": false
+      },
+      {
+        "id": "OpenAIModel-bLtre",
+        "type": "genericNode",
+        "position": {
+          "x": 1852.5439274216926,
+          "y": 525.3023307363991
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "api_key": {
+                "load_from_db": true,
+                "required": true,
+                "placeholder": "",
+                "show": true,
+                "name": "api_key",
+                "value": "",
+                "display_name": "OpenAI API Key",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "The OpenAI API Key to use for the OpenAI model.",
+                "title_case": false,
+                "password": true,
+                "type": "str",
+                "_input_type": "SecretStrInput"
+              },
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langchain_openai import ChatOpenAI\nfrom pydantic.v1 import SecretStr\n\nfrom langflow.base.models.model import LCModelComponent\nfrom langflow.base.models.openai_constants import OPENAI_MODEL_NAMES\nfrom langflow.field_typing import LanguageModel\nfrom langflow.field_typing.range_spec import RangeSpec\nfrom langflow.inputs import BoolInput, DictInput, DropdownInput, IntInput, SecretStrInput, SliderInput, StrInput\n\n\nclass OpenAIModelComponent(LCModelComponent):\n    display_name = \"OpenAI\"\n    description = \"Generates text using OpenAI LLMs.\"\n    icon = \"OpenAI\"\n    name = \"OpenAIModel\"\n\n    inputs = [\n        *LCModelComponent._base_inputs,\n        IntInput(\n            name=\"max_tokens\",\n            display_name=\"Max Tokens\",\n            advanced=True,\n            info=\"The maximum number of tokens to generate. Set to 0 for unlimited tokens.\",\n            range_spec=RangeSpec(min=0, max=128000),\n        ),\n        DictInput(\n            name=\"model_kwargs\",\n            display_name=\"Model Kwargs\",\n            advanced=True,\n            info=\"Additional keyword arguments to pass to the model.\",\n        ),\n        BoolInput(\n            name=\"json_mode\",\n            display_name=\"JSON Mode\",\n            advanced=True,\n            info=\"If True, it will output JSON regardless of passing a schema.\",\n        ),\n        DropdownInput(\n            name=\"model_name\",\n            display_name=\"Model Name\",\n            advanced=False,\n            options=OPENAI_MODEL_NAMES,\n            value=OPENAI_MODEL_NAMES[0],\n        ),\n        StrInput(\n            name=\"openai_api_base\",\n            display_name=\"OpenAI API Base\",\n            advanced=True,\n            info=\"The base URL of the OpenAI API. \"\n            \"Defaults to https://api.openai.com/v1. \"\n            \"You can change this to use other APIs like JinaChat, LocalAI and Prem.\",\n        ),\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=\"OpenAI API Key\",\n            info=\"The OpenAI API Key to use for the OpenAI model.\",\n            advanced=False,\n            value=\"OPENAI_API_KEY\",\n            required=True,\n        ),\n        SliderInput(\n            name=\"temperature\", display_name=\"Temperature\", value=0.1, range_spec=RangeSpec(min=0, max=1, step=0.01)\n        ),\n        IntInput(\n            name=\"seed\",\n            display_name=\"Seed\",\n            info=\"The seed controls the reproducibility of the job.\",\n            advanced=True,\n            value=1,\n        ),\n        IntInput(\n            name=\"max_retries\",\n            display_name=\"Max Retries\",\n            info=\"The maximum number of retries to make when generating.\",\n            advanced=True,\n            value=5,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=\"Timeout\",\n            info=\"The timeout for requests to OpenAI completion API.\",\n            advanced=True,\n            value=700,\n        ),\n    ]\n\n    def build_model(self) -> LanguageModel:  # type: ignore[type-var]\n        openai_api_key = self.api_key\n        temperature = self.temperature\n        model_name: str = self.model_name\n        max_tokens = self.max_tokens\n        model_kwargs = self.model_kwargs or {}\n        openai_api_base = self.openai_api_base or \"https://api.openai.com/v1\"\n        json_mode = self.json_mode\n        seed = self.seed\n        max_retries = self.max_retries\n        timeout = self.timeout\n\n        api_key = SecretStr(openai_api_key).get_secret_value() if openai_api_key else None\n        output = ChatOpenAI(\n            max_tokens=max_tokens or None,\n            model_kwargs=model_kwargs,\n            model=model_name,\n            base_url=openai_api_base,\n            api_key=api_key,\n            temperature=temperature if temperature is not None else 0.1,\n            seed=seed,\n            max_retries=max_retries,\n            request_timeout=timeout,\n        )\n        if json_mode:\n            output = output.bind(response_format={\"type\": \"json_object\"})\n\n        return output\n\n    def _get_exception_message(self, e: Exception):\n        \"\"\"Get a message from an OpenAI exception.\n\n        Args:\n            e (Exception): The exception to get the message from.\n\n        Returns:\n            str: The message from the exception.\n        \"\"\"\n        try:\n            from openai import BadRequestError\n        except ImportError:\n            return None\n        if isinstance(e, BadRequestError):\n            message = e.body.get(\"message\")\n            if message:\n                return message\n        return None\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "input_value": {
+                "trace_as_input": true,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "input_value",
+                "value": "",
+                "display_name": "Input",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageInput"
+              },
+              "json_mode": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "json_mode",
+                "value": false,
+                "display_name": "JSON Mode",
+                "advanced": true,
+                "dynamic": false,
+                "info": "If True, it will output JSON regardless of passing a schema.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "max_retries": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "max_retries",
+                "value": 5,
+                "display_name": "Max Retries",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The maximum number of retries to make when generating.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              },
+              "max_tokens": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "range_spec": {
+                  "step_type": "float",
+                  "min": 0,
+                  "max": 128000,
+                  "step": 0.1
+                },
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "max_tokens",
+                "value": "",
+                "display_name": "Max Tokens",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              },
+              "model_kwargs": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "model_kwargs",
+                "value": {},
+                "display_name": "Model Kwargs",
+                "advanced": true,
+                "dynamic": false,
+                "info": "Additional keyword arguments to pass to the model.",
+                "title_case": false,
+                "type": "dict",
+                "_input_type": "DictInput"
+              },
+              "model_name": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "options": [
+                  "gpt-4o-mini",
+                  "gpt-4o",
+                  "gpt-4-turbo",
+                  "gpt-4-turbo-preview",
+                  "gpt-4",
+                  "gpt-3.5-turbo",
+                  "gpt-3.5-turbo-0125"
+                ],
+                "options_metadata": [],
+                "combobox": false,
+                "dialog_inputs": {},
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "model_name",
+                "value": "gpt-4o-mini",
+                "display_name": "Model Name",
+                "advanced": false,
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "DropdownInput"
+              },
+              "openai_api_base": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "openai_api_base",
+                "value": "",
+                "display_name": "OpenAI API Base",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The base URL of the OpenAI API. Defaults to https://api.openai.com/v1. You can change this to use other APIs like JinaChat, LocalAI and Prem.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "StrInput"
+              },
+              "seed": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "seed",
+                "value": 1,
+                "display_name": "Seed",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The seed controls the reproducibility of the job.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              },
+              "stream": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "stream",
+                "value": false,
+                "display_name": "Stream",
+                "advanced": false,
+                "dynamic": false,
+                "info": "Stream the response from the model. Streaming works only in Chat.",
+                "title_case": false,
+                "type": "bool",
+                "_input_type": "BoolInput"
+              },
+              "system_message": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "multiline": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "system_message",
+                "value": "You are a passtrough agent. Only pass the input into outpu",
+                "display_name": "System Message",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "System message to pass to the model.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MultilineInput"
+              },
+              "temperature": {
+                "tool_mode": false,
+                "min_label": "",
+                "max_label": "",
+                "min_label_icon": "",
+                "max_label_icon": "",
+                "slider_buttons": false,
+                "slider_buttons_options": [],
+                "slider_input": false,
+                "range_spec": {
+                  "step_type": "float",
+                  "min": 0,
+                  "max": 1,
+                  "step": 0.01
+                },
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "temperature",
+                "value": 0,
+                "display_name": "Temperature",
+                "advanced": false,
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "slider",
+                "_input_type": "SliderInput"
+              },
+              "timeout": {
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "timeout",
+                "value": 700,
+                "display_name": "Timeout",
+                "advanced": true,
+                "dynamic": false,
+                "info": "The timeout for requests to OpenAI completion API.",
+                "title_case": false,
+                "type": "int",
+                "_input_type": "IntInput"
+              }
+            },
+            "description": "Generates text using OpenAI LLMs.",
+            "icon": "OpenAI",
+            "base_classes": [
+              "LanguageModel",
+              "Message"
+            ],
+            "display_name": "OpenAI",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {},
+            "output_types": [],
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "text_output",
+                "display_name": "Message",
+                "method": "text_response",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": [],
+                "allows_loop": false,
+                "tool_mode": true
+              },
+              {
+                "types": [
+                  "LanguageModel"
+                ],
+                "selected": "LanguageModel",
+                "name": "model_output",
+                "display_name": "Language Model",
+                "method": "build_model",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": [
+                  "api_key"
+                ],
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "input_value",
+              "system_message",
+              "stream",
+              "max_tokens",
+              "model_kwargs",
+              "json_mode",
+              "model_name",
+              "openai_api_base",
+              "api_key",
+              "temperature",
+              "seed",
+              "max_retries",
+              "timeout"
+            ],
+            "beta": false,
+            "legacy": false,
+            "edited": false,
+            "metadata": {},
+            "tool_mode": false,
+            "category": "models",
+            "key": "OpenAIModel",
+            "score": 0.001,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "OpenAIModel",
+          "id": "OpenAIModel-bLtre"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 653
+        },
+        "dragging": false
+      },
+      {
+        "id": "Prompt-Pzeiz",
+        "type": "genericNode",
+        "position": {
+          "x": 1824.8020270069221,
+          "y": 22.028160395135373
+        },
+        "data": {
+          "node": {
+            "template": {
+              "_type": "Component",
+              "code": {
+                "type": "code",
+                "required": true,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "from langflow.base.prompts.api_utils import process_prompt_template\nfrom langflow.custom import Component\nfrom langflow.inputs.inputs import DefaultPromptField\nfrom langflow.io import MessageTextInput, Output, PromptInput\nfrom langflow.schema.message import Message\nfrom langflow.template.utils import update_template_values\n\n\nclass PromptComponent(Component):\n    display_name: str = \"Prompt\"\n    description: str = \"Create a prompt template with dynamic variables.\"\n    icon = \"prompts\"\n    trace_type = \"prompt\"\n    name = \"Prompt\"\n\n    inputs = [\n        PromptInput(name=\"template\", display_name=\"Template\"),\n        MessageTextInput(\n            name=\"tool_placeholder\",\n            display_name=\"Tool Placeholder\",\n            tool_mode=True,\n            advanced=True,\n            info=\"A placeholder input for tool mode.\",\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Prompt Message\", name=\"prompt\", method=\"build_prompt\"),\n    ]\n\n    async def build_prompt(self) -> Message:\n        prompt = Message.from_template(**self._attributes)\n        self.status = prompt.text\n        return prompt\n\n    def _update_template(self, frontend_node: dict):\n        prompt_template = frontend_node[\"template\"][\"template\"][\"value\"]\n        custom_fields = frontend_node[\"custom_fields\"]\n        frontend_node_template = frontend_node[\"template\"]\n        _ = process_prompt_template(\n            template=prompt_template,\n            name=\"template\",\n            custom_fields=custom_fields,\n            frontend_node_template=frontend_node_template,\n        )\n        return frontend_node\n\n    async def update_frontend_node(self, new_frontend_node: dict, current_frontend_node: dict):\n        \"\"\"This function is called after the code validation is done.\"\"\"\n        frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)\n        template = frontend_node[\"template\"][\"template\"][\"value\"]\n        # Kept it duplicated for backwards compatibility\n        _ = process_prompt_template(\n            template=template,\n            name=\"template\",\n            custom_fields=frontend_node[\"custom_fields\"],\n            frontend_node_template=frontend_node[\"template\"],\n        )\n        # Now that template is updated, we need to grab any values that were set in the current_frontend_node\n        # and update the frontend_node with those values\n        update_template_values(new_template=frontend_node, previous_template=current_frontend_node[\"template\"])\n        return frontend_node\n\n    def _get_fallback_input(self, **kwargs):\n        return DefaultPromptField(**kwargs)\n",
+                "fileTypes": [],
+                "file_path": "",
+                "password": false,
+                "name": "code",
+                "advanced": true,
+                "dynamic": true,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false
+              },
+              "template": {
+                "tool_mode": false,
+                "trace_as_input": true,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "template",
+                "value": "Responde to the user with this message: {message}",
+                "display_name": "Template",
+                "advanced": false,
+                "dynamic": false,
+                "info": "",
+                "title_case": false,
+                "type": "prompt",
+                "_input_type": "PromptInput"
+              },
+              "tool_placeholder": {
+                "tool_mode": true,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "load_from_db": false,
+                "list": false,
+                "list_add_label": "Add More",
+                "required": false,
+                "placeholder": "",
+                "show": true,
+                "name": "tool_placeholder",
+                "value": "",
+                "display_name": "Tool Placeholder",
+                "advanced": true,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "A placeholder input for tool mode.",
+                "title_case": false,
+                "type": "str",
+                "_input_type": "MessageTextInput"
+              },
+              "message": {
+                "field_type": "str",
+                "required": false,
+                "placeholder": "",
+                "list": false,
+                "show": true,
+                "multiline": true,
+                "value": "",
+                "fileTypes": [],
+                "file_path": "",
+                "name": "message",
+                "display_name": "message",
+                "advanced": false,
+                "input_types": [
+                  "Message"
+                ],
+                "dynamic": false,
+                "info": "",
+                "load_from_db": false,
+                "title_case": false,
+                "type": "str"
+              }
+            },
+            "description": "Create a prompt template with dynamic variables.",
+            "icon": "prompts",
+            "is_input": null,
+            "is_output": null,
+            "is_composition": null,
+            "base_classes": [
+              "Message"
+            ],
+            "name": "",
+            "display_name": "Prompt",
+            "documentation": "",
+            "minimized": false,
+            "custom_fields": {
+              "template": [
+                "message"
+              ]
+            },
+            "output_types": [],
+            "full_path": null,
+            "pinned": false,
+            "conditional_paths": [],
+            "frozen": false,
+            "outputs": [
+              {
+                "types": [
+                  "Message"
+                ],
+                "selected": "Message",
+                "name": "prompt",
+                "hidden": null,
+                "display_name": "Prompt Message",
+                "method": "build_prompt",
+                "value": "__UNDEFINED__",
+                "cache": true,
+                "required_inputs": null,
+                "allows_loop": false,
+                "tool_mode": true
+              }
+            ],
+            "field_order": [
+              "template",
+              "tool_placeholder"
+            ],
+            "beta": false,
+            "legacy": false,
+            "error": null,
+            "edited": false,
+            "metadata": {},
+            "tool_mode": false,
+            "lf_version": "1.2.0"
+          },
+          "showNode": true,
+          "type": "Prompt",
+          "id": "Prompt-Pzeiz"
+        },
+        "selected": false,
+        "measured": {
+          "width": 320,
+          "height": 335
+        },
+        "dragging": false
       }
     ],
     "edges": [
       {
-        "source": "ChatInput-jDyhK",
-        "target": "Chroma DB advanced-LNXoV",
-        "sourceHandle": "{œdataTypeœ:œChatInputœ,œidœ:œChatInput-jDyhKœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}",
-        "targetHandle": "{œfieldNameœ:œsearch_queryœ,œidœ:œChroma DB advanced-LNXoVœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
-        "id": "reactflow__edge-ChatInput-jDyhK{œdataTypeœ:œChatInputœ,œidœ:œChatInput-jDyhKœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}-Chroma DB advanced-LNXoV{œfieldNameœ:œsearch_queryœ,œidœ:œChroma DB advanced-LNXoVœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "source": "ChatInput-4HspM",
+        "target": "Chroma DB advanced-FHLNv",
+        "sourceHandle": "{œdataTypeœ:œChatInputœ,œidœ:œChatInput-4HspMœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}",
+        "targetHandle": "{œfieldNameœ:œsearch_queryœ,œidœ:œChroma DB advanced-FHLNvœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "id": "reactflow__edge-ChatInput-4HspM{œdataTypeœ:œChatInputœ,œidœ:œChatInput-4HspMœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}-Chroma DB advanced-FHLNv{œfieldNameœ:œsearch_queryœ,œidœ:œChroma DB advanced-FHLNvœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
         "data": {
           "sourceHandle": {
             "dataType": "ChatInput",
-            "id": "ChatInput-jDyhK",
+            "id": "ChatInput-4HspM",
             "name": "message",
             "output_types": [
               "Message"
@@ -2393,7 +2930,7 @@
           },
           "targetHandle": {
             "fieldName": "search_query",
-            "id": "Chroma DB advanced-LNXoV",
+            "id": "Chroma DB advanced-FHLNv",
             "inputTypes": [
               "Message"
             ],
@@ -2405,15 +2942,15 @@
         "className": ""
       },
       {
-        "source": "OpenAIEmbeddings-bywpF",
-        "target": "Chroma DB advanced-LNXoV",
-        "sourceHandle": "{œdataTypeœ:œOpenAIEmbeddingsœ,œidœ:œOpenAIEmbeddings-bywpFœ,œnameœ:œembeddingsœ,œoutput_typesœ:[œEmbeddingsœ]}",
-        "targetHandle": "{œfieldNameœ:œembeddingœ,œidœ:œChroma DB advanced-LNXoVœ,œinputTypesœ:[œEmbeddingsœ],œtypeœ:œotherœ}",
-        "id": "reactflow__edge-OpenAIEmbeddings-bywpF{œdataTypeœ:œOpenAIEmbeddingsœ,œidœ:œOpenAIEmbeddings-bywpFœ,œnameœ:œembeddingsœ,œoutput_typesœ:[œEmbeddingsœ]}-Chroma DB advanced-LNXoV{œfieldNameœ:œembeddingœ,œidœ:œChroma DB advanced-LNXoVœ,œinputTypesœ:[œEmbeddingsœ],œtypeœ:œotherœ}",
+        "source": "OpenAIEmbeddings-aJVuv",
+        "target": "Chroma DB advanced-FHLNv",
+        "sourceHandle": "{œdataTypeœ:œOpenAIEmbeddingsœ,œidœ:œOpenAIEmbeddings-aJVuvœ,œnameœ:œembeddingsœ,œoutput_typesœ:[œEmbeddingsœ]}",
+        "targetHandle": "{œfieldNameœ:œembeddingœ,œidœ:œChroma DB advanced-FHLNvœ,œinputTypesœ:[œEmbeddingsœ],œtypeœ:œotherœ}",
+        "id": "reactflow__edge-OpenAIEmbeddings-aJVuv{œdataTypeœ:œOpenAIEmbeddingsœ,œidœ:œOpenAIEmbeddings-aJVuvœ,œnameœ:œembeddingsœ,œoutput_typesœ:[œEmbeddingsœ]}-Chroma DB advanced-FHLNv{œfieldNameœ:œembeddingœ,œidœ:œChroma DB advanced-FHLNvœ,œinputTypesœ:[œEmbeddingsœ],œtypeœ:œotherœ}",
         "data": {
           "sourceHandle": {
             "dataType": "OpenAIEmbeddings",
-            "id": "OpenAIEmbeddings-bywpF",
+            "id": "OpenAIEmbeddings-aJVuv",
             "name": "embeddings",
             "output_types": [
               "Embeddings"
@@ -2421,7 +2958,7 @@
           },
           "targetHandle": {
             "fieldName": "embedding",
-            "id": "Chroma DB advanced-LNXoV",
+            "id": "Chroma DB advanced-FHLNv",
             "inputTypes": [
               "Embeddings"
             ],
@@ -2433,41 +2970,97 @@
         "className": ""
       },
       {
-        "source": "Chroma DB advanced-LNXoV",
-        "sourceHandle": "{œdataTypeœ:œChroma DB advancedœ,œidœ:œChroma DB advanced-LNXoVœ,œnameœ:œcomponent_as_toolœ,œoutput_typesœ:[œToolœ]}",
-        "target": "Agent-tphpv",
-        "targetHandle": "{œfieldNameœ:œtoolsœ,œidœ:œAgent-tphpvœ,œinputTypesœ:[œToolœ],œtypeœ:œotherœ}",
+        "source": "Chroma DB advanced-FHLNv",
+        "target": "Agent-ZGp1M",
+        "sourceHandle": "{œdataTypeœ:œChroma DB advancedœ,œidœ:œChroma DB advanced-FHLNvœ,œnameœ:œcomponent_as_toolœ,œoutput_typesœ:[œToolœ]}",
+        "targetHandle": "{œfieldNameœ:œtoolsœ,œidœ:œAgent-ZGp1Mœ,œinputTypesœ:[œToolœ],œtypeœ:œotherœ}",
+        "id": "reactflow__edge-Chroma DB advanced-FHLNv{œdataTypeœ:œChroma DB advancedœ,œidœ:œChroma DB advanced-FHLNvœ,œnameœ:œcomponent_as_toolœ,œoutput_typesœ:[œToolœ]}-Agent-ZGp1M{œfieldNameœ:œtoolsœ,œidœ:œAgent-ZGp1Mœ,œinputTypesœ:[œToolœ],œtypeœ:œotherœ}",
         "data": {
-          "targetHandle": {
-            "fieldName": "tools",
-            "id": "Agent-tphpv",
-            "inputTypes": [
-              "Tool"
-            ],
-            "type": "other"
-          },
           "sourceHandle": {
             "dataType": "Chroma DB advanced",
-            "id": "Chroma DB advanced-LNXoV",
+            "id": "Chroma DB advanced-FHLNv",
             "name": "component_as_tool",
             "output_types": [
               "Tool"
             ]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "Agent-ZGp1M",
+            "inputTypes": [
+              "Tool"
+            ],
+            "type": "other"
           }
         },
-        "id": "xy-edge__Chroma DB advanced-LNXoV{œdataTypeœ:œChroma DB advancedœ,œidœ:œChroma DB advanced-LNXoVœ,œnameœ:œcomponent_as_toolœ,œoutput_typesœ:[œToolœ]}-Agent-tphpv{œfieldNameœ:œtoolsœ,œidœ:œAgent-tphpvœ,œinputTypesœ:[œToolœ],œtypeœ:œotherœ}",
+        "selected": false,
         "animated": false,
         "className": ""
       },
       {
-        "source": "Agent-tphpv",
-        "sourceHandle": "{œdataTypeœ:œAgentœ,œidœ:œAgent-tphpvœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}",
-        "target": "ChatOutput-tRlKm",
-        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-tRlKmœ,œinputTypesœ:[œDataœ,œDataFrameœ,œMessageœ],œtypeœ:œstrœ}",
+        "source": "ChatInput-4HspM",
+        "target": "Agent-ZGp1M",
+        "sourceHandle": "{œdataTypeœ:œChatInputœ,œidœ:œChatInput-4HspMœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œAgent-ZGp1Mœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "id": "reactflow__edge-ChatInput-4HspM{œdataTypeœ:œChatInputœ,œidœ:œChatInput-4HspMœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}-Agent-ZGp1M{œfieldNameœ:œinput_valueœ,œidœ:œAgent-ZGp1Mœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "sourceHandle": {
+            "dataType": "ChatInput",
+            "id": "ChatInput-4HspM",
+            "name": "message",
+            "output_types": [
+              "Message"
+            ]
+          },
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "Agent-ZGp1M",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          }
+        },
+        "selected": false,
+        "animated": false,
+        "className": ""
+      },
+      {
+        "source": "Prompt-Pzeiz",
+        "sourceHandle": "{œdataTypeœ:œPromptœ,œidœ:œPrompt-Pzeizœ,œnameœ:œpromptœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "OpenAIModel-bLtre",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œOpenAIModel-bLtreœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
         "data": {
           "targetHandle": {
             "fieldName": "input_value",
-            "id": "ChatOutput-tRlKm",
+            "id": "OpenAIModel-bLtre",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          },
+          "sourceHandle": {
+            "dataType": "Prompt",
+            "id": "Prompt-Pzeiz",
+            "name": "prompt",
+            "output_types": [
+              "Message"
+            ]
+          }
+        },
+        "id": "xy-edge__Prompt-Pzeiz{œdataTypeœ:œPromptœ,œidœ:œPrompt-Pzeizœ,œnameœ:œpromptœ,œoutput_typesœ:[œMessageœ]}-OpenAIModel-bLtre{œfieldNameœ:œinput_valueœ,œidœ:œOpenAIModel-bLtreœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "animated": false,
+        "className": ""
+      },
+      {
+        "source": "Agent-ZGp1M",
+        "sourceHandle": "{œdataTypeœ:œAgentœ,œidœ:œAgent-ZGp1Mœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "ChatOutput-tpsRQ",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-tpsRQœ,œinputTypesœ:[œDataœ,œDataFrameœ,œMessageœ],œtypeœ:œstrœ}",
+        "data": {
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "ChatOutput-tpsRQ",
             "inputTypes": [
               "Data",
               "DataFrame",
@@ -2477,53 +3070,26 @@
           },
           "sourceHandle": {
             "dataType": "Agent",
-            "id": "Agent-tphpv",
+            "id": "Agent-ZGp1M",
             "name": "response",
             "output_types": [
               "Message"
             ]
           }
         },
-        "id": "xy-edge__Agent-tphpv{œdataTypeœ:œAgentœ,œidœ:œAgent-tphpvœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}-ChatOutput-tRlKm{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-tRlKmœ,œinputTypesœ:[œDataœ,œDataFrameœ,œMessageœ],œtypeœ:œstrœ}",
-        "animated": false,
-        "className": ""
-      },
-      {
-        "source": "ChatInput-jDyhK",
-        "sourceHandle": "{œdataTypeœ:œChatInputœ,œidœ:œChatInput-jDyhKœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}",
-        "target": "Agent-tphpv",
-        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œAgent-tphpvœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
-        "data": {
-          "targetHandle": {
-            "fieldName": "input_value",
-            "id": "Agent-tphpv",
-            "inputTypes": [
-              "Message"
-            ],
-            "type": "str"
-          },
-          "sourceHandle": {
-            "dataType": "ChatInput",
-            "id": "ChatInput-jDyhK",
-            "name": "message",
-            "output_types": [
-              "Message"
-            ]
-          }
-        },
-        "id": "xy-edge__ChatInput-jDyhK{œdataTypeœ:œChatInputœ,œidœ:œChatInput-jDyhKœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}-Agent-tphpv{œfieldNameœ:œinput_valueœ,œidœ:œAgent-tphpvœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "id": "xy-edge__Agent-ZGp1M{œdataTypeœ:œAgentœ,œidœ:œAgent-ZGp1Mœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}-ChatOutput-tpsRQ{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-tpsRQœ,œinputTypesœ:[œDataœ,œDataFrameœ,œMessageœ],œtypeœ:œstrœ}",
         "animated": false,
         "className": ""
       }
     ],
     "viewport": {
-      "x": 249.4675222726857,
-      "y": -40.531814317304,
-      "zoom": 0.5425311031800942
+      "x": 47.87225313596423,
+      "y": 154.8221881392867,
+      "zoom": 0.40245585154178115
     }
   },
-  "description": "Use your RAG pipeline as tools in multi-agent pipelines",
-  "name": "Agentic RAG retriever",
+  "description": "Use agentic rag to retrieve information for responding to the user question",
+  "name": "Agentic RAG Retriever",
   "last_tested_version": "1.2.0",
   "endpoint_name": null,
   "is_component": false
