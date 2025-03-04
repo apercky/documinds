@@ -5,19 +5,24 @@ import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { useChat } from "@ai-sdk/react";
 import { CornerDownLeft, StopCircle } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 import { MemoizedChatBubble } from "./chat-bubble-message";
+
 export default function Chat() {
   const searchParams = useSearchParams();
   const collection = searchParams.get("collection");
   const chatId = searchParams.get("chatId") || undefined;
+  const language = useLocale();
+  const t = useTranslations("Languages");
 
   const { messages, input, handleInputChange, handleSubmit, status, stop } =
     useChat({
       api: "/api/chat/langflow",
       body: {
         collection,
+        language: t(language),
       },
       id: chatId,
     });

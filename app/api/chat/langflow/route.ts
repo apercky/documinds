@@ -11,7 +11,7 @@ import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
-  const { messages, collection, chatId } = await req.json();
+  const { messages, collection, id, language } = await req.json();
 
   if (!collection) {
     return new Response("Collection name is required", { status: 400 });
@@ -35,16 +35,21 @@ export async function POST(req: Request) {
       baseUrl: process.env.LANGFLOW_BASE_URL || "",
     });
 
+    const sessionId = id || "default_session";
+
+    console.log("Session ID:", sessionId);
+    console.log("Language:", language);
+
     const tweaks: Tweaks = {
-      "ChatInput-looVc": {},
-      "ParseData-rwSX3": {},
-      "Prompt-da8nw": {},
-      "ChatOutput-zyWXu": {},
-      "OpenAIModel-RwfHQ": {},
+      "ChatInput-looVc": {
+        session_id: sessionId,
+      },
       "CustomComponent-NuPci": {
         collection_name: collection,
       },
-      "OpenAIEmbeddings-3DIZ9": {},
+      "TextInput-XSObq": {
+        input_value: language,
+      },
     };
     const tweaksAgentic: Tweaks = {
       "ChatInput-4HspM": {},
@@ -61,7 +66,7 @@ export async function POST(req: Request) {
       .stream(lastUserMessage.content, {
         input_type: InputTypes.CHAT,
         output_type: OutputTypes.CHAT,
-        session_id: chatId,
+        session_id: sessionId,
         tweaks,
       });
 
