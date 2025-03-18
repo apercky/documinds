@@ -44,7 +44,9 @@ export async function POST(req: Request) {
       "Chroma DB advanced-co8kq": {
         collection_name: collection,
       },
-      "Memory-VUGbD": {},
+      "ChatInput-looVc": {
+        session_id: sessionId,
+      },
     };
 
     const tweaksAgentic: Tweaks = {
