@@ -41,16 +41,12 @@ export async function POST(req: Request) {
     console.log("Language:", language);
 
     const tweaks: Tweaks = {
-      "ChatInput-looVc": {
-        session_id: sessionId,
-      },
-      "CustomComponent-NuPci": {
+      "Chroma DB advanced-co8kq": {
         collection_name: collection,
       },
-      "TextInput-XSObq": {
-        input_value: language,
-      },
+      "Memory-VUGbD": {},
     };
+
     const tweaksAgentic: Tweaks = {
       "ChatInput-4HspM": {},
       "ChatOutput-tpsRQ": {},
