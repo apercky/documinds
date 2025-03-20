@@ -42,7 +42,8 @@ const createNavData = (
   pathname: string,
   currentCollection: string | null,
   locale: string,
-  messages: unknown
+  messages: unknown,
+  searchParams: URLSearchParams
 ) => {
   // Helper function to check if a path matches the current pathname
   const isPathActive = (path: string) => {
@@ -56,6 +57,9 @@ const createNavData = (
     return pathname.startsWith(localePath);
   };
 
+  // Get the current chatId from URL parameters
+  const currentChatId = searchParams.get("chatId");
+
   return {
     navMain: [
       {
@@ -67,7 +71,9 @@ const createNavData = (
           (isSectionActive("/dashboard") && !pathname.includes("/dashboard/")),
         items: collections.map((collection) => ({
           title: getCollectionTitle(collection, messages),
-          url: `/dashboard?collection=${collection.name}`,
+          url: `/dashboard?collection=${collection.name}&chatId=${
+            currentChatId || Date.now()
+          }`,
           isActive: currentCollection === collection.name,
         })),
       },
@@ -213,7 +219,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     pathname,
     currentCollection,
     locale,
-    messages
+    messages,
+    searchParams
   );
 
   return (
