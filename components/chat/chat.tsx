@@ -1,62 +1,87 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  ChatBubble,
-  ChatBubbleAvatar,
-  ChatBubbleMessage,
-} from "@/components/ui/chat-bubble";
 import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { useChat } from "@ai-sdk/react";
-import { CornerDownLeft } from "lucide-react";
+import { CornerDownLeft, StopCircle } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect } from "react";
+import { MemoizedChatBubble } from "./chat-bubble-message";
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat();
+  const searchParams = useSearchParams();
+  const collection = searchParams.get("collection");
+  const chatId = searchParams.get("chatId") || undefined;
+  const language = useLocale();
+  const t = useTranslations("Languages");
+
+  const { messages, input, handleInputChange, handleSubmit, status, stop } =
+    useChat({
+      api: "/api/chat/langflow",
+      body: {
+        collection,
+        language: t(language),
+      },
+      id: chatId,
+    });
+
+  useEffect(() => {
+    console.log("chatId", chatId);
+  }, [chatId]);
+
+  const onSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      handleSubmit(e);
+    },
+    [handleSubmit]
+  );
+
+  if (!collection) {
+    return (
+      <div className="mt-6 h-[calc(100vh-75px)] bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg flex flex-col">
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">
+          Please select a collection from the sidebar
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6 h-[calc(100vh-75px)] bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg flex flex-col">
-      <div className="flex-1 w-full overflow-hidden [&_*]:scrollbar-none">
+      <div className="flex-1 w-full overflow-hidden">
         <ChatMessageList className="scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {messages.map((message) => (
-            <ChatBubble
-              key={message.id}
-              variant={message.role === "user" ? "sent" : "received"}
-            >
-              <ChatBubbleAvatar
-                className="h-8 w-8 shrink-0"
-                src={
-                  message.role === "user"
-                    ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop"
-                    : "https://no-image.png"
-                }
-                fallback={message.role === "user" ? "US" : "AI"}
-              />
-              <ChatBubbleMessage
-                variant={message.role === "user" ? "sent" : "received"}
-                className="whitespace-pre-wrap"
-              >
-                {message.content}
-              </ChatBubbleMessage>
-            </ChatBubble>
+            <MemoizedChatBubble key={message.id} message={message} />
           ))}
 
-          {isLoading && (
-            <ChatBubble
-              variant="received"
-              className="justify-center items-center"
-            >
-              <ChatBubbleAvatar className="h-8 w-8 shrink-0" fallback="AI" />
-              <ChatBubbleMessage isLoading />
-            </ChatBubble>
+          {status === "streaming" && (
+            <>
+              <MemoizedChatBubble
+                message={{ role: "assistant", content: "", id: "loading" }}
+                isLoading
+              />
+              <div className="flex justify-center mt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => stop()}
+                >
+                  <StopCircle className="h-4 w-4" />
+                  Stop generating
+                </Button>
+              </div>
+            </>
           )}
         </ChatMessageList>
       </div>
 
       <div className="p-4">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1"
         >
           <ChatInput
@@ -64,9 +89,29 @@ export default function Chat() {
             onChange={handleInputChange}
             placeholder="Type your message..."
             className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (input.trim()) {
+                  onSubmit(e);
+                }
+              }
+            }}
           />
           <div className="flex items-center p-3 pt-0 justify-between">
-            <Button type="submit" size="sm" className="ml-auto gap-1.5">
+            <p className="text-xs text-muted-foreground">
+              Press{" "}
+              <kbd className="px-1 py-0.5 text-[10px] font-mono border rounded-md">
+                Shift + ↵
+              </kbd>{" "}
+              for new line
+            </p>
+            <Button
+              type="submit"
+              size="sm"
+              className="ml-auto gap-1.5"
+              disabled={!input.trim()}
+            >
               Send Message
               <CornerDownLeft className="size-3.5" />
             </Button>

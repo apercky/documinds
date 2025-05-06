@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  unstructured-api:
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:0.0.80
+    container_name: unstructured-api
+    platform: linux/arm64
+    ports:
+      - "8001:8000"
+    environment:
+      - LOG_LEVEL=DEBUG
+      - METRICS_ENABLED=false
+      - VALIDATE_TYPES=false
+    command: ["--port", "8000", "--host", "0.0.0.0"]
+    mem_limit: 6g  # Set max memory usage to 4GB
+    cpus: "4.0"     # Allocate 2 CPU cores
+    restart: unless-stopped

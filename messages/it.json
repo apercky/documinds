@@ -13,7 +13,8 @@
     "Navigation": {
       "dashboard": "Dashboard",
       "users": "Utenti",
-      "settings": "Impostazioni"
+      "settings": "Impostazioni",
+      "newChat": "Nuova Chat"
     },
     "UserNav": {
       "profile": "Profilo",
@@ -26,5 +27,99 @@
       "en": "Inglese",
       "it": "Italiano",
       "switchLanguage": "Cambia lingua"
+    },
+    "deleteAlert": {
+      "title": "Sei assolutamente sicuro?",
+      "description": "Questa azione non può essere annullata. Eliminerà permanentemente la collezione \"{name}\" e tutti i suoi documenti.",
+      "confirmText": "Digita {action} per confermare:",
+      "cancelButton": "Annulla",
+      "deleteButton": "Elimina",
+      "confirmPlaceholder": "Digita {action} per confermare"
+    },
+    "collectionDetails": {
+      "title": "Dettagli Collezione",
+      "stats": {
+        "title": "Statistiche",
+        "documents": "Documenti Totali"
+      },
+      "settings": {
+        "title": "Impostazioni",
+        "name": "Nome Collezione",
+        "metadata": "Metadati",
+        "addField": "Aggiungi Campo",
+        "selectKey": "Seleziona una chiave",
+        "valuePlaceholder": "Valore (max 35 caratteri)",
+        "inUse": "in uso",
+        "cancel": "Annulla",
+        "save": "Salva Modifiche",
+        "edit": "Modifica",
+        "deleteDocuments": "Elimina Tutti i Documenti",
+        "deletingDocuments": "Eliminazione Documenti..."
+      },
+      "error": {
+        "update": "Impossibile aggiornare la collezione",
+        "deleteDocuments": "Impossibile eliminare i documenti"
+      },
+      "deleteDialog": {
+        "allDocumentsIn": "tutti i documenti in"
+      }
+    },
+    "metadataKeys": {
+      "brand": "Marca",
+      "category": "Categoria",
+      "displayName": "Nome Visualizzato",
+      "displayKey": "Chiave di Visualizzazione"
+    },
+    "validation": {
+      "collection": {
+        "name": {
+          "min": "Il nome della collezione deve contenere almeno {min} caratteri",
+          "max": "Il nome della collezione deve contenere meno di {max} caratteri",
+          "format": "Sono consentiti solo lettere minuscole, numeri e trattini"
+        },
+        "metadata": {
+          "key": {
+            "required": "Seleziona una chiave"
+          },
+          "value": {
+            "required": "Il valore è obbligatorio",
+            "max": "Il valore deve contenere meno di {max} caratteri",
+            "empty": "Il valore non può essere vuoto"
+          }
+        }
+      }
+    },
+    "collections": {
+      "loading": "Caricamento collezioni...",
+      "empty": "Nessuna collezione trovata",
+      "title": "Collezioni",
+      "documents": "Documenti",
+      "error": {
+        "fetch": "Impossibile caricare le collezioni",
+        "update": "Impossibile aggiornare la collezione",
+        "delete": "Impossibile eliminare la collezione",
+        "create": "Impossibile creare la collezione"
+      }
+    },
+    "createCollection": {
+      "button": "Crea Collezione",
+      "title": "Crea Nuova Collezione",
+      "name": {
+        "label": "Nome Collezione",
+        "placeholder": "Inserisci il nome della collezione"
+      },
+      "metadata": {
+        "label": "Metadati",
+        "addField": "Aggiungi Campo",
+        "selectPlaceholder": "Seleziona una chiave",
+        "valuePlaceholder": "Valore (max 35 caratteri)",
+        "inUse": "in uso"
+      },
+      "cancel": "Annulla",
+      "submit": "Crea"
+    },
+    "collectionDisplay": {
+      "onestore-user-guide": "OneStore Diesel",
+      "marni-user-guide": "OneStore Marni"
     }
-  }
+}

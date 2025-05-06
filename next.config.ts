@@ -3,7 +3,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./app/i18n/request.ts");
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -31,6 +31,13 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "node-fetch": "isomorphic-fetch",
+    };
+    return config;
+  },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
@@ -39,6 +46,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "15mb",
     },
   },
-};
+  serverExternalPackages: ["tesseract.js"],
+} satisfies NextConfig;
 
 export default withNextIntl(nextConfig);
