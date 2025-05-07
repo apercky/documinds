@@ -97,14 +97,15 @@ export const vectorStore = {
           // After successful collection creation, add metadata
           if (Object.keys(metadata).length > 0) {
             try {
+              const id = crypto.randomUUID();
               await qdrantClient.upsert(collectionName, {
                 points: [
                   {
-                    id: crypto.randomUUID(),
+                    id,
                     vector: new Array(VECTOR_SIZE).fill(0),
                     payload: {
                       _is_system: true,
-                      _collection_metadata: metadata,
+                      _collection_metadata: { ...metadata, id },
                     },
                   },
                 ],
@@ -608,25 +609,74 @@ export const vectorStore = {
       // Get current metadata
       const currentMetadata = await this._getCollectionMetadata(collectionName);
 
+      // If there's no id in metadata, we can't update anything
+      if (!currentMetadata.id) {
+        console.warn("No metadata ID found, nothing to update");
+        return;
+      }
+
       // Merge metadata
       const mergedMetadata = {
         ...currentMetadata,
         ...metadata,
       };
 
-      // Update system point with new metadata
-      const pointData: Schemas["PointStruct"] = {
-        id: crypto.randomUUID(),
-        vector: new Array(VECTOR_SIZE).fill(0),
-        payload: {
-          _is_system: true,
-          _collection_metadata: mergedMetadata,
-        },
+      // Find all points with this metadata ID
+      const filter: Schemas["Filter"] = {
+        must: [
+          {
+            key: "_collection_metadata.id",
+            match: { value: currentMetadata.id },
+          },
+        ],
       };
 
+      // Use scroll to retrieve all relevant points
+      let pointsToUpdate: Schemas["Record"][] = [];
+      let offset: string | undefined = undefined;
+
+      while (true) {
+        const scrollResponse = await qdrantClient.scroll(collectionName, {
+          filter,
+          limit: 100,
+          offset,
+          with_payload: true,
+          with_vector: false,
+        });
+
+        const points = scrollResponse.points || [];
+        pointsToUpdate = [...pointsToUpdate, ...points];
+
+        if (!scrollResponse.next_page_offset || points.length === 0) break;
+
+        offset = scrollResponse.next_page_offset as string;
+      }
+
+      // If no points found with this metadata ID, nothing to update
+      if (pointsToUpdate.length === 0) {
+        console.warn(
+          `No points found with metadata ID ${currentMetadata.id}, nothing to update`
+        );
+        return;
+      }
+
+      // Update all found points with new metadata
       await qdrantClient.upsert(collectionName, {
-        points: [pointData],
+        points: pointsToUpdate.map((point) => ({
+          id: point.id,
+          vector: point.vector
+            ? Array.isArray(point.vector)
+              ? point.vector
+              : new Array(VECTOR_SIZE).fill(0)
+            : new Array(VECTOR_SIZE).fill(0),
+          payload: {
+            ...point.payload,
+            _collection_metadata: mergedMetadata,
+          },
+        })),
       });
+
+      console.log(`Updated ${pointsToUpdate.length} points with new metadata`);
     } catch (error) {
       console.error("Error updating collection metadata:", error);
       throw error;
