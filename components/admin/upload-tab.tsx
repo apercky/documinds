@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ProcessProgress } from "@/lib/vs/chroma/vector-store";
+import { ProcessProgress } from "@/lib/vs/qdrant/vector-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";

@@ -1,11 +1,8 @@
 //import CustomPDFLoader from "@/lib/langchain/custom-pdf-loader";
 import { documentProcessor } from "@/lib/langchain/document-processor";
-import { vectorStore } from "@/lib/vs/chroma/vector-store";
-//import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
-import {
-  UnstructuredLoader,
-  UnstructuredLoaderOptions,
-} from "@langchain/community/document_loaders/fs/unstructured";
+import { vectorStore } from "@/lib/vs/qdrant/vector-store";
+import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { DocumentLoader } from "@langchain/core/document_loaders/base";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { NextRequest } from "next/server";
@@ -41,44 +38,12 @@ export async function POST(request: NextRequest) {
 
     let loader: DocumentLoader;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    console.log("Buffer size:", buffer.length);
-
-    const options: UnstructuredLoaderOptions = {
-      apiUrl: process.env.UNSTRUCTURED_API_URL,
-      strategy: "fast",
-      chunkingStrategy: "by_title",
-      extractImageBlockTypes: ["Image", "Table"],
-      multiPageSections: true,
-      ocrLanguages: ["it", "en"],
-      coordinates: true,
-    };
-
-    console.log("Unstructured API URL:", options.apiUrl);
-
     switch (file.type) {
       case "application/pdf":
-        console.log(
-          "Processing PDF file with options:",
-          JSON.stringify(options, null, 2)
-        );
-        loader = new UnstructuredLoader(
-          {
-            buffer,
-            fileName: file.name,
-          },
-          options
-        );
+        loader = new PDFLoader(file);
         break;
       case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        loader = new UnstructuredLoader(
-          {
-            buffer,
-            fileName: file.name,
-          },
-          options
-        );
-
+        loader = new DocxLoader(file);
         break;
       case "text/plain":
         loader = new TextLoader(file);
@@ -88,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const docs = await loader.load();
-    //console.log(JSON.stringify(docs, null, 2));
+    console.log(JSON.stringify(docs, null, 2));
 
     // Delete all documents from the collection
     await vectorStore.deleteDocumentsByMetadata(collectionName, {

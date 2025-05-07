@@ -4,6 +4,7 @@ import { Collection } from "@/types/collection";
 import { Document } from "@langchain/core/documents";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantClient, type Schemas } from "@qdrant/js-client-rest";
+import crypto from "crypto";
 
 // Latest model as of 2024
 const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-large";
@@ -40,51 +41,87 @@ export type ProgressCallback = (progress: ProcessProgress) => void;
 // Vector store manager functions
 export const vectorStore = {
   /**
+   * Checks if a collection exists
+   * @private
+   */
+  async _checkCollectionExists(collectionName: string): Promise<boolean> {
+    try {
+      const response = await qdrantClient.collectionExists(collectionName);
+      const exists = response.exists;
+      console.log("collectionExists:", exists ? "true" : "false");
+      return exists;
+    } catch (error) {
+      console.error("Error checking if collection exists:", error);
+      return false;
+    }
+  },
+
+  /**
    * Creates or retrieves a collection with retry mechanism
    */
   async createOrGetCollection(config: {
     collectionName: string;
     metadata?: Record<string, unknown>;
-    distance?: "cosine" | "l2" | "ip";
+    distance?: Schemas["Distance"];
   }): Promise<void> {
     const { collectionName, metadata = {}, distance = "cosine" } = config;
 
     try {
       // Check if collection exists using collection_exists endpoint
-      const collectionExists = await qdrantClient.collectionExists(
+      const collectionExists = await this._checkCollectionExists(
         collectionName
       );
 
       if (!collectionExists) {
         // Map distance to Qdrant distance type
         let distanceValue: Schemas["Distance"] = "Cosine";
-        if (distance === "l2") distanceValue = "Euclid";
-        if (distance === "ip") distanceValue = "Dot";
 
-        // Create collection with properly typed vector config
-        await qdrantClient.createCollection(collectionName, {
-          vectors: {
-            size: VECTOR_SIZE,
-            distance: distanceValue,
-          },
-        });
-
-        // Store collection metadata as a special system point
-        if (Object.keys(metadata).length > 0) {
-          await qdrantClient.upsert(collectionName, {
-            points: [
-              {
-                id: "system_metadata",
-                vector: new Array(VECTOR_SIZE).fill(0), // Zero vector for system data
-                payload: {
-                  _is_system: true,
-                  _collection_metadata: metadata,
-                },
+        try {
+          // Create collection with properly typed vector config
+          const collectionCreated = await qdrantClient.createCollection(
+            collectionName,
+            {
+              vectors: {
+                size: VECTOR_SIZE,
+                distance: distanceValue,
               },
-            ],
-          });
+            }
+          );
+
+          // Store collection metadata as a special system point
+          if (!collectionCreated) {
+            console.error("Failed to create collection");
+            throw new Error("Failed to create collection");
+          }
+
+          // After successful collection creation, add metadata
+          if (Object.keys(metadata).length > 0) {
+            try {
+              await qdrantClient.upsert(collectionName, {
+                points: [
+                  {
+                    id: crypto.randomUUID(),
+                    vector: new Array(VECTOR_SIZE).fill(0),
+                    payload: {
+                      _is_system: true,
+                      _collection_metadata: metadata,
+                    },
+                  },
+                ],
+              });
+              console.log("System metadata point created successfully");
+            } catch (error) {
+              console.error("Error creating system metadata point:", error);
+              // We don't want to fail the whole operation if just the metadata upsert fails
+            }
+          }
+        } catch (error) {
+          console.error("Error creating collection:", error);
+          throw error;
         }
       }
+
+      return; // Explicit return to satisfy TypeScript return type
     } catch (error) {
       console.warn(error);
       throw error;
@@ -100,6 +137,11 @@ export const vectorStore = {
     batchSize: number = 5,
     onProgress?: ProgressCallback
   ): Promise<void> {
+    // Get collection metadata to merge with document metadata
+    const collectionMetadata = await this._getCollectionMetadata(
+      collectionName
+    );
+
     const totalDocuments = documents.length;
     const totalBatches = Math.ceil(totalDocuments / batchSize);
 
@@ -159,6 +201,7 @@ export const vectorStore = {
           payload: {
             page_content: doc.pageContent,
             metadata: doc.metadata || {},
+            _collection_metadata: collectionMetadata,
           },
         };
       });
@@ -292,7 +335,7 @@ export const vectorStore = {
   }> {
     try {
       // Check if collection exists
-      const collectionExists = await qdrantClient.collectionExists(
+      const collectionExists = await this._checkCollectionExists(
         collectionName
       );
 
@@ -357,7 +400,7 @@ export const vectorStore = {
   }> {
     try {
       // Check if collection exists
-      const collectionExists = await qdrantClient.collectionExists(
+      const collectionExists = await this._checkCollectionExists(
         collectionName
       );
 
@@ -500,7 +543,7 @@ export const vectorStore = {
   ): Promise<{ deletedCount: number }> {
     try {
       // Check if collection exists
-      const collectionExists = await qdrantClient.collectionExists(
+      const collectionExists = await this._checkCollectionExists(
         collectionName
       );
 
@@ -554,7 +597,7 @@ export const vectorStore = {
   ): Promise<void> {
     try {
       // Check if collection exists
-      const collectionExists = await qdrantClient.collectionExists(
+      const collectionExists = await this._checkCollectionExists(
         collectionName
       );
 
@@ -573,7 +616,7 @@ export const vectorStore = {
 
       // Update system point with new metadata
       const pointData: Schemas["PointStruct"] = {
-        id: "system_metadata",
+        id: crypto.randomUUID(),
         vector: new Array(VECTOR_SIZE).fill(0),
         payload: {
           _is_system: true,

@@ -1,4 +1,4 @@
-import { vectorStore } from "@/lib/vs/chroma/vector-store";
+import { vectorStore } from "@/lib/vs/qdrant/vector-store";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
