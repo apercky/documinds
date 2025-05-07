@@ -1,6 +1,9 @@
-import { vectorStore } from "@/lib/langchain/vector-store";
+import { vectorStore } from "@/lib/vs/chroma/vector-store";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Update the metadata of a collection
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ name: string }> }

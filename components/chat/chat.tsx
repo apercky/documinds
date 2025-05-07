@@ -19,7 +19,7 @@ export default function Chat() {
 
   const { messages, input, handleInputChange, handleSubmit, status, stop } =
     useChat({
-      api: "/api/chat/langflow",
+      api: "/api/chat",
       body: {
         collection,
         language: t(language),

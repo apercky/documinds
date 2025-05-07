@@ -1,6 +1,9 @@
-import { vectorStore } from "@/lib/langchain/vector-store";
+import { vectorStore } from "@/lib/vs/chroma/vector-store";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Get all collections
+ */
 export async function GET() {
   try {
     const collections = await vectorStore.getCollections();
@@ -15,6 +18,9 @@ export async function GET() {
   }
 }
 
+/**
+ * Create a new collection
+ */
 export async function POST(request: NextRequest) {
   try {
     const { name, metadata } = await request.json();
@@ -42,6 +48,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
+/**
+ * Delete a collection
+ */
 export async function DELETE(request: NextRequest) {
   try {
     const { collectionName } = await request.json();

@@ -1,22 +1,17 @@
-import { vectorStore } from "@/lib/langchain/vector-store";
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+//import { callLangFlow } from "@/lib/langflow-adapter";
+import {
+  StreamEvent,
+  Tweaks,
+  createStreamingResponseFromReadableStream,
+} from "@/lib/langflow-adapter";
+import { LangflowClient } from "@datastax/langflow-client";
+import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  compatibility: "strict",
-});
-
-const OPENAI_MODEL = "gpt-4o-mini-2024-07-18";
-const MAX_CONTEXT_DOCS = 4;
-
-const openaiModel = openai(OPENAI_MODEL);
-
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+// Allow streaming responses up to 300 seconds
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
-  const { messages, collection } = await req.json();
+  const { messages, collection, id, language } = await req.json();
 
   if (!collection) {
     return new Response("Collection name is required", { status: 400 });
@@ -33,31 +28,49 @@ export async function POST(req: Request) {
       return new Response("No user message found", { status: 400 });
     }
 
-    // Perform similarity search on the collection
-    const searchResults = await vectorStore.similaritySearch(
-      lastUserMessage.content,
-      collection,
-      MAX_CONTEXT_DOCS
-    );
+    console.log("Starting stream with message:", lastUserMessage.content);
 
-    // Create context from search results
-    const context = searchResults.map((doc) => doc.pageContent).join("\n\n");
-
-    // Add system message with context
-    const augmentedMessages = [
-      {
-        role: "system",
-        content: `You are a helpful AI assistant. Use the following context to answer the user's questions:\n\n${context}`,
-      },
-      ...messages,
-    ];
-
-    const result = streamText({
-      model: openaiModel,
-      messages: augmentedMessages,
+    const client = new LangflowClient({
+      apiKey: process.env.LANGFLOW_API_KEY || "",
+      baseUrl: process.env.LANGFLOW_BASE_URL || "",
     });
 
-    return result.toDataStreamResponse();
+    const sessionId = id || "default_session";
+
+    console.log("Session ID:", sessionId);
+    console.log("Language:", language);
+
+    const tweaks: Tweaks = {
+      "Chroma DB advanced-co8kq": {
+        collection_name: collection,
+      },
+      "ChatInput-looVc": {
+        session_id: sessionId,
+      },
+    };
+
+    const tweaksAgentic: Tweaks = {
+      "ChatInput-4HspM": {},
+      "ChatOutput-tpsRQ": {},
+      "Chroma DB advanced-FHLNv": {
+        collection_name: collection,
+      },
+      "OpenAIEmbeddings-aJVuv": {},
+      "Agent-ZGp1M": {},
+    };
+
+    const response = await client
+      .flow(process.env.LANGFLOW_FLOW_ID || "")
+      .stream(lastUserMessage.content, {
+        input_type: InputTypes.CHAT,
+        output_type: OutputTypes.CHAT,
+        session_id: sessionId,
+        tweaks,
+      });
+
+    return createStreamingResponseFromReadableStream(
+      response as ReadableStream<StreamEvent>
+    );
   } catch (error) {
     console.error("Chat API error:", error);
     return new Response(

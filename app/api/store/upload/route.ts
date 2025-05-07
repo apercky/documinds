@@ -1,6 +1,6 @@
 //import CustomPDFLoader from "@/lib/langchain/custom-pdf-loader";
 import { documentProcessor } from "@/lib/langchain/document-processor";
-import { vectorStore } from "@/lib/langchain/vector-store";
+import { vectorStore } from "@/lib/vs/chroma/vector-store";
 //import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import {
   UnstructuredLoader,
