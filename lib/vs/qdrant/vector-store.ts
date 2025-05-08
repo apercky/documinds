@@ -369,25 +369,17 @@ export const vectorStore = {
     collectionName: string,
     filter: Schemas["Filter"]
   ): Promise<number> {
-    let offset: string | undefined = undefined;
-    let totalCount = 0;
-
-    while (true) {
-      const scrollResponse = await qdrantClient.scroll(collectionName, {
+    try {
+      const response = await qdrantClient.count(collectionName, {
         filter,
-        limit: 100,
-        offset,
+        exact: true,
       });
 
-      const points = scrollResponse.points ?? [];
-      totalCount += points.length;
-
-      if (!scrollResponse.next_page_offset || points.length === 0) break;
-
-      offset = scrollResponse.next_page_offset as string;
+      return response.count;
+    } catch (error) {
+      console.error("Error counting documents:", error);
+      return 0;
     }
-
-    return totalCount;
   },
 
   /**
