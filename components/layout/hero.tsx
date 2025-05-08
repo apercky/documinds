@@ -34,14 +34,18 @@ export function Hero() {
         className="flex flex-col items-center justify-center gap-8"
       >
         <motion.div variants={item}>
-          <Image
-            className="dark:invert"
-            src="/logo.svg"
-            alt="Documinds logo"
-            width={180}
-            height={38}
-            priority
-          />
+          <div
+            style={{ position: "relative", width: "140px", height: "140px" }}
+          >
+            <Image
+              className="dark:invert"
+              src="/logo.svg"
+              alt="Documinds logo"
+              fill
+              style={{ objectFit: "contain" }}
+              priority
+            />
+          </div>
         </motion.div>
         <motion.h1
           variants={item}

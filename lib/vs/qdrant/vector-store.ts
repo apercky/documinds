@@ -415,9 +415,63 @@ export const vectorStore = {
   },
 
   /**
+   * Gets collections ordered by name
+   * @param metadata Optional metadata filter to match against collection metadata
+   */
+  async getCollections(
+    metadata?: Record<string, unknown>
+  ): Promise<Collection[]> {
+    try {
+      const collectionsResponse = await qdrantClient.getCollections();
+
+      // Get info for each collection
+      const collectionsWithInfo = await Promise.all(
+        collectionsResponse.collections.map(async (col: any) => {
+          const collectionInfo: Schemas["CollectionInfo"] =
+            await qdrantClient.getCollection(col.name);
+
+          // Get collection metadata from system point
+          const collectionMetadata = await this._getCollectionMetadata(
+            col.name
+          );
+
+          // Adjust count for system point
+          const systemPointsCount =
+            Object.keys(collectionMetadata).length > 0 ? 1 : 0;
+          const documentCount =
+            (collectionInfo.points_count || 0) - systemPointsCount;
+
+          return {
+            name: col.name,
+            documentCount,
+            metadata: collectionMetadata,
+          };
+        })
+      );
+
+      // Filter collections by metadata if provided
+      let filteredCollections = collectionsWithInfo;
+      if (metadata && Object.keys(metadata).length > 0) {
+        filteredCollections = collectionsWithInfo.filter((collection) => {
+          // Check if all metadata criteria match
+          return Object.entries(metadata).every(([key, value]) => {
+            return collection.metadata[key] === value;
+          });
+        });
+      }
+
+      // Sort by name
+      return filteredCollections.sort((a, b) => a.name.localeCompare(b.name));
+    } catch (error) {
+      console.error("Error getting collections:", error);
+      return [];
+    }
+  },
+
+  /**
    * Gets all collections ordered by name
    */
-  async getCollections(): Promise<Collection[]> {
+  async getAllCollections(): Promise<Collection[]> {
     try {
       const collectionsResponse = await qdrantClient.getCollections();
 
