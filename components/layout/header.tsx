@@ -17,7 +17,6 @@ export function Header() {
         <div className="flex items-center">
           <Link
             href="/"
-            locale={locale}
             className="mr-6 flex items-center space-x-2 group w-auto"
           >
             <Image

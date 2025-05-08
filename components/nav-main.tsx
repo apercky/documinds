@@ -97,7 +97,7 @@ export function NavMain({ items }: NavMainProps) {
                             "bg-accent/50 text-accent-foreground underline underline-offset-4"
                         )}
                       >
-                        <Link href={subItem.url} locale={locale}>
+                        <Link href={subItem.url}>
                           <span>{subItem.title}</span>
                         </Link>
                       </SidebarMenuSubButton>

@@ -145,7 +145,6 @@ function SidebarLogo() {
   return (
     <Link
       href="/"
-      locale={locale}
       className={cn(
         "flex items-center group",
         state === "expanded" ? "mr-6 space-x-2" : "justify-center w-full"
