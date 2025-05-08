@@ -1,6 +1,7 @@
 import "server-only";
 
 import { Collection } from "@/types/collection";
+import { DocumentMetadata } from "@/types/document";
 import { Document } from "@langchain/core/documents";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantClient, type Schemas } from "@qdrant/js-client-rest";
@@ -135,6 +136,7 @@ export const vectorStore = {
   async addDocuments(
     documents: Document[],
     collectionName: string,
+    documentMetadata: DocumentMetadata,
     batchSize: number = 5,
     onProgress?: ProgressCallback
   ): Promise<void> {
@@ -196,12 +198,15 @@ export const vectorStore = {
 
       // Add documents to Qdrant
       const pointsToUpsert: Schemas["PointStruct"][] = batch.map((doc, idx) => {
+        const metadata = doc.metadata
+          ? { ...doc.metadata, documentMetadata }
+          : documentMetadata;
         return {
           id: ids[idx],
           vector: embeddingResults[idx][0],
           payload: {
             page_content: doc.pageContent,
-            metadata: doc.metadata || {},
+            metadata,
             _collection_metadata: collectionMetadata,
           },
         };
@@ -434,7 +439,7 @@ export const vectorStore = {
         };
       }
 
-      // Count the points that will be deleted using our batch scroll method
+      // Count the points that will be deleted
       const pointsCount = await this._countDocuments(
         collectionName,
         deleteFilter
@@ -562,7 +567,7 @@ export const vectorStore = {
         ],
       };
 
-      // Count the points that will be deleted using our batch scroll method
+      // Count the points that will be deleted
       const pointsCount = await this._countDocuments(collectionName, filter);
 
       if (pointsCount === 0) {

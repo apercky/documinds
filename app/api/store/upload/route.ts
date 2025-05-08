@@ -1,6 +1,7 @@
 //import CustomPDFLoader from "@/lib/langchain/custom-pdf-loader";
 import { documentProcessor } from "@/lib/langchain/document-processor";
 import { vectorStore } from "@/lib/vs/qdrant/vector-store";
+import type { DocumentMetadata } from "@/types/document";
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { DocumentLoader } from "@langchain/core/document_loaders/base";
@@ -23,11 +24,13 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File;
     const collectionName = formData.get("collectionName") as string;
 
-    console.log("File details:", {
+    const documentMetadata: DocumentMetadata = {
       name: file?.name,
       type: file?.type,
       size: file?.size,
-    });
+    };
+
+    console.log("File details:", documentMetadata);
 
     if (!file || !collectionName) {
       return new Response(
@@ -77,6 +80,7 @@ export async function POST(request: NextRequest) {
           await vectorStore.addDocuments(
             splitDocs,
             collectionName,
+            documentMetadata,
             10,
             (progress) => {
               controller.enqueue(
