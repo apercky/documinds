@@ -27,7 +27,6 @@ const qdrantClient = new QdrantClient({
   url: process.env.QDRANT_URL || "http://localhost:6333",
   apiKey: process.env.QDRANT_API_KEY || "",
 });
-
 export interface ProcessProgress {
   currentDocument: number;
   totalDocuments: number;
@@ -41,22 +40,6 @@ export type ProgressCallback = (progress: ProcessProgress) => void;
 
 // Vector store manager functions
 export const vectorStore = {
-  /**
-   * Checks if a collection exists
-   * @private
-   */
-  async _checkCollectionExists(collectionName: string): Promise<boolean> {
-    try {
-      const response = await qdrantClient.collectionExists(collectionName);
-      const exists = response.exists;
-      console.log("collectionExists:", exists ? "true" : "false");
-      return exists;
-    } catch (error) {
-      console.error("Error checking if collection exists:", error);
-      return false;
-    }
-  },
-
   /**
    * Creates or retrieves a collection with retry mechanism
    */
@@ -291,49 +274,6 @@ export const vectorStore = {
   },
 
   /**
-   * Gets collection metadata
-   */
-  async _getCollectionMetadata(
-    collectionName: string
-  ): Promise<Record<string, unknown>> {
-    try {
-      // Try to retrieve the system metadata point
-      const searchRequest: Schemas["SearchRequest"] = {
-        filter: {
-          must: [
-            {
-              key: "_is_system",
-              match: { value: true },
-            },
-          ],
-        },
-        limit: 1,
-        vector: new Array(VECTOR_SIZE).fill(0), // Query with zero vector
-      };
-
-      const systemPoints = await qdrantClient.search(
-        collectionName,
-        searchRequest
-      );
-
-      if (
-        systemPoints.length > 0 &&
-        systemPoints[0].payload?._collection_metadata
-      ) {
-        return systemPoints[0].payload._collection_metadata as Record<
-          string,
-          unknown
-        >;
-      }
-
-      return {} as Record<string, unknown>;
-    } catch (error) {
-      console.warn("Failed to retrieve collection metadata:", error);
-      return {} as Record<string, unknown>;
-    }
-  },
-
-  /**
    * Deletes a collection and all its documents
    */
   async deleteCollection(collectionName: string): Promise<{
@@ -363,27 +303,6 @@ export const vectorStore = {
     } catch (error) {
       console.error("Error deleting collection:", error);
       return { deletedCount: 0 };
-    }
-  },
-
-  /**
-   * Counts documents in a collection that match a filter
-   * @private
-   */
-  async _countDocuments(
-    collectionName: string,
-    filter: Schemas["Filter"]
-  ): Promise<number> {
-    try {
-      const response = await qdrantClient.count(collectionName, {
-        filter,
-        exact: true,
-      });
-
-      return response.count;
-    } catch (error) {
-      console.error("Error counting documents:", error);
-      return 0;
     }
   },
 
@@ -642,6 +561,87 @@ export const vectorStore = {
     } catch (error) {
       console.error("Error updating collection metadata:", error);
       throw error;
+    }
+  },
+
+  /**
+   * Gets collection metadata
+   * @private
+   */
+  async _getCollectionMetadata(
+    collectionName: string
+  ): Promise<Record<string, unknown>> {
+    try {
+      // Try to retrieve the system metadata point
+      const searchRequest: Schemas["SearchRequest"] = {
+        filter: {
+          must: [
+            {
+              key: "_is_system",
+              match: { value: true },
+            },
+          ],
+        },
+        limit: 1,
+        vector: new Array(VECTOR_SIZE).fill(0), // Query with zero vector
+      };
+
+      const systemPoints = await qdrantClient.search(
+        collectionName,
+        searchRequest
+      );
+
+      if (
+        systemPoints.length > 0 &&
+        systemPoints[0].payload?._collection_metadata
+      ) {
+        return systemPoints[0].payload._collection_metadata as Record<
+          string,
+          unknown
+        >;
+      }
+
+      return {} as Record<string, unknown>;
+    } catch (error) {
+      console.warn("Failed to retrieve collection metadata:", error);
+      return {} as Record<string, unknown>;
+    }
+  },
+
+  /**
+   * Checks if a collection exists
+   * @private
+   */
+  async _checkCollectionExists(collectionName: string): Promise<boolean> {
+    try {
+      const response = await qdrantClient.collectionExists(collectionName);
+      const exists = response.exists;
+      console.log("collectionExists:", exists ? "true" : "false");
+      return exists;
+    } catch (error) {
+      console.error("Error checking if collection exists:", error);
+      return false;
+    }
+  },
+
+  /**
+   * Counts documents in a collection that match a filter
+   * @private
+   */
+  async _countDocuments(
+    collectionName: string,
+    filter: Schemas["Filter"]
+  ): Promise<number> {
+    try {
+      const response = await qdrantClient.count(collectionName, {
+        filter,
+        exact: true,
+      });
+
+      return response.count;
+    } catch (error) {
+      console.error("Error counting documents:", error);
+      return 0;
     }
   },
 };
