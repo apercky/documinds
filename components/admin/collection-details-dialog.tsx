@@ -5,6 +5,7 @@ import { DeleteAlertDialog } from "@/components/ui/delete-alert-dialog";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -138,6 +139,7 @@ export function CollectionDetailsDialog({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{tDetails("title")}</DialogTitle>
+            <DialogDescription>{tDetails("description")}</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-6">

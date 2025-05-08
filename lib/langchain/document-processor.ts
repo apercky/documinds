@@ -34,16 +34,8 @@ export const documentProcessor = {
   /**
    * Splits documents into smaller chunks for processing
    */
-  async splitDocuments(documents: ProcessedDocument[]): Promise<Document[]> {
-    const docs = documents.map(
-      (doc) =>
-        new Document({
-          pageContent: doc.content,
-          metadata: doc.metadata,
-        })
-    );
-
-    return await textSplitter.splitDocuments(docs);
+  async splitDocuments(documents: Document[]): Promise<Document[]> {
+    return await textSplitter.splitDocuments(documents);
   },
 
   async processUnstructuredDocs(docs: Document[]): Promise<Document[]> {

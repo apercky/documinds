@@ -38,6 +38,7 @@
     },
     "collectionDetails": {
       "title": "Collection Details",
+      "description": "View and manage your collection information. The settings section allows you to update collection metadata properties.",
       "stats": {
         "title": "Statistics",
         "documents": "Total Documents"
@@ -104,6 +105,7 @@
     "createCollection": {
       "button": "Create Collection",
       "title": "Create New Collection",
+      "description": "Create a new collection to organize your documents. Provide a unique name and optional metadata properties to categorize your content effectively.",
       "name": {
         "label": "Collection Name",
         "placeholder": "Enter collection name"

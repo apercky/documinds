@@ -38,6 +38,7 @@
     },
     "collectionDetails": {
       "title": "Dettagli Collezione",
+      "description": "Visualizza e gestisci le informazioni della tua collezione. La sezione impostazioni consente di aggiornare le proprietà dei metadati della collezione.",
       "stats": {
         "title": "Statistiche",
         "documents": "Documenti Totali"
@@ -104,6 +105,7 @@
     "createCollection": {
       "button": "Crea Collezione",
       "title": "Crea Nuova Collezione",
+      "description": "Crea una nuova collezione per organizzare i tuoi documenti. Fornisci un nome univoco e proprietà di metadati opzionali per categorizzare efficacemente i tuoi contenuti.",
       "name": {
         "label": "Nome Collezione",
         "placeholder": "Inserisci il nome della collezione"

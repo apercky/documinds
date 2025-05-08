@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const docs = await loader.load();
-    console.log(JSON.stringify(docs, null, 2));
+    // console.log(JSON.stringify(docs, null, 2));
 
     // Delete all documents from the collection
     await vectorStore.deleteDocumentsByMetadata(collectionName, {
@@ -71,9 +71,7 @@ export async function POST(request: NextRequest) {
             })
           );
 
-          const splitDocs = await documentProcessor.processUnstructuredDocs(
-            docs
-          );
+          const splitDocs = await documentProcessor.splitDocuments(docs);
 
           // Add documents to collection with progress updates
           await vectorStore.addDocuments(

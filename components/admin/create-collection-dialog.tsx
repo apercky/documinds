@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -179,6 +180,7 @@ export function CreateCollectionDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{tCreate("title")}</DialogTitle>
+          <DialogDescription>{tCreate("description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit} className="space-y-4">
