@@ -43,3 +43,4 @@ next-env.d.ts
 # scripts
 
 scripts/chromadb/config/*
+temp/*
