@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteAlertDialog } from "@/components/ui/delete-alert-dialog";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { data } from "@/consts/mock-data";
 import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -39,7 +40,9 @@ export function CollectionsTab() {
 
   const fetchCollections = async () => {
     try {
-      const response = await fetch("/api/store/collections");
+      const response = await fetch(
+        `/api/store/collections?brand=${data.user.brand}`
+      );
       if (!response.ok) throw new Error(t("collections.error.fetch"));
       const collections = await response.json();
       setCollections(collections);

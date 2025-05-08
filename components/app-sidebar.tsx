@@ -18,6 +18,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { data } from "@/consts/mock-data";
 import { cn } from "@/lib/utils";
 import { getCollectionTitle } from "@/utils/messages.utils";
 import { useLocale, useMessages, useTranslations } from "next-intl";
@@ -25,17 +26,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatedText } from "./animated-text";
 import { NavMain } from "./nav-main";
-
-// User data (this should come from your auth system)
-const data = {
-  user: {
-    name: "Antonio Perchinumio",
-    email: "antonio_perchinumio@otb.net",
-    avatar: "/avatars/default.svg",
-    brand: "2_20",
-  },
-};
-
 // Create navigation data with collections
 const createNavData = (
   collections: Collection[],
@@ -177,7 +167,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   useEffect(() => {
     const fetchCollections = async () => {
       try {
-        const response = await fetch("/api/store/collections");
+        const response = await fetch(
+          `/api/store/collections?brand=${data.user.brand}`
+        );
         if (!response.ok) throw new Error("Failed to fetch collections");
         const collectionsData: Collection[] = await response.json();
 

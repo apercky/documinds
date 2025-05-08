@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { data } from "@/consts/mock-data";
 import { ProcessProgress } from "@/lib/vs/qdrant/vector-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useState } from "react";
@@ -78,7 +79,9 @@ export function UploadTab() {
 
   const fetchCollections = async () => {
     try {
-      const response = await fetch("/api/store/collections");
+      const response = await fetch(
+        `/api/store/collections?brand=${data.user.brand}`
+      );
       if (!response.ok) throw new Error("Failed to fetch collections");
       const collections = await response.json();
       setCollections(collections);

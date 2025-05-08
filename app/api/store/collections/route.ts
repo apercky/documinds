@@ -4,9 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * Get all collections
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const collections = await vectorStore.getCollections();
+    const searchParams = request.nextUrl.searchParams;
+    const brand = searchParams.get("brand");
+
+    const collections = await vectorStore.getCollections({
+      brand: brand || undefined,
+    });
 
     return NextResponse.json(collections);
   } catch (error) {
