@@ -1,39 +1,49 @@
-version: '3.8'
 
 services:
-  chromadb:
-    container_name: chromadb
-    image: chromadb/chroma:latest
-    volumes:
-      - chromadb-data:/chroma/data
-      - chromadb-config:/chroma/config
+  qdrant:
+    container_name: qdrant
+    image: qdrant/qdrant
     ports:
-      - "8000:8000"
-    environment:
-      - CHROMA_SERVER_AUTH_CREDENTIALS_FILE=/chroma/config/auth.json
-      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.basic.BasicAuthCredentialsProvider
-      - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.basic.BasicAuthServerProvider
-      - PERSIST_DIRECTORY=/chroma/data
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-storage:/qdrant/storage
     networks:
       - documinds-net
 
+  # chromadb:
+  #   container_name: chromadb
+  #   image: chromadb/chroma:latest
+  #   volumes:
+  #     - chromadb-data:/chroma/data
+  #     - chromadb-config:/chroma/config
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - CHROMA_SERVER_AUTH_CREDENTIALS_FILE=/chroma/config/auth.json
+  #     - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.basic.BasicAuthCredentialsProvider
+  #     - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.basic.BasicAuthServerProvider
+  #     - PERSIST_DIRECTORY=/chroma/data
+  #   networks:
+  #     - documinds-net
+
   # Unstructured API
-  unstructured-api:
-    container_name: unstructured-api
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:0.0.80
-    platform: linux/arm64
-    ports:
-      - "8001:8000"
-    environment:
-      - LOG_LEVEL=DEBUG
-      - METRICS_ENABLED=false
-      - VALIDATE_TYPES=false
-    command: ["--port", "8000", "--host", "0.0.0.0"]
-    mem_limit: 6g  # Set max memory usage to 4GB
-    cpus: "4.0"     # Allocate 2 CPU cores
-    restart: unless-stopped
-    networks:
-      - documinds-net
+  # unstructured-api:
+  #   container_name: unstructured-api
+  #   image: downloads.unstructured.io/unstructured-io/unstructured-api:0.0.80
+  #   platform: linux/arm64
+  #   ports:
+  #     - "8001:8000"
+  #   environment:
+  #     - LOG_LEVEL=DEBUG
+  #     - METRICS_ENABLED=false
+  #     - VALIDATE_TYPES=false
+  #   command: ["--port", "8000", "--host", "0.0.0.0"]
+  #   mem_limit: 6g  # Set max memory usage to 4GB
+  #   cpus: "4.0"     # Allocate 2 CPU cores
+  #   restart: unless-stopped
+  #   networks:
+  #     - documinds-net
 
   # Langflow
   langflow:
@@ -44,10 +54,12 @@ services:
       - "7860:7860"
     depends_on:
       - postgres
-    environment:
-      - LANGFLOW_DATABASE_URL=postgresql://langflow:langflow@postgres:5432/langflow
-      # This variable defines where the logs, file storage, monitor data and secret keys are stored.
-      - LANGFLOW_CONFIG_DIR=app/langflow
+    env_file:
+      - .env.langflow
+    # environment:
+    #   - LANGFLOW_DATABASE_URL=postgresql://langflow:langflow@postgres:5432/langflow
+    #   # This variable defines where the logs, file storage, monitor data and secret keys are stored.
+    #   - LANGFLOW_CONFIG_DIR=app/langflow
     volumes:
       - langflow-data:/app/langflow
     networks:
@@ -83,19 +95,26 @@ volumes:
       device: "${LANGFLOW_DATA_PATH}"
       o: bind
 
-  chromadb-data:
+  qdrant-storage:
     driver: local
     driver_opts:
       type: none
-      device: "${CHROMA_DATA_PATH}"
+      device: "${QDRANT_STORAGE_PATH}"
       o: bind
 
-  chromadb-config:
-    driver: local
-    driver_opts:
-      type: none
-      device: "${CHROMA_CONFIG_PATH}"
-      o: bind
+  # chromadb-data:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: "${CHROMA_DATA_PATH}"
+  #     o: bind
+
+  # chromadb-config:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: "${CHROMA_CONFIG_PATH}"
+  #     o: bind
 
 networks:
   documinds-net:

@@ -146,6 +146,7 @@ function SidebarLogo() {
         className="h-12 w-12 dark:invert"
         width={48}
         height={48}
+        priority
       />
       {state === "expanded" && (
         <AnimatedText text="DOCUMINDS" className="text-1xl pl-2" />

@@ -25,6 +25,7 @@ export function Header() {
               className="h-8 w-8 dark:invert"
               width={48}
               height={48}
+              priority
             />
             <AnimatedText
               text="DOCUMINDS"
