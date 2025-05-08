@@ -339,7 +339,7 @@ export const vectorStore = {
   /**
    * Updates a collection's metadata
    */
-  async updateCollection(
+  async updateCollectionMetadata(
     collectionName: string,
     metadata: Record<string, unknown>
   ): Promise<void> {

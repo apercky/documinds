@@ -592,7 +592,7 @@ export const vectorStore = {
   /**
    * Updates a collection's metadata
    */
-  async updateCollection(
+  async updateCollectionMetadata(
     collectionName: string,
     metadata: Record<string, unknown>
   ): Promise<void> {
@@ -615,7 +615,7 @@ export const vectorStore = {
         return;
       }
 
-      // Merge metadata
+      // Create updated metadata by only changing the requested fields
       const mergedMetadata = {
         ...currentMetadata,
         ...metadata,
@@ -631,52 +631,17 @@ export const vectorStore = {
         ],
       };
 
-      // Use scroll to retrieve all relevant points
-      let pointsToUpdate: Schemas["Record"][] = [];
-      let offset: string | undefined = undefined;
-
-      while (true) {
-        const scrollResponse = await qdrantClient.scroll(collectionName, {
-          filter,
-          limit: 100,
-          offset,
-          with_payload: true,
-          with_vector: false,
-        });
-
-        const points = scrollResponse.points || [];
-        pointsToUpdate = [...pointsToUpdate, ...points];
-
-        if (!scrollResponse.next_page_offset || points.length === 0) break;
-
-        offset = scrollResponse.next_page_offset as string;
-      }
-
-      // If no points found with this metadata ID, nothing to update
-      if (pointsToUpdate.length === 0) {
-        console.warn(
-          `No points found with metadata ID ${currentMetadata.id}, nothing to update`
-        );
-        return;
-      }
-
-      // Update all found points with new metadata
-      await qdrantClient.upsert(collectionName, {
-        points: pointsToUpdate.map((point) => ({
-          id: point.id,
-          vector: point.vector
-            ? Array.isArray(point.vector)
-              ? point.vector
-              : new Array(VECTOR_SIZE).fill(0)
-            : new Array(VECTOR_SIZE).fill(0),
-          payload: {
-            ...point.payload,
-            _collection_metadata: mergedMetadata,
-          },
-        })),
+      // Use Qdrant's native setPayload operation to update ONLY the _collection_metadata field
+      await qdrantClient.setPayload(collectionName, {
+        payload: {
+          _collection_metadata: mergedMetadata,
+        },
+        filter,
       });
 
-      console.log(`Updated ${pointsToUpdate.length} points with new metadata`);
+      console.log(
+        `Updated collection metadata for points with ID ${currentMetadata.id}`
+      );
     } catch (error) {
       console.error("Error updating collection metadata:", error);
       throw error;

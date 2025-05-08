@@ -19,7 +19,7 @@ export async function PATCH(
       );
     }
 
-    await vectorStore.updateCollection(name, metadata);
+    await vectorStore.updateCollectionMetadata(name, metadata);
 
     return NextResponse.json({ message: "Collection updated successfully" });
   } catch (error) {
