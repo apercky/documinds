@@ -172,6 +172,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     (collections.length > 0 ? collections[0].name : null);
 
   const handleNewChat = () => {
+    if (!currentCollection) {
+      console.warn(
+        "New Chat button clicked, but no collection is selected. Aborting."
+      );
+      // Optionally, you could show a user-facing notification here
+      return;
+    }
     router.replace(
       `/dashboard?collection=${currentCollection}&chatId=${Date.now()}`
     );
@@ -197,6 +204,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="flex justify-end items-center px-4 mb-2 mt-4">
           <Button
             onClick={handleNewChat}
+            disabled={!currentCollection}
             className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
             size="sm"
           >
