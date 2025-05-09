@@ -38,6 +38,9 @@ const nextConfig = {
     };
     return config;
   },
+  turbopack: {
+    resolveExtensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
+  },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
