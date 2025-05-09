@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 import { routing } from "@/app/i18n/routing";
+import SessionProviderWrapper from "@/components/auth/session-provider-wrapper";
 import { ThemeProvider } from "@/components/ui/providers/theme-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
@@ -58,7 +59,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider messages={messages}>
-            {children}
+            <SessionProviderWrapper>{children}</SessionProviderWrapper>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

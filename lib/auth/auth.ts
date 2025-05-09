@@ -40,11 +40,18 @@ const config: NextAuthConfig = {
       token: `${process.env.OIDC_ISSUER}/protocol/openid-connect/token`,
       userinfo: `${process.env.OIDC_ISSUER}/protocol/openid-connect/userinfo`,
       checks: ["pkce", "state"],
-      profile(profile) {
+      profile(profile: any) {
+        const isEmailVerified = profile.email_verified === true;
         return {
-          id: profile.sub,
-          name: profile.name ?? profile.preferred_username ?? profile.email,
-          email: profile.email,
+          id: String(profile.sub),
+          name:
+            profile.name ?? profile.preferred_username ?? profile.email ?? "",
+          email: profile.email ?? "",
+          image: profile.picture ?? "",
+          emailVerified: isEmailVerified ? new Date() : null,
+          brand: profile.brand ?? "default_brand",
+          roles: profile.realm_roles ?? [],
+          permissions: profile.client_permissions ?? [],
         };
       },
     },
@@ -57,12 +64,21 @@ const config: NextAuthConfig = {
   secret: process.env.AUTH_SECRET,
 
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expiresAt =
           account.expires_at ?? Math.floor(Date.now() / 1000) + 3600;
+
+        token.id = profile.id as string;
+        token.name = profile.name as string;
+        token.email = profile.email as string;
+        token.picture = profile.image as string;
+        token.emailVerified = profile.emailVerified as Date | null;
+        token.brand = profile.brand as string;
+        token.roles = profile.roles as string[];
+        token.permissions = profile.permissions as string[];
       }
 
       const now = Math.floor(Date.now() / 1000);
@@ -102,11 +118,31 @@ const config: NextAuthConfig = {
     },
 
     async session({ session, token }) {
-      return {
-        ...session,
-        accessToken: token.accessToken,
-        error: token.error,
+      // Base user properties
+      const baseUser: any = {
+        id: typeof token.id === "string" ? token.id : String(token.id ?? ""),
+        name: (token.name as string) ?? "",
+        email: (token.email as string) ?? "",
+        image: (token.picture as string) ?? "",
+        emailVerified: token.emailVerified as Date | null,
       };
+
+      // Conditionally add custom properties if they exist on the token
+      if (token.brand) {
+        baseUser.brand = token.brand as string;
+      }
+      if (token.roles) {
+        baseUser.roles = token.roles as string[];
+      }
+      if (token.permissions) {
+        baseUser.permissions = token.permissions as string[];
+      }
+
+      session.user = baseUser; // Assign the constructed user object
+
+      (session as any).accessToken = token.accessToken as string | undefined;
+      (session as any).error = token.error as string | undefined;
+      return session;
     },
   },
 

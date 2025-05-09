@@ -18,14 +18,15 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { data } from "@/consts/mock-data";
 import { cn } from "@/lib/utils";
 import { getCollectionTitle } from "@/utils/messages.utils";
+import { useSession } from "next-auth/react";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatedText } from "./animated-text";
 import { NavMain } from "./nav-main";
+
 // Create navigation data with collections
 const createNavData = (
   collections: Collection[],
@@ -102,7 +103,6 @@ const createNavData = (
 
 function SidebarLogo() {
   const { state } = useSidebar();
-  const locale = useLocale();
 
   return (
     <Link
@@ -128,6 +128,7 @@ function SidebarLogo() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -138,33 +139,53 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCollections = async () => {
-      try {
-        const response = await fetch(
-          `/api/store/collections?brand=${data.user.brand}`
-        );
-        if (!response.ok) throw new Error("Failed to fetch collections");
-        const collectionsData: Collection[] = await response.json();
+    const userBrand = (session?.user as any)?.brand; // Attempt to get brand from session
 
-        // Filter collections by user brand and transform to required format
-        const filteredCollections = collectionsData.filter(
-          (col) => col.metadata?.brand === data.user.brand
-        );
-        setCollections(filteredCollections);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to fetch collections";
-        setError(errorMessage);
-        console.error("Error fetching collections:", errorMessage);
-      }
-    };
+    if (status === "authenticated" && userBrand) {
+      const fetchCollections = async () => {
+        try {
+          // Use userBrand from session
+          const response = await fetch(
+            `/api/store/collections?brand=${userBrand}`
+          );
+          if (!response.ok)
+            throw new Error("Failed to fetch collections (API error)");
+          const collectionsData: Collection[] = await response.json();
+          // Filter collections by user brand (potentially redundant if API does it, but safe)
+          const filteredCollections = collectionsData.filter(
+            (col) => col.metadata?.brand === userBrand
+          );
+          setCollections(filteredCollections);
+          setError(null); // Clear previous errors
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error
+              ? err.message
+              : "Failed to fetch collections (catch block)";
+          setError(errorMessage);
+          console.error("Error fetching collections:", errorMessage);
+          setCollections([]); // Clear collections on error
+        }
+      };
+      fetchCollections();
+    } else if (status === "authenticated" && !userBrand) {
+      console.warn(
+        "User session available, but user.brand is missing. Cannot fetch collections."
+      );
+      setError("User brand information is missing, cannot load collections.");
+      setCollections([]);
+    } else if (status === "unauthenticated") {
+      setCollections([]); // Clear collections if user is not authenticated
+      setError(null); // Clear errors if any
+    }
+  }, [session, status]);
 
-    fetchCollections();
-  }, []);
-
-  // If there's an error, you might want to show it or handle it appropriately
-  if (error) {
-    console.warn("Collections loading error:", error);
+  // Display error in UI if collections failed and error is set
+  // This is a simple example; you might want a more user-friendly error display
+  if (error && collections.length === 0 && status === "authenticated") {
+    console.warn("Collections loading error shown to user:", error);
+    // You could render an error message component here, e.g.:
+    // return <Sidebar><SidebarContent><p>Error: {error}</p></SidebarContent></Sidebar>;
   }
 
   const currentCollection =
@@ -204,7 +225,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="flex justify-end items-center px-4 mb-2 mt-4">
           <Button
             onClick={handleNewChat}
-            disabled={!currentCollection}
+            disabled={!currentCollection || status !== "authenticated"}
             className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
             size="sm"
           >
@@ -215,7 +236,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={navData.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={session?.user} isLoading={status === "loading"} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

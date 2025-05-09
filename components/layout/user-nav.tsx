@@ -1,6 +1,6 @@
 "use client";
 
-import { Link, useRouter } from "@/app/i18n/routing";
+import { Link } from "@/app/i18n/routing";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,34 +12,43 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { data } from "@/consts/mock-data";
 import { getInitials } from "@/lib/utils";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
+
 export function UserNav() {
   const t = useTranslations("UserNav");
-  const router = useRouter();
+  const { data: session } = useSession();
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
   };
+
+  if (!session || !session.user) {
+    return null;
+  }
+
+  const { user } = session;
+  const userName = user.name ?? "User";
+  const userEmail = user.email ?? "";
+  const userAvatar = user.image ?? undefined;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={data.user.avatar} alt={data.user.name} />
-            <AvatarFallback>{getInitials(data.user.name)}</AvatarFallback>
+            <AvatarImage src={userAvatar} alt={userName} />
+            <AvatarFallback>{getInitials(userName)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{data.user.name}</p>
+            <p className="text-sm font-medium leading-none">{userName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {data.user.email}
+              {userEmail}
             </p>
           </div>
         </DropdownMenuLabel>
