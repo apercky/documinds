@@ -14,7 +14,12 @@
       "dashboard": "Dashboard",
       "users": "Utenti",
       "settings": "Impostazioni",
-      "newChat": "Nuova Chat"
+      "newChat": "Nuova Chat",
+      "documentation": "Documentazione",
+      "general": "Generale",
+      "team": "Team",
+      "billing": "Fatturazione",
+      "limits": "Limiti"
     },
     "UserNav": {
       "profile": "Profilo",

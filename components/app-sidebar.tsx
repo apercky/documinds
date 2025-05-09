@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, PlusCircle, Settings2, SquareTerminal } from "lucide-react";
+import { PlusCircle, Settings2, SquareTerminal } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import type * as React from "react";
 import { useEffect, useState } from "react";
@@ -33,7 +33,8 @@ const createNavData = (
   currentCollection: string | null,
   locale: string,
   messages: unknown,
-  searchParams: URLSearchParams
+  searchParams: URLSearchParams,
+  t: (key: string) => string
 ) => {
   // Helper function to check if a path matches the current pathname
   const isPathActive = (path: string) => {
@@ -53,7 +54,7 @@ const createNavData = (
   return {
     navMain: [
       {
-        title: "Collections",
+        title: t("documentation"),
         url: "#",
         icon: SquareTerminal,
         isActive:
@@ -68,57 +69,28 @@ const createNavData = (
         })),
       },
       {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        isActive:
-          isSectionActive("/dashboard/") && !pathname.includes("/admin"),
-        items: [
-          {
-            title: "Introduction",
-            url: "/dashboard/introduction",
-            isActive: isPathActive("/dashboard/introduction"),
-          },
-          {
-            title: "Get Started",
-            url: "/dashboard/get-started",
-            isActive: isPathActive("/dashboard/get-started"),
-          },
-          {
-            title: "Tutorials",
-            url: "/dashboard/tutorials",
-            isActive: isPathActive("/dashboard/tutorials"),
-          },
-          {
-            title: "Changelog",
-            url: "/dashboard/changelog",
-            isActive: isPathActive("/dashboard/changelog"),
-          },
-        ],
-      },
-      {
-        title: "Settings",
+        title: t("settings"),
         url: "#",
         icon: Settings2,
         isActive: isSectionActive("/dashboard/admin"),
         items: [
           {
-            title: "General",
+            title: t("general"),
             url: "/dashboard/admin",
             isActive: isPathActive("/dashboard/admin"),
           },
           {
-            title: "Team",
+            title: t("team"),
             url: "/dashboard/admin/team",
             isActive: isPathActive("/dashboard/admin/team"),
           },
           {
-            title: "Billing",
+            title: t("billing"),
             url: "/dashboard/admin/billing",
             isActive: isPathActive("/dashboard/admin/billing"),
           },
           {
-            title: "Limits",
+            title: t("limits"),
             url: "/dashboard/admin/limits",
             isActive: isPathActive("/dashboard/admin/limits"),
           },
@@ -212,7 +184,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     currentCollection,
     locale,
     messages,
-    searchParams
+    searchParams,
+    t
   );
 
   return (

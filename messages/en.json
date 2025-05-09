@@ -13,8 +13,13 @@
     "Navigation": {
       "dashboard": "Dashboard",
       "users": "Users",
+      "newChat": "New Chat",
+      "documentation": "Documentation",
       "settings": "Settings",
-      "newChat": "New Chat"
+      "general": "General",
+      "team": "Team",
+      "billing": "Billing",
+      "limits": "Limits"
     },
     "UserNav": {
       "profile": "Profile",
