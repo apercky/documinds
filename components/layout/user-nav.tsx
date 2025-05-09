@@ -14,15 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { data } from "@/consts/mock-data";
 import { getInitials } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 export function UserNav() {
   const t = useTranslations("UserNav");
   const router = useRouter();
 
   const handleLogout = async () => {
-    // In a real app, you would call your auth service here
-    // await signOut();
-    router.push("/login");
+    await signOut({ callbackUrl: "/" });
   };
 
   return (

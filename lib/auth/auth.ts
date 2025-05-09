@@ -2,6 +2,24 @@
 import type { NextAuthConfig } from "next-auth"; // solo se vuoi autocompletamento, non obbligatorio
 import NextAuth from "next-auth";
 
+// AGGIUNGI QUESTI CONSOLE.LOG PER VERIFICA IMMEDIATA
+console.log("OIDC_CLIENT_ID:", process.env.OIDC_CLIENT_ID ? "SET" : "NOT SET");
+console.log(
+  "OIDC_CLIENT_SECRET:",
+  process.env.OIDC_CLIENT_SECRET
+    ? "SET (length: " + process.env.OIDC_CLIENT_SECRET.length + ")"
+    : "NOT SET"
+);
+console.log("OIDC_ISSUER:", process.env.OIDC_ISSUER ? "SET" : "NOT SET");
+console.log(
+  "AUTH_SECRET:",
+  process.env.AUTH_SECRET
+    ? "SET (length: " + process.env.AUTH_SECRET.length + ")"
+    : "NOT SET"
+);
+console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL ? "SET" : "NOT SET"); // Anche se NextAuth può inferirlo
+console.log("NODE_ENV:", process.env.NODE_ENV);
+
 const config: NextAuthConfig = {
   providers: [
     {
@@ -13,12 +31,14 @@ const config: NextAuthConfig = {
       issuer: process.env.OIDC_ISSUER,
       wellKnown: `${process.env.OIDC_ISSUER}/.well-known/openid-configuration`,
       authorization: {
+        url: `${process.env.OIDC_ISSUER}/protocol/openid-connect/auth`,
         params: {
           scope:
             process.env.OIDC_SCOPES ?? "openid profile email offline_access",
-          client_id: process.env.OIDC_CLIENT_ID,
         },
       },
+      token: `${process.env.OIDC_ISSUER}/protocol/openid-connect/token`,
+      userinfo: `${process.env.OIDC_ISSUER}/protocol/openid-connect/userinfo`,
       checks: ["pkce", "state"],
       profile(profile) {
         return {

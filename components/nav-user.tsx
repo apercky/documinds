@@ -26,9 +26,14 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 export function NavUser({ user }: { user: UserData }) {
   const { isMobile } = useSidebar();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
     <SidebarMenu>
@@ -91,7 +96,7 @@ export function NavUser({ user }: { user: UserData }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

@@ -2,6 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { LanguageSelector } from "@/components/layout/language-selector";
 import { UserNav } from "@/components/layout/user-nav";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { auth } from "@/lib/auth";
 
 import {
   SidebarInset,
@@ -9,13 +10,25 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
+
+import { redirect } from "@/app/i18n/routing";
 import type * as React from "react";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  const session = await auth();
+  const { locale } = await params;
+
+  if (!session) {
+    // 👇 Redirect al tuo provider direttamente
+    redirect({ href: "/login", locale }); // oppure a una pagina tipo /login se preferisci
+  }
+
   return (
     <SidebarProvider>
       <div className="flex w-full h-[calc(100vh-4rem)]">
