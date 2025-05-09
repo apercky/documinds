@@ -12,21 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { data } from "@/consts/mock-data";
 import { useTranslations } from "next-intl";
-
-interface UserData {
-  name: string;
-  email: string;
-  avatarUrl?: string;
-  initials: string;
-}
-
-// In a real app, this would come from your auth provider
-const userData: UserData = {
-  name: "shadcn",
-  email: "m@example.com",
-  initials: "SC",
-};
 
 export function UserNav() {
   const t = useTranslations("UserNav");
@@ -43,17 +30,17 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={userData.avatarUrl} alt={t("userAvatar")} />
-            <AvatarFallback>{userData.initials}</AvatarFallback>
+            <AvatarImage src={data.user.avatar} alt={t("userAvatar")} />
+            <AvatarFallback>{data.user.name}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{userData.name}</p>
+            <p className="text-sm font-medium leading-none">{data.user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {userData.email}
+              {data.user.email}
             </p>
           </div>
         </DropdownMenuLabel>
