@@ -3,7 +3,7 @@ import {
   StreamEvent,
   Tweaks,
   createStreamingResponseFromReadableStream,
-} from "@/lib/langflow-adapter";
+} from "@/lib/langflow/langflow-adapter";
 import { LangflowClient } from "@datastax/langflow-client";
 import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 
