@@ -19,7 +19,8 @@
       "general": "General",
       "team": "Team",
       "billing": "Billing",
-      "limits": "Limits"
+      "limits": "Limits",
+      "platform": "Platform"
     },
     "UserNav": {
       "profile": "Profile",

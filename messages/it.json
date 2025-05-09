@@ -19,7 +19,8 @@
       "general": "Generale",
       "team": "Team",
       "billing": "Fatturazione",
-      "limits": "Limiti"
+      "limits": "Limiti",
+      "platform": "Piattaforma"
     },
     "UserNav": {
       "profile": "Profilo",

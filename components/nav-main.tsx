@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { ChevronRight, type LucideIcon } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 interface NavItem {
@@ -39,6 +39,7 @@ interface NavMainProps {
 
 export function NavMain({ items }: NavMainProps) {
   const locale = useLocale();
+  const t = useTranslations("Navigation");
   const [openSections, setOpenSections] = useState<string[]>([]);
 
   // Update open sections when items change or when an item becomes active
@@ -57,7 +58,7 @@ export function NavMain({ items }: NavMainProps) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("platform")}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
