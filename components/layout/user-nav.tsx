@@ -13,8 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { data } from "@/consts/mock-data";
+import { getInitials } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-
 export function UserNav() {
   const t = useTranslations("UserNav");
   const router = useRouter();
@@ -30,8 +30,8 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={data.user.avatar} alt={t("userAvatar")} />
-            <AvatarFallback>{data.user.name}</AvatarFallback>
+            <AvatarImage src={data.user.avatar} alt={data.user.name} />
+            <AvatarFallback>{getInitials(data.user.name)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
