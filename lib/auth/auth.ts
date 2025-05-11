@@ -1,26 +1,27 @@
 // lib/auth.ts
+import type { StructuredPermissions } from "@/types/permission";
 import { jwtDecode } from "jwt-decode";
 import type { NextAuthConfig } from "next-auth"; // solo se vuoi autocompletamento, non obbligatorio
 import NextAuth from "next-auth";
 import { groupPermissions } from "./helper";
 
 // AGGIUNGI QUESTI CONSOLE.LOG PER VERIFICA IMMEDIATA
-console.log("OIDC_CLIENT_ID:", process.env.OIDC_CLIENT_ID ? "SET" : "NOT SET");
-console.log(
-  "OIDC_CLIENT_SECRET:",
-  process.env.OIDC_CLIENT_SECRET
-    ? "SET (length: " + process.env.OIDC_CLIENT_SECRET.length + ")"
-    : "NOT SET"
-);
-console.log("OIDC_ISSUER:", process.env.OIDC_ISSUER ? "SET" : "NOT SET");
-console.log(
-  "AUTH_SECRET:",
-  process.env.AUTH_SECRET
-    ? "SET (length: " + process.env.AUTH_SECRET.length + ")"
-    : "NOT SET"
-);
-console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL ? "SET" : "NOT SET"); // Anche se NextAuth può inferirlo
-console.log("NODE_ENV:", process.env.NODE_ENV);
+// console.log("OIDC_CLIENT_ID:", process.env.OIDC_CLIENT_ID ? "SET" : "NOT SET");
+// console.log(
+//   "OIDC_CLIENT_SECRET:",
+//   process.env.OIDC_CLIENT_SECRET
+//     ? "SET (length: " + process.env.OIDC_CLIENT_SECRET.length + ")"
+//     : "NOT SET"
+// );
+// console.log("OIDC_ISSUER:", process.env.OIDC_ISSUER ? "SET" : "NOT SET");
+// console.log(
+//   "AUTH_SECRET:",
+//   process.env.AUTH_SECRET
+//     ? "SET (length: " + process.env.AUTH_SECRET.length + ")"
+//     : "NOT SET"
+// );
+// console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL ? "SET" : "NOT SET"); // Anche se NextAuth può inferirlo
+// console.log("NODE_ENV:", process.env.NODE_ENV);
 
 async function getRPT(accessToken: string): Promise<any> {
   const params = new URLSearchParams();
@@ -28,7 +29,7 @@ async function getRPT(accessToken: string): Promise<any> {
   params.append("audience", process.env.OIDC_CLIENT_ID || "");
 
   const response = await fetch(
-    `${process.env.OIDC_ISSUER}/protocol/openid-connect/auth`,
+    `${process.env.OIDC_ISSUER}/protocol/openid-connect/token`,
     {
       method: "POST",
       headers: {
@@ -109,9 +110,35 @@ const config: NextAuthConfig = {
 
         // 🔄 Recupera RPT subito dopo il login
         const rpt = await getRPT(account.access_token ?? "");
-        if (rpt?.authorization?.permissions) {
-          token.permissionsRaw = rpt.authorization.permissions;
-          token.permissions = groupPermissions(rpt.authorization.permissions);
+        // console.log(
+        //   "RPT Authorization response:",
+        //   JSON.stringify(rpt, null, 2)
+        // );
+
+        if (rpt) {
+          // Store the raw permissions response
+          token.permissionsRaw = rpt;
+
+          try {
+            // If the response is already an array of permission objects, use it directly
+            if (Array.isArray(rpt)) {
+              token.permissions = groupPermissions(rpt);
+            }
+            // If the response has an authorization.permissions structure (traditional UMA format)
+            else if (rpt?.authorization?.permissions) {
+              token.permissions = groupPermissions(
+                rpt.authorization.permissions
+              );
+            }
+            // Fallback to empty permissions if neither format is found
+            else {
+              token.permissions = {};
+              console.warn("No permissions found in RPT response");
+            }
+          } catch (error) {
+            console.error("Error processing permissions:", error);
+            token.permissions = {}; // Set an empty permissions object as fallback
+          }
         }
       }
 
@@ -152,31 +179,31 @@ const config: NextAuthConfig = {
     },
 
     async session({ session, token }) {
-      // Base user properties
+      // Base user properties with permissions fully included
       const baseUser: any = {
         id: typeof token.id === "string" ? token.id : String(token.id ?? ""),
         name: (token.name as string) ?? "",
         email: (token.email as string) ?? "",
         image: (token.picture as string) ?? "",
         emailVerified: token.emailVerified as Date | null,
+        // Include permissions directly in the base user object
         permissions: token.permissions as StructuredPermissions | undefined,
       };
 
-      // Conditionally add custom properties if they exist on the token
+      // Add brand and roles
       if (token.brand) {
         baseUser.brand = token.brand as string;
       }
       if (token.roles) {
         baseUser.roles = token.roles as string[];
       }
-      if (token.permissions) {
-        baseUser.permissions = token.permissions as StructuredPermissions;
-      }
 
-      session.user = baseUser; // Assign the constructed user object
+      session.user = baseUser;
 
+      // Keep the full access token since you need it for external service calls
       (session as any).accessToken = token.accessToken as string | undefined;
       (session as any).error = token.error as string | undefined;
+
       return session;
     },
   },

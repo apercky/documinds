@@ -35,11 +35,27 @@ export function UserNav() {
   const userEmail = user.email ?? "";
   const userAvatar = user.image ?? undefined;
 
-  const canAccessCollections = hasPermission(
-    (session.user as any).permissions as StructuredPermissions,
-    "collections",
-    "read"
-  );
+  // Safe check for permissions
+  const safeHasPermission = (resource: string, scope: string): boolean => {
+    try {
+      const userPermissions = (session.user as any).permissions as
+        | StructuredPermissions
+        | undefined;
+      console.log(
+        `Checking permission for ${resource}.${scope}:`,
+        userPermissions
+          ? `Available resources: ${Object.keys(userPermissions).join(", ")}`
+          : "No permissions available"
+      );
+
+      return hasPermission(userPermissions, resource, scope);
+    } catch (error) {
+      console.error("Error checking permissions:", error);
+      return false;
+    }
+  };
+
+  const canAccessCollections = safeHasPermission("collections", "read");
 
   console.log(`canAccessCollections: ${canAccessCollections}`);
 
