@@ -1,6 +1,8 @@
 // lib/auth.ts
+import { jwtDecode } from "jwt-decode";
 import type { NextAuthConfig } from "next-auth"; // solo se vuoi autocompletamento, non obbligatorio
 import NextAuth from "next-auth";
+import { groupPermissions } from "./helper";
 
 // AGGIUNGI QUESTI CONSOLE.LOG PER VERIFICA IMMEDIATA
 console.log("OIDC_CLIENT_ID:", process.env.OIDC_CLIENT_ID ? "SET" : "NOT SET");
@@ -19,6 +21,32 @@ console.log(
 );
 console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL ? "SET" : "NOT SET"); // Anche se NextAuth può inferirlo
 console.log("NODE_ENV:", process.env.NODE_ENV);
+
+async function getRPT(accessToken: string): Promise<any> {
+  const params = new URLSearchParams();
+  params.append("grant_type", "urn:ietf:params:oauth:grant-type:uma-ticket");
+  params.append("audience", process.env.OIDC_CLIENT_ID || "");
+
+  const response = await fetch(
+    `${process.env.OIDC_ISSUER}/protocol/openid-connect/auth`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: params,
+    }
+  );
+
+  const data = await response.json();
+
+  if (data.access_token) {
+    return jwtDecode(data.access_token);
+  }
+
+  return null;
+}
 
 const config: NextAuthConfig = {
   providers: [
@@ -78,7 +106,13 @@ const config: NextAuthConfig = {
         token.emailVerified = profile.emailVerified as Date | null;
         token.brand = profile.brand as string;
         token.roles = profile.roles as string[];
-        token.permissions = profile.permissions as string[];
+
+        // 🔄 Recupera RPT subito dopo il login
+        const rpt = await getRPT(account.access_token ?? "");
+        if (rpt?.authorization?.permissions) {
+          token.permissionsRaw = rpt.authorization.permissions;
+          token.permissions = groupPermissions(rpt.authorization.permissions);
+        }
       }
 
       const now = Math.floor(Date.now() / 1000);
@@ -125,6 +159,7 @@ const config: NextAuthConfig = {
         email: (token.email as string) ?? "",
         image: (token.picture as string) ?? "",
         emailVerified: token.emailVerified as Date | null,
+        permissions: token.permissions as StructuredPermissions | undefined,
       };
 
       // Conditionally add custom properties if they exist on the token
@@ -135,7 +170,7 @@ const config: NextAuthConfig = {
         baseUser.roles = token.roles as string[];
       }
       if (token.permissions) {
-        baseUser.permissions = token.permissions as string[];
+        baseUser.permissions = token.permissions as StructuredPermissions;
       }
 
       session.user = baseUser; // Assign the constructed user object

@@ -12,7 +12,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { hasPermission } from "@/lib/auth/helper";
 import { getInitials } from "@/lib/utils";
+import type { StructuredPermissions } from "@/types/permission";
 import { signOut, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
@@ -32,6 +34,14 @@ export function UserNav() {
   const userName = user.name ?? "User";
   const userEmail = user.email ?? "";
   const userAvatar = user.image ?? undefined;
+
+  const canAccessCollections = hasPermission(
+    (session.user as any).permissions as StructuredPermissions,
+    "collections",
+    "read"
+  );
+
+  console.log(`canAccessCollections: ${canAccessCollections}`);
 
   return (
     <DropdownMenu>
