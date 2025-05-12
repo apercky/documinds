@@ -28,41 +28,45 @@ A modern, AI-powered document search and chat interface built with Next.js 14, f
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
-1. Clone the repository:
+1.Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/documinds.git
 cd documinds
 ```
 
-2. Install dependencies:
+2.Install dependencies:
+
 ```bash
 npm install
 # or
 yarn install
 ```
 
-3. Create a `.env.local` file in the root directory and add your environment variables:
+3.Create a `.env.local` file in the root directory and add your environment variables:
+
 ```env
 # Your environment variables here
 ```
 
-4. Start the development server:
+4.Start the development server:
+
 ```bash
 npm run dev
 # or
 yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5.Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Project Structure
 
-```
+```bash
 documinds/
 ├── app/                   # Next.js app directory
 │   ├── [locale]/         # Internationalized routes
@@ -75,6 +79,81 @@ documinds/
 ├── styles/             # Global styles
 └── messages/           # i18n messages
 ```
+
+## Deploy to production environment
+
+### Docker Deployment
+
+To deploy Documinds using Docker, follow these steps:
+
+1.Build the Docker image:
+
+```bash
+# Build with tag for GitHub Container Registry
+docker build -t ghcr.io/apercky/documinds:1.0.0 .
+```
+
+2.Login to GitHub Container Registry:
+
+```bash
+echo $CR_PATH | docker login ghcr.io -u apercky --password-stdin
+```
+
+3.If using a private registry, tag and push the image:
+
+```bash
+VERSION=1.0.0
+
+# Push to GitHub Container Registry
+docker push ghcr.io/apercky/documinds:$VERSION
+
+# Create and push the latest tag
+docker tag ghcr.io/apercky/documinds:$VERSION ghcr.io/apercky/documinds:latest
+docker push ghcr.io/apercky/documinds:latest
+```
+
+4.Run the Docker container:
+
+```bash
+docker run -p 3000:3000 ghcr.io/apercky/documinds:$VERSION
+```
+
+#### Troubleshooting Docker Build
+
+If you encounter build issues:
+
+- Ensure `next.config.js` includes `output: 'standalone'` for Next.js 15
+- Fix ENV variables in Dockerfile to use `KEY=value` format instead of `KEY value`
+- Make sure you're copying the correct output files in the final stage
+- If you get ESLint or TypeScript errors during build:
+  - Add `--no-lint` flag to the build command 
+  - Use the `build:docker` script which skips linting: `npm run build:docker`
+  - Fix your ESLint configuration in `.eslintrc.js` to ensure valid rules
+
+### Kubernetes Deployment
+
+For deploying to a Kubernetes cluster:
+
+1.Apply the Kubernetes deployment:
+
+```bash
+kubectl apply -f k8s-deployment.yaml
+```
+
+2.Check deployment status:
+
+```bash
+kubectl get deployments
+kubectl get pods
+```
+
+3.Access the service:
+
+```bash
+kubectl port-forward svc/documinds-service 8080:80
+```
+
+The application will be available at http://localhost:8080
 
 ## Key Components
 

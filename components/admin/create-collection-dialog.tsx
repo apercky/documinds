@@ -27,25 +27,24 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useTranslations, type TranslationValues } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { METADATA_KEYS } from "@/consts/consts";
 
-const createCollectionNameSchema = (
-  t: <T extends string>(key: T, values?: TranslationValues) => string
-) =>
+// Updated type definition to match what next-intl provides
+type TranslateFunction = ReturnType<typeof useTranslations>;
+
+const createCollectionNameSchema = (t: TranslateFunction) =>
   z
     .string()
     .min(3, { message: t("validation.collection.name.min", { min: 3 }) })
     .max(63, { message: t("validation.collection.name.max", { max: 63 }) })
     .regex(/^[a-z0-9-]+$/, { message: t("validation.collection.name.format") });
 
-const createMetadataSchema = (
-  t: <T extends string>(key: T, values?: TranslationValues) => string
-) =>
+const createMetadataSchema = (t: TranslateFunction) =>
   z.array(
     z.object({
       key: z.enum(

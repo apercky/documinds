@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: documinds
+  labels:
+    app: documinds
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: documinds
+  template:
+    metadata:
+      labels:
+        app: documinds
+    spec:
+      containers:
+      - name: documinds
+        image: documinds:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: "500m"    # 0.5 CPU cores minimum
+            memory: "512Mi" # 512 MB minimum
+          limits:
+            cpu: "1000m"   # 1 CPU core maximum
+            memory: "2Gi"  # 2 GB maximum
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: documinds-service
+spec:
+  selector:
+    app: documinds
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: ClusterIP 
