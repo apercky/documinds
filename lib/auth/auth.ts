@@ -160,6 +160,12 @@ const config: NextAuthConfig = {
     },
   },
 
+  trustHost:
+    process.env.NODE_ENV === "development" ||
+    process.env.NEXTAUTH_URL?.includes("localhost") ||
+    process.env.NEXTAUTH_URL?.includes("www.dev.documinds.net") ||
+    process.env.NEXTAUTH_URL?.includes("www.documinds.net"),
+
   debug: process.env.NODE_ENV === "development",
 };
 
