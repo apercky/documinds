@@ -1,26 +1,8 @@
 // lib/auth.ts
 import { jwtDecode } from "jwt-decode";
-import type { NextAuthConfig } from "next-auth"; // solo se vuoi autocompletamento, non obbligatorio
+import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
 import { groupPermissions } from "./helper";
-
-// AGGIUNGI QUESTI CONSOLE.LOG PER VERIFICA IMMEDIATA
-// console.log("OIDC_CLIENT_ID:", process.env.OIDC_CLIENT_ID ? "SET" : "NOT SET");
-// console.log(
-//   "OIDC_CLIENT_SECRET:",
-//   process.env.OIDC_CLIENT_SECRET
-//     ? "SET (length: " + process.env.OIDC_CLIENT_SECRET.length + ")"
-//     : "NOT SET"
-// );
-// console.log("OIDC_ISSUER:", process.env.OIDC_ISSUER ? "SET" : "NOT SET");
-// console.log(
-//   "AUTH_SECRET:",
-//   process.env.AUTH_SECRET
-//     ? "SET (length: " + process.env.AUTH_SECRET.length + ")"
-//     : "NOT SET"
-// );
-// console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL ? "SET" : "NOT SET"); // Anche se NextAuth può inferirlo
-// console.log("NODE_ENV:", process.env.NODE_ENV);
 
 async function getRPT(accessToken: string): Promise<any> {
   const params = new URLSearchParams();
@@ -51,7 +33,7 @@ async function getRPT(accessToken: string): Promise<any> {
 const config: NextAuthConfig = {
   providers: [
     {
-      id: "oidc", // puoi usare "keycloak" o "netiq" se preferisci
+      id: "oidc",
       name: "OIDC Provider",
       type: "oauth",
       clientId: process.env.OIDC_CLIENT_ID,
@@ -79,7 +61,6 @@ const config: NextAuthConfig = {
           emailVerified: isEmailVerified ? new Date() : null,
           brand: profile.brand ?? "default_brand",
           roles: profile.realm_roles ?? [],
-          permissions: profile.client_permissions ?? [],
         };
       },
     },
@@ -87,6 +68,7 @@ const config: NextAuthConfig = {
 
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
   secret: process.env.AUTH_SECRET,
@@ -94,11 +76,6 @@ const config: NextAuthConfig = {
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-        token.expiresAt =
-          account.expires_at ?? Math.floor(Date.now() / 1000) + 3600;
-
         token.id = profile.id as string;
         token.name = profile.name as string;
         token.email = profile.email as string;
@@ -107,38 +84,11 @@ const config: NextAuthConfig = {
         token.brand = profile.brand as string;
         token.roles = profile.roles as string[];
 
-        // 🔄 Recupera RPT subito dopo il login
-        const rpt = await getRPT(account.access_token ?? "");
-        // console.log(
-        //   "RPT Authorization response:",
-        //   JSON.stringify(rpt, null, 2)
-        // );
-
-        if (rpt) {
-          // Store the raw permissions response
-          console.log("permissionsRaw:", rpt);
-
-          try {
-            // If the response is already an array of permission objects, use it directly
-            if (Array.isArray(rpt)) {
-              token.permissions = groupPermissions(rpt);
-            }
-            // If the response has an authorization.permissions structure (traditional UMA format)
-            else if (rpt?.authorization?.permissions) {
-              token.permissions = groupPermissions(
-                rpt.authorization.permissions
-              );
-            }
-            // Fallback to empty permissions if neither format is found
-            else {
-              token.permissions = {};
-              console.warn("No permissions found in RPT response");
-            }
-          } catch (error) {
-            console.error("Error processing permissions:", error);
-            token.permissions = {}; // Set an empty permissions object as fallback
-          }
-        }
+        // Salva i token ma non includere le permission nel JWT
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+        token.expiresAt =
+          account.expires_at ?? Math.floor(Date.now() / 1000) + 3600;
       }
 
       const now = Math.floor(Date.now() / 1000);
@@ -178,30 +128,20 @@ const config: NextAuthConfig = {
     },
 
     async session({ session, token }) {
-      // Base user properties with permissions fully included
-      const baseUser: any = {
-        id: typeof token.id === "string" ? token.id : String(token.id ?? ""),
-        name: (token.name as string) ?? "",
-        email: (token.email as string) ?? "",
-        image: (token.picture as string) ?? "",
+      // Includi solo i dati essenziali dell'utente e quelli richiesti dal tipo
+      // Incluso il brand che è necessario per l'interfaccia esistente
+      session.user = {
+        id: token.id as string,
+        name: token.name as string,
+        email: token.email as string,
         emailVerified: token.emailVerified as Date | null,
-        // 🔥 NON includere le permissions nel cookie
-        // permissions: token.permissions as StructuredPermissions | undefined,
-      };
+        brand: token.brand as string, // Aggiungi brand all'oggetto user
+        // Non includere accessToken, refreshToken e permissions qui
+        // Questo mantiene il cookie piccolo
+      } as any; // Cast per evitare errori TypeScript
 
-      // Add brand and roles
-      if (token.brand) {
-        baseUser.brand = token.brand as string;
-      }
-      if (token.roles) {
-        baseUser.roles = token.roles as string[];
-      }
-
-      session.user = baseUser;
-
-      // Keep the full access token since you need it for external service calls
-      (session as any).accessToken = token.accessToken as string | undefined;
-      (session as any).error = token.error as string | undefined;
+      // Aggiungi solo l'ID utente alla sessione per recuperare altri dati
+      (session as any).userId = token.sub;
 
       return session;
     },
@@ -211,3 +151,25 @@ const config: NextAuthConfig = {
 };
 
 export const { handlers, signIn, signOut, auth } = NextAuth(config);
+
+// Utilità per ottenere i permessi - chiamata da /api/me
+export async function getUserPermissions(
+  accessToken: string | undefined
+): Promise<any> {
+  if (!accessToken) return {};
+
+  try {
+    const rpt = await getRPT(accessToken);
+    if (!rpt) return {};
+
+    if (Array.isArray(rpt)) {
+      return groupPermissions(rpt);
+    } else if (rpt?.authorization?.permissions) {
+      return groupPermissions(rpt.authorization.permissions);
+    }
+    return {};
+  } catch (error) {
+    console.error("Errore nell'ottenere i permessi:", error);
+    return {};
+  }
+}
