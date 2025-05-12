@@ -18,6 +18,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { cn } from "@/lib/utils";
 import { getCollectionTitle } from "@/utils/messages.utils";
 import { useSession } from "next-auth/react";
@@ -48,6 +49,18 @@ const createNavData = (
     const localePath = `/${locale}${path}`;
     return pathname.startsWith(localePath);
   };
+  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
+
+  const canReadCollections = checkPermission("collections", "read");
+  const canCreateCollections = checkPermission("collections", "create");
+
+  console.log(
+    `canReadCollections: ${canReadCollections} (loading: ${permissionsLoading})`
+  );
+
+  console.log(
+    `canCreateCollections: ${canCreateCollections} (loading: ${permissionsLoading})`
+  );
 
   // Get the current chatId from URL parameters
   const currentChatId = searchParams.get("chatId");
@@ -67,6 +80,7 @@ const createNavData = (
             currentChatId || Date.now()
           }`,
           isActive: currentCollection === collection.name,
+          disabled: !canReadCollections,
         })),
       },
       {
@@ -79,21 +93,25 @@ const createNavData = (
             title: t("general"),
             url: "/dashboard/admin",
             isActive: isPathActive("/dashboard/admin"),
+            disabled: !canCreateCollections,
           },
           {
             title: t("team"),
             url: "/dashboard/admin/team",
             isActive: isPathActive("/dashboard/admin/team"),
+            disabled: !canCreateCollections,
           },
           {
             title: t("billing"),
             url: "/dashboard/admin/billing",
             isActive: isPathActive("/dashboard/admin/billing"),
+            disabled: !canCreateCollections,
           },
           {
             title: t("limits"),
             url: "/dashboard/admin/limits",
             isActive: isPathActive("/dashboard/admin/limits"),
+            disabled: !canCreateCollections,
           },
         ],
       },
@@ -137,11 +155,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const t = useTranslations("Navigation");
   const [collections, setCollections] = useState<Collection[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
+
+  const userBrand = session?.user?.brand; // Attempt to get brand from session
+
+  const canReadCollections = checkPermission("collections", "read");
 
   useEffect(() => {
-    const userBrand = (session?.user as any)?.brand; // Attempt to get brand from session
-
-    if (status === "authenticated" && userBrand) {
+    if (status === "authenticated" && userBrand && canReadCollections) {
       const fetchCollections = async () => {
         try {
           // Use userBrand from session
@@ -178,14 +199,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       setCollections([]); // Clear collections if user is not authenticated
       setError(null); // Clear errors if any
     }
-  }, [session, status]);
+  }, [session, status, userBrand, canReadCollections]);
 
   // Display error in UI if collections failed and error is set
   // This is a simple example; you might want a more user-friendly error display
   if (error && collections.length === 0 && status === "authenticated") {
     console.warn("Collections loading error shown to user:", error);
-    // You could render an error message component here, e.g.:
-    // return <Sidebar><SidebarContent><p>Error: {error}</p></SidebarContent></Sidebar>;
   }
 
   const currentCollection =

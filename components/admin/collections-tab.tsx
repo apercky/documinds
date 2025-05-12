@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteAlertDialog } from "@/components/ui/delete-alert-dialog";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { data } from "@/consts/mock-data";
 import { Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { CreateCollectionDialog } from "./create-collection-dialog";
@@ -18,6 +18,7 @@ interface Collection {
 }
 
 export function CollectionsTab() {
+  const { data: session } = useSession();
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,10 +40,15 @@ export function CollectionsTab() {
   const t = useTranslations();
 
   const fetchCollections = async () => {
+    if (!session?.user) {
+      setError("Utente non autenticato");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch(
-        `/api/store/collections?brand=${data.user.brand}`
-      );
+      const userBrand = session?.user?.brand;
+      const response = await fetch(`/api/store/collections?brand=${userBrand}`);
       if (!response.ok) throw new Error(t("collections.error.fetch"));
       const collections = await response.json();
       setCollections(collections);
@@ -69,9 +75,10 @@ export function CollectionsTab() {
   };
 
   useEffect(() => {
-    fetchCollections();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (session?.user) {
+      fetchCollections();
+    }
+  }, [session]);
 
   const handleDelete = async (collectionName: string) => {
     try {

@@ -12,8 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthUtils } from "@/lib/hooks/use-auth-utils";
-import { usePermissions } from "@/lib/hooks/use-permissions";
+import { useAuthUtils } from "@/hooks/auth/use-auth-utils";
 import { getInitials } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
@@ -21,7 +20,6 @@ import { useTranslations } from "next-intl";
 export function UserNav() {
   const t = useTranslations("UserNav");
   const { data: session } = useSession();
-  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
   const { logout } = useAuthUtils();
 
   const handleLogout = async () => {
@@ -36,12 +34,6 @@ export function UserNav() {
   const userName = user.name ?? "User";
   const userEmail = user.email ?? "";
   const userAvatar = user.image ?? undefined;
-
-  const canAccessCollections = checkPermission("collections", "read");
-
-  console.log(
-    `canAccessCollections: ${canAccessCollections} (loading: ${permissionsLoading})`
-  );
 
   return (
     <DropdownMenu>

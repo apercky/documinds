@@ -30,6 +30,7 @@ interface NavItem {
     title: string;
     url: string;
     isActive?: boolean;
+    disable?: boolean;
   }[];
 }
 
@@ -56,6 +57,7 @@ export function NavMain({ items }: NavMainProps) {
     }
   }, [items]);
 
+  console.log(items);
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{t("platform")}</SidebarGroupLabel>
@@ -98,9 +100,15 @@ export function NavMain({ items }: NavMainProps) {
                             "bg-accent/50 text-accent-foreground underline underline-offset-4"
                         )}
                       >
-                        <Link href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </Link>
+                        {!subItem.disable ? (
+                          <Link href={subItem.url}>
+                            <span>{subItem.title}</span>
+                          </Link>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {subItem.title}
+                          </span>
+                        )}
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

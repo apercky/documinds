@@ -16,7 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuthUtils } from "@/lib/hooks/use-auth-utils";
+import { useAuthUtils } from "@/hooks/auth/use-auth-utils";
 import { getInitials } from "@/lib/utils";
 import {
   BadgeCheck,

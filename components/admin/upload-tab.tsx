@@ -18,9 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { data } from "@/consts/mock-data";
 import { ProcessProgress } from "@/lib/vs/qdrant/vector-store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
@@ -54,6 +54,7 @@ interface UploadProgress extends ProcessProgress {
 }
 
 export function UploadTab() {
+  const { data: session } = useSession();
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,10 +79,14 @@ export function UploadTab() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchCollections = async () => {
+    if (!session?.user) {
+      setError("Utente non autenticato");
+      return;
+    }
+
     try {
-      const response = await fetch(
-        `/api/store/collections?brand=${data.user.brand}`
-      );
+      const userBrand = session?.user?.brand;
+      const response = await fetch(`/api/store/collections?brand=${userBrand}`);
       if (!response.ok) throw new Error("Failed to fetch collections");
       const collections = await response.json();
       setCollections(collections);
@@ -93,8 +98,10 @@ export function UploadTab() {
   };
 
   useEffect(() => {
-    fetchCollections();
-  }, []);
+    if (session?.user) {
+      fetchCollections();
+    }
+  }, [session]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
