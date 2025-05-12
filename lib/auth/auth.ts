@@ -30,6 +30,16 @@ async function getRPT(accessToken: string): Promise<any> {
   return null;
 }
 
+// ⚠️ Design Choice:
+// We intentionally keep the accessToken and refreshToken inside the JWT session token.
+// - accessToken is required for downstream API Gateway calls (BFF pattern).
+// - refreshToken is required for token rotation.
+// NextAuth will chunk and reassemble session cookies above 4KB automatically.
+// This is a conscious trade-off: we prefer stateless session handling (JWT strategy)
+// over database-backed sessions, avoiding DB lookups at every request.
+// Be aware this increases cookie payload on each request (~3-5KB total).
+// Evaluate "strategy: 'database'" only if bandwidth becomes a real bottleneck.
+
 const config: NextAuthConfig = {
   providers: [
     {
