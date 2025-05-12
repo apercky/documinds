@@ -1,5 +1,4 @@
 // lib/auth.ts
-import type { StructuredPermissions } from "@/types/permission";
 import { jwtDecode } from "jwt-decode";
 import type { NextAuthConfig } from "next-auth"; // solo se vuoi autocompletamento, non obbligatorio
 import NextAuth from "next-auth";
@@ -117,7 +116,7 @@ const config: NextAuthConfig = {
 
         if (rpt) {
           // Store the raw permissions response
-          token.permissionsRaw = rpt;
+          console.log("permissionsRaw:", rpt);
 
           try {
             // If the response is already an array of permission objects, use it directly
@@ -186,8 +185,8 @@ const config: NextAuthConfig = {
         email: (token.email as string) ?? "",
         image: (token.picture as string) ?? "",
         emailVerified: token.emailVerified as Date | null,
-        // Include permissions directly in the base user object
-        permissions: token.permissions as StructuredPermissions | undefined,
+        // 🔥 NON includere le permissions nel cookie
+        // permissions: token.permissions as StructuredPermissions | undefined,
       };
 
       // Add brand and roles

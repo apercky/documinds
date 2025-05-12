@@ -12,15 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { hasPermission } from "@/lib/auth/helper";
+import { usePermissions } from "@/lib/hooks/use-permissions";
 import { getInitials } from "@/lib/utils";
-import type { StructuredPermissions } from "@/types/permission";
 import { signOut, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
 export function UserNav() {
   const t = useTranslations("UserNav");
   const { data: session } = useSession();
+  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
@@ -35,29 +35,11 @@ export function UserNav() {
   const userEmail = user.email ?? "";
   const userAvatar = user.image ?? undefined;
 
-  // Safe check for permissions
-  const safeHasPermission = (resource: string, scope: string): boolean => {
-    try {
-      const userPermissions = (session.user as any).permissions as
-        | StructuredPermissions
-        | undefined;
-      console.log(
-        `Checking permission for ${resource}.${scope}:`,
-        userPermissions
-          ? `Available resources: ${Object.keys(userPermissions).join(", ")}`
-          : "No permissions available"
-      );
+  const canAccessCollections = checkPermission("collections", "read");
 
-      return hasPermission(userPermissions, resource, scope);
-    } catch (error) {
-      console.error("Error checking permissions:", error);
-      return false;
-    }
-  };
-
-  const canAccessCollections = safeHasPermission("collections", "read");
-
-  console.log(`canAccessCollections: ${canAccessCollections}`);
+  console.log(
+    `canAccessCollections: ${canAccessCollections} (loading: ${permissionsLoading})`
+  );
 
   return (
     <DropdownMenu>
