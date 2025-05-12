@@ -19,10 +19,40 @@ export async function GET(req: NextRequest) {
   try {
     // Ottieni il token completo - questo è disponibile nel backend tramite auth()
     const token = (session as any).token || {};
+
+    // Debug - logga solo in ambiente di sviluppo
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        "DEBUG - Session content:",
+        JSON.stringify(
+          {
+            userId: (session as any).userId,
+            user: session.user,
+            hasToken: !!token,
+            tokenKeys: Object.keys(token),
+          },
+          null,
+          2
+        )
+      );
+    }
+
     const accessToken = token.accessToken;
 
     // Recupera i permessi direttamente da Keycloak utilizzando l'access token
     const permissions = await getUserPermissions(accessToken);
+
+    // Debug - logga solo in ambiente di sviluppo
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        "DEBUG - Permissions retrieved:",
+        JSON.stringify(permissions, null, 2)
+      );
+      console.log(
+        "DEBUG - Roles from token:",
+        JSON.stringify(token.roles, null, 2)
+      );
+    }
 
     // Crea una versione completa dei dati utente
     const userData = {

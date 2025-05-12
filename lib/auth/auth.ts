@@ -60,7 +60,7 @@ const config: NextAuthConfig = {
           image: profile.picture ?? "",
           emailVerified: isEmailVerified ? new Date() : null,
           brand: profile.brand ?? "default_brand",
-          roles: profile.realm_roles ?? [],
+          roles: profile.roles ?? [],
         };
       },
     },
@@ -142,6 +142,9 @@ const config: NextAuthConfig = {
 
       // Aggiungi solo l'ID utente alla sessione per recuperare altri dati
       (session as any).userId = token.sub;
+
+      // Mantieni il token per l'utilizzo nel backend (non va nel cookie)
+      (session as any).token = token;
 
       return session;
     },
