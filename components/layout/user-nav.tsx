@@ -12,18 +12,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthUtils } from "@/lib/hooks/use-auth-utils";
 import { usePermissions } from "@/lib/hooks/use-permissions";
 import { getInitials } from "@/lib/utils";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
 export function UserNav() {
   const t = useTranslations("UserNav");
   const { data: session } = useSession();
   const { checkPermission, isLoading: permissionsLoading } = usePermissions();
+  const { logout } = useAuthUtils();
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/" });
+    await logout("/");
   };
 
   if (!session || !session.user) {

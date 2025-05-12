@@ -2,10 +2,12 @@ import "@/app/globals.css";
 import { routing } from "@/app/i18n/routing";
 import SessionProviderWrapper from "@/components/auth/session-provider-wrapper";
 import { ThemeProvider } from "@/components/ui/providers/theme-provider";
+import { Providers } from "@/lib/providers/providers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -48,7 +50,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased`}
       >
@@ -59,7 +61,9 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider messages={messages}>
-            <SessionProviderWrapper>{children}</SessionProviderWrapper>
+            <SessionProviderWrapper>
+              <Providers>{children}</Providers>
+            </SessionProviderWrapper>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

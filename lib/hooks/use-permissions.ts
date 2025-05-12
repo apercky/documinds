@@ -1,7 +1,7 @@
 import { hasPermission } from "@/lib/auth/helper";
 import type { StructuredPermissions } from "@/types/permission";
+import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
 
 interface UserWithPermissions {
   permissions: StructuredPermissions;
@@ -10,65 +10,48 @@ interface UserWithPermissions {
   roles?: string[];
 }
 
+// Funzione per recuperare i dati utente dall'API
+async function fetchUserData() {
+  const response = await fetch("/api/me");
+
+  if (!response.ok) {
+    throw new Error(`Errore ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 /**
  * Hook per verificare i permessi utente e ottenere l'access token
- * Richiede l'API /api/me per ottenere i dati che non sono nei cookie
- * per evitare il problema CHUNKING_SESSION_COOKIE
+ * Utilizza React Query per il caching e l'invalidazione automatica
  */
 export function usePermissions() {
   const { data: session, status } = useSession();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [userData, setUserData] = useState<UserWithPermissions>({
-    permissions: {},
-    accessToken: undefined,
-    roles: [],
+
+  // Utilizziamo React Query per gestire la cache e lo stato di loading/error
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["userData", session?.user?.id],
+    queryFn: fetchUserData,
+    // La query viene eseguita solo se l'utente è autenticato
+    enabled: !!session?.user,
+    // Opzioni specifiche per questa query
+    staleTime: 5 * 60 * 1000, // 5 minuti
+    gcTime: 30 * 60 * 1000, // 30 minuti
   });
 
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchUserData() {
-      if (status === "loading") return;
-      if (!session?.user) {
-        if (isMounted) setIsLoading(false);
-        return;
+  // Estrai i dati utente dalla risposta o utilizza valori predefiniti
+  const userData: UserWithPermissions = data
+    ? {
+        permissions: data.user.permissions || {},
+        accessToken: data.accessToken,
+        expiresAt: data.expiresAt,
+        roles: data.user.roles || [],
       }
-
-      try {
-        // Carica i dati estesi dell'utente dal backend
-        const response = await fetch("/api/me");
-        if (!response.ok) {
-          throw new Error(`Errore ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        if (isMounted) {
-          setUserData({
-            permissions: data.user.permissions || {},
-            accessToken: data.accessToken,
-            expiresAt: data.expiresAt,
-            roles: data.user.roles || [],
-          });
-          setError(null);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Errore nel recupero dei dati utente:", error);
-        if (isMounted) {
-          setError(error instanceof Error ? error : new Error(String(error)));
-          setIsLoading(false);
-        }
-      }
-    }
-
-    fetchUserData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [session, status]);
+    : {
+        permissions: {},
+        accessToken: undefined,
+        roles: [],
+      };
 
   // Funzione per controllare un permesso specifico
   const checkPermission = (resource: string, action: string): boolean => {
@@ -82,8 +65,8 @@ export function usePermissions() {
   };
 
   return {
-    isLoading,
-    error,
+    isLoading: isLoading || status === "loading",
+    error: error as Error | null,
     permissions: userData.permissions,
     accessToken: userData.accessToken,
     expiresAt: userData.expiresAt,

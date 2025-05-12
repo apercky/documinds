@@ -16,6 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useAuthUtils } from "@/lib/hooks/use-auth-utils";
 import { getInitials } from "@/lib/utils";
 import {
   BadgeCheck,
@@ -26,7 +27,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { User } from "next-auth";
-import { signOut } from "next-auth/react";
 
 interface NavUserProps {
   user: User | null | undefined;
@@ -35,9 +35,10 @@ interface NavUserProps {
 
 export function NavUser({ user, isLoading }: NavUserProps) {
   const { isMobile } = useSidebar();
+  const { logout } = useAuthUtils();
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/" });
+    await logout("/");
   };
 
   if (isLoading) {
