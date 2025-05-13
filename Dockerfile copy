@@ -1,0 +1,88 @@
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY package.json package-lock.json* ./
+# Rimuovere i pacchetti di sviluppo per ridurre la dimensione
+RUN npm ci --only=production && \
+    # Rimuovere la cache di npm
+    npm cache clean --force
+
+# Stage 2: Builder
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Installare solo le dipendenze necessarie per il build 
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copiare solo i file necessari per il build
+COPY next.config.js ./
+COPY middleware.ts ./
+COPY tsconfig.json ./
+COPY app ./app
+COPY components ./components
+COPY config ./config
+COPY consts ./consts
+COPY hooks ./hooks
+COPY lib ./lib
+COPY messages ./messages
+COPY public ./public
+COPY types ./types
+COPY utils ./utils
+
+# Set environment variables
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+# Skip linting during build to avoid ESLint configuration issues
+ENV NEXT_LINT_IGNORE=true
+
+# Build the Next.js application with standalone output and skip linting
+RUN npm run build:docker
+
+# Stage 3: Runner - immagine molto minima
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Add non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    # Create directory for certificates
+    mkdir -p /app/certs && \
+    # Set permissions for certificates directory
+    chown -R nextjs:nodejs /app/certs
+
+# Install only required packages
+RUN apk add --no-cache curl
+
+# Volume per i certificati
+VOLUME /app/certs
+
+# Copy only the necessary files for running the application
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Switch to non-root user
+USER nextjs
+
+# Expose the listening port
+EXPOSE 3000
+
+# Set resource limits - this is commented as it's set in Kubernetes
+# These are recommendations; adjust based on your specific workload
+# CPU: 1 core for moderate traffic, increase for higher loads
+# Memory: 512MB-1GB minimum, 2-4GB recommended for production
+# ENV NODE_OPTIONS="--max-old-space-size=1536"
+
+# Set healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Start the application with NODE_EXTRA_CA_CERTS environment variable
+CMD ["sh", "-c", "NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem node server.js"] 

@@ -86,36 +86,49 @@ documinds/
 
 To deploy Documinds using Docker, follow these steps:
 
-1.Build the Docker image:
-
-```bash
-# Build with tag for GitHub Container Registry
-docker build -t ghcr.io/apercky/documinds:1.0.0 .
-```
-
-2.Login to GitHub Container Registry:
+1.Login to GitHub Container Registry:
 
 ```bash
 echo $CR_PATH | docker login ghcr.io -u apercky --password-stdin
 ```
 
-3.If using a private registry, tag and push the image:
+2.Build the Docker image:
 
 ```bash
 VERSION=1.0.0
 
+# Build with tag for GitHub Container Registry
+docker build -t ghcr.io/apercky/documinds:$VERSION .
+```
+
+3.If using a private registry, tag and push the image:
+
+```bash
 # Push to GitHub Container Registry
 docker push ghcr.io/apercky/documinds:$VERSION
 
-# Create and push the latest tag
+# Create the latest tag
 docker tag ghcr.io/apercky/documinds:$VERSION ghcr.io/apercky/documinds:latest
+
+# Push the latest tag
 docker push ghcr.io/apercky/documinds:latest
 ```
 
 4.Run the Docker container:
 
 ```bash
+VERSION=1.0.0
+
+# Senza certificato personalizzato
 docker run -p 3000:3000 ghcr.io/apercky/documinds:$VERSION
+
+# Con certificato personalizzato per risolvere problemi UNABLE_TO_GET_ISSUER_CERT_LOCALLY
+docker run --name documinds-app \
+  --env-file .env \
+  -p 3000:3000 \
+  --add-host=host.docker.internal:host-gateway \
+  -v /Users/apercky/certs:/app/certs \
+  ghcr.io/apercky/documinds:$VERSION
 ```
 
 #### Troubleshooting Docker Build
@@ -129,6 +142,25 @@ If you encounter build issues:
   - Add `--no-lint` flag to the build command 
   - Use the `build:docker` script which skips linting: `npm run build:docker`
   - Fix your ESLint configuration in `.eslintrc.js` to ensure valid rules
+
+#### Troubleshooting Container Runtime
+
+If you encounter runtime issues with the container:
+
+- Check that all required environment variables are provided:
+
+  ```bash
+  docker run --env-file .env -p 3000:3000 ghcr.io/apercky/documinds:$VERSION
+  ```
+
+- If you encounter SSL certificate issues (UNABLE_TO_GET_ISSUER_CERT_LOCALLY):
+
+  ```bash
+  # Montare il certificato personalizzato dalla directory locale
+  docker run --env-file .env -p 3000:3000 \
+    -v /Users/apercky/certs:/app/certs \
+    ghcr.io/apercky/documinds:$VERSION
+  ```
 
 ### Kubernetes Deployment
 
@@ -154,6 +186,36 @@ kubectl port-forward svc/documinds-service 8080:80
 ```
 
 The application will be available at http://localhost:8080
+
+#### Certificate Configuration for Kubernetes
+
+To set up the certificate in Kubernetes:
+
+1.Create a ConfigMap from your certificate file:
+
+```bash
+kubectl create configmap documinds-certs --from-file=/Users/apercky/certs/staging-documinds-certs.pem
+```
+
+2.Or update the ConfigMap in the k8s-deployment.yaml:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: documinds-certs
+data:
+  staging-documinds-certs.pem: |-
+    # Paste your certificate content here
+```
+
+3.Apply the configuration:
+
+```bash
+kubectl apply -f k8s-deployment.yaml
+```
+
+The container is configured to use this certificate automatically via the NODE_EXTRA_CA_CERTS environment variable.
 
 ## Key Components
 

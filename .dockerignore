@@ -8,7 +8,7 @@ node_modules
 coverage
 
 # Next.js
-.next
+.next/*
 out
 
 # Production
@@ -42,6 +42,12 @@ LICENSE
 .gitignore
 
 # Docker
+
 Dockerfile
 .dockerignore
 docker-compose* 
+k8s-deployment.yaml
+
+# Eclusions
+extras
+scripts

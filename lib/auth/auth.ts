@@ -30,6 +30,17 @@ async function getRPT(accessToken: string): Promise<any> {
   return null;
 }
 
+// Middleware per forzare l'host corretto dentro Docker (solo dev)
+function patchRequestHost(req: any) {
+  const containerIdRegex = /^[a-f0-9]{12}$/;
+  if (
+    req.headers?.host &&
+    containerIdRegex.test(req.headers.host.split(":")[0])
+  ) {
+    req.headers.host = "localhost:3000";
+  }
+}
+
 // ⚠️ Design Choice:
 // We intentionally keep the accessToken and refreshToken inside the JWT session token.
 // - accessToken is required for downstream API Gateway calls (BFF pattern).
@@ -59,7 +70,7 @@ const config: NextAuthConfig = {
       },
       token: `${process.env.OIDC_ISSUER}/protocol/openid-connect/token`,
       userinfo: `${process.env.OIDC_ISSUER}/protocol/openid-connect/userinfo`,
-      checks: ["pkce", "state"],
+      checks: ["state"],
       profile(profile: any) {
         const isEmailVerified = profile.email_verified === true;
         return {
@@ -82,6 +93,8 @@ const config: NextAuthConfig = {
   },
 
   secret: process.env.AUTH_SECRET,
+
+  redirectProxyUrl: process.env.NEXTAUTH_URL,
 
   callbacks: {
     async jwt({ token, account, profile }) {
@@ -158,18 +171,54 @@ const config: NextAuthConfig = {
 
       return session;
     },
+
+    async redirect({ url, baseUrl }) {
+      // Forza l'uso di NEXTAUTH_URL come base
+      const correctBaseUrl = process.env.NEXTAUTH_URL || baseUrl;
+
+      // URL relative (iniziano con /)
+      if (url.startsWith("/")) {
+        return `${correctBaseUrl}${url}`;
+      }
+
+      // Se l'URL contiene l'hostname del container (rilevabile dal numero di porta 3000)
+      if (url.includes(":3000") && !url.includes("localhost:3000")) {
+        // Sostituisci l'hostname con NEXTAUTH_URL
+        return url.replace(/http:\/\/[^:]+:3000/, correctBaseUrl);
+      }
+
+      // Altre URL
+      return url.startsWith(correctBaseUrl) ? url : correctBaseUrl;
+    },
   },
 
-  trustHost:
-    process.env.NODE_ENV === "development" ||
-    process.env.NEXTAUTH_URL?.includes("localhost") ||
-    process.env.NEXTAUTH_URL?.includes("www.dev.documinds.net") ||
-    process.env.NEXTAUTH_URL?.includes("www.documinds.net"),
+  useSecureCookies: process.env.NODE_ENV === "production",
+  trustHost: true,
 
   debug: process.env.NODE_ENV === "development",
 };
 
-export const { handlers, signIn, signOut, auth } = NextAuth(config);
+// export const { handlers, signIn, signOut, auth } = NextAuth(config);
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...config,
+  callbacks: {
+    ...config.callbacks,
+  },
+  events: {
+    async signIn(message) {
+      console.log("[SignIn Event]", JSON.stringify(message, null, 2));
+      process.stderr.write(
+        `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
+      );
+    },
+    async signOut(message) {
+      console.log("[SignOut Event]", JSON.stringify(message, null, 2));
+      process.stderr.write(
+        `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
+      );
+    },
+  },
+});
 
 // Utilità per ottenere i permessi - chiamata da /api/me
 export async function getUserPermissions(

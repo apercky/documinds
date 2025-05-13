@@ -1,59 +1,81 @@
-# Stage 1: Dependencies
+# Stage 1: Install dependencies only when needed
 FROM node:20-alpine AS deps
+
+# Install required system packages
+RUN apk add --no-cache libc6-compat
+
+# Set working directory
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
 
-# Stage 2: Builder
+# Auto-detect package manager
+RUN \
+  if [ -f package-lock.json ]; then npm ci --frozen-lockfile; \
+  elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
+  elif [ -f pnpm-lock.yaml ]; then \
+    corepack enable && pnpm install --frozen-lockfile; \
+  fi
+
+# Stage 2: Build the Next.js application
 FROM node:20-alpine AS builder
+
+RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
+
+# Copy the installed dependencies from deps
 COPY --from=deps /app/node_modules ./node_modules
+
+# Copy the rest of the application code
 COPY . .
 
-# Set environment variables
+# Build the Next.js app (optimized for production)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-
-# Skip linting during build to avoid ESLint configuration issues
 ENV NEXT_LINT_IGNORE=true
+ENV HOSTNAME="0.0.0.0"
 
-# Build the Next.js application with standalone output and skip linting
 RUN npm run build:docker
 
-# Stage 3: Runner
+# Stage 3: Production image with minimal footprint
 FROM node:20-alpine AS runner
-WORKDIR /app
 
-# Set environment variables
+# Enable production mode
 ENV NODE_ENV=production
+
+# Optional: prevent Next.js telemetry in production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Add non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Create a non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 && \
+    mkdir -p /app/certs && \
+    chown -R nextjs:1001 /app/certs
 
-# Set correct permissions for Next.js 15 output
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 
-# Switch to non-root user
+# Create volume for custom certificates
+VOLUME /app/certs
+
+# Set working directory
+WORKDIR /app
+
+# Copy only the necessary files for running the app
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Ensure the app runs as non-root
 USER nextjs
 
-# Expose the listening port
+# Expose the port Next.js will run on
 EXPOSE 3000
 
-# Set resource limits - this is commented as it's set in Kubernetes
-# These are recommendations; adjust based on your specific workload
-# CPU: 1 core for moderate traffic, increase for higher loads
-# Memory: 512MB-1GB minimum, 2-4GB recommended for production
-# ENV NODE_OPTIONS="--max-old-space-size=1536"
-
-# Set healthcheck
+# Health check to ensure the service is running
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Start the application
-CMD ["npm", "start"] 
+# Start the Next.js application in production with custom CA certificates support
+CMD ["sh", "-c", "NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem node server.js"] 
