@@ -7,7 +7,7 @@
     "build": "next build",
     "build:docker": "next build --no-lint",
     "start": "next start",
-    "start:prod": "node .next/standalone/server.js",
+    "start:prod": "cp -r public .next/standalone/public && node .next/standalone/server.js",
     "lint": "next lint"
   },
   "dependencies": {
