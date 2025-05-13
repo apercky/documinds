@@ -126,7 +126,6 @@ docker run -p 3000:3000 ghcr.io/apercky/documinds:$VERSION
 docker run --name documinds-app \
   --env-file .env \
   -p 3000:3000 \
-  --add-host=host.docker.internal:host-gateway \
   -v /Users/apercky/certs:/app/certs \
   ghcr.io/apercky/documinds:$VERSION
 ```

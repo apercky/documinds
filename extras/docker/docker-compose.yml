@@ -80,6 +80,30 @@ services:
     networks:
       - documinds-net
 
+  documinds-app:
+    image: ghcr.io/apercky/documinds:${VERSION:-latest}
+    container_name: documinds-app
+    env_file:
+      - .env.documinds
+    volumes:
+      - ./certs:/app/certs
+    expose:
+      - "3000"
+    networks:
+      - documinds-net
+
+  nginx-proxy:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - documinds-app
+    networks:
+      - documinds-net
+
 volumes:
   langflow-postgres:
     driver: local

@@ -30,17 +30,6 @@ async function getRPT(accessToken: string): Promise<any> {
   return null;
 }
 
-// Middleware per forzare l'host corretto dentro Docker (solo dev)
-function patchRequestHost(req: any) {
-  const containerIdRegex = /^[a-f0-9]{12}$/;
-  if (
-    req.headers?.host &&
-    containerIdRegex.test(req.headers.host.split(":")[0])
-  ) {
-    req.headers.host = "localhost:3000";
-  }
-}
-
 // ⚠️ Design Choice:
 // We intentionally keep the accessToken and refreshToken inside the JWT session token.
 // - accessToken is required for downstream API Gateway calls (BFF pattern).
@@ -89,12 +78,10 @@ const config: NextAuthConfig = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 1 * 24 * 60 * 60, // 1 day
   },
 
   secret: process.env.AUTH_SECRET,
-
-  redirectProxyUrl: process.env.NEXTAUTH_URL,
 
   callbacks: {
     async jwt({ token, account, profile }) {
@@ -159,8 +146,6 @@ const config: NextAuthConfig = {
         email: token.email as string,
         emailVerified: token.emailVerified as Date | null,
         brand: token.brand as string, // Aggiungi brand all'oggetto user
-        // Non includere accessToken, refreshToken e permissions qui
-        // Questo mantiene il cookie piccolo
       } as any; // Cast per evitare errori TypeScript
 
       // Aggiungi solo l'ID utente alla sessione per recuperare altri dati
@@ -171,24 +156,35 @@ const config: NextAuthConfig = {
 
       return session;
     },
+  },
 
-    async redirect({ url, baseUrl }) {
-      // Forza l'uso di NEXTAUTH_URL come base
-      const correctBaseUrl = process.env.NEXTAUTH_URL || baseUrl;
-
-      // URL relative (iniziano con /)
-      if (url.startsWith("/")) {
-        return `${correctBaseUrl}${url}`;
-      }
-
-      // Se l'URL contiene l'hostname del container (rilevabile dal numero di porta 3000)
-      if (url.includes(":3000") && !url.includes("localhost:3000")) {
-        // Sostituisci l'hostname con NEXTAUTH_URL
-        return url.replace(/http:\/\/[^:]+:3000/, correctBaseUrl);
-      }
-
-      // Altre URL
-      return url.startsWith(correctBaseUrl) ? url : correctBaseUrl;
+  cookies: {
+    csrfToken: {
+      name: "next-auth.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    callbackUrl: {
+      name: "next-auth.callback-url",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    state: {
+      name: "next-auth.state",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
     },
   },
 

@@ -42,9 +42,6 @@ RUN npm run build:docker
 # Stage 3: Production image with minimal footprint
 FROM node:20-alpine AS runner
 
-# Enable production mode
-ENV NODE_ENV=production
-
 # Optional: prevent Next.js telemetry in production
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -68,6 +65,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# Define the path to the custom CA certificate
+ENV NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem
+
 # Ensure the app runs as non-root
 USER nextjs
 
@@ -77,5 +77,5 @@ EXPOSE 3000
 # Health check to ensure the service is running
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Start the Next.js application in production with custom CA certificates support
-CMD ["sh", "-c", "NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem node server.js"] 
+# Start the Next.js application in production 
+CMD ["node", "server.js"]
