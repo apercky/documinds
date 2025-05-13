@@ -188,7 +188,7 @@ const config: NextAuthConfig = {
     },
   },
 
-  useSecureCookies: process.env.NODE_ENV === "production",
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith("https://"),
   trustHost: true,
 
   debug: process.env.NODE_ENV === "development",
