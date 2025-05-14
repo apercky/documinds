@@ -1,21 +1,26 @@
-import { checkAuth } from "@/lib/auth/server-helpers";
+import { ROLES } from "@/consts/consts";
+import { withAuth } from "@/lib/auth/auth-interceptor";
 import { vectorStore } from "@/lib/vs/qdrant/vector-store";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Update the metadata of a collection
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
-) {
-  // Authentication check
-  const authResponse = await checkAuth(request);
-  if (authResponse) return authResponse;
-
+export const PATCH = withAuth<
+  NextRequest,
+  { params: Promise<{ name: string }> }
+>([ROLES.EDITOR, ROLES.ADMIN], async (req, context) => {
   try {
-    const { metadata } = await request.json();
-    const { name } = await params;
+    const { metadata } = await req.json();
+
+    if (!context || !context.params) {
+      return NextResponse.json(
+        { error: "Missing route parameters" },
+        { status: 400 }
+      );
+    }
+
+    const { name } = await context.params;
 
     if (!name) {
       return NextResponse.json(
@@ -34,18 +39,21 @@ export async function PATCH(
       { status: 500 }
     );
   }
-}
+});
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
-) {
-  // Authentication check
-  const authResponse = await checkAuth(request);
-  if (authResponse) return authResponse;
-
+export const DELETE = withAuth<
+  NextRequest,
+  { params: Promise<{ name: string }> }
+>([ROLES.EDITOR, ROLES.ADMIN], async (req, context) => {
   try {
-    const { name } = await params;
+    if (!context || !context.params) {
+      return NextResponse.json(
+        { error: "Missing route parameters" },
+        { status: 400 }
+      );
+    }
+
+    const { name } = await context.params;
 
     if (!name) {
       return NextResponse.json(
@@ -67,4 +75,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
+});

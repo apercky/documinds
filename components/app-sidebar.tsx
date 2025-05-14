@@ -18,6 +18,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { ACTIONS, RESOURCES } from "@/consts/consts";
 import { usePermissions } from "@/hooks/auth/use-permissions";
 import { cn } from "@/lib/utils";
 import { getCollectionTitle } from "@/utils/messages.utils";
@@ -51,8 +52,14 @@ const createNavData = (
   };
   const { checkPermission, isLoading: permissionsLoading } = usePermissions();
 
-  const canReadCollections = checkPermission("collections", "read");
-  const canCreateCollections = checkPermission("collections", "create");
+  const canReadCollections = checkPermission(
+    RESOURCES.COLLECTION,
+    ACTIONS.READ
+  );
+  const canCreateCollections = checkPermission(
+    RESOURCES.COLLECTION,
+    ACTIONS.CREATE
+  );
 
   console.log(
     `canReadCollections: ${canReadCollections} (loading: ${permissionsLoading})`

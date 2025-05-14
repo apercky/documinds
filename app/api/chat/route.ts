@@ -1,5 +1,5 @@
-//import { callLangFlow } from "@/lib/langflow-adapter";
-import { checkAuth } from "@/lib/auth/server-helpers";
+import { ROLES } from "@/consts/consts";
+import { withAuth } from "@/lib/auth/auth-interceptor";
 import {
   StreamEvent,
   Tweaks,
@@ -11,11 +11,7 @@ import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 // Allow streaming responses up to 300 seconds
 export const maxDuration = 300;
 
-export async function POST(req: Request) {
-  // Authentication check
-  const authResponse = await checkAuth(req);
-  if (authResponse) return authResponse;
-
+export const POST = withAuth<Request>([ROLES.USER], async (req) => {
   const { messages, collection, id, language } = await req.json();
 
   if (!collection) {
@@ -83,4 +79,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});
