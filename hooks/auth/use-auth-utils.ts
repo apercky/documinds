@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 /**
@@ -11,24 +11,31 @@ import { useRouter } from "next/navigation";
 export function useAuthUtils() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { data: session } = useSession();
 
   /**
    * Effettua il logout e pulisce tutte le cache dell'utente
-   * @param callbackUrl URL opzionale per il redirect dopo il logout
+   * @param redirectTo URL opzionale per il redirect dopo il logout
    */
-  const logout = async (callbackUrl?: string) => {
+  const logout = async () => {
+    const idToken = (session as any).token?.idToken;
+    console.log("idToken", idToken);
+    const logoutEndpoint = `${process.env.NEXT_PUBLIC_OIDC_ISSUER}/protocol/openid-connect/logout`;
+    const logoutUrl = `${logoutEndpoint}?id_token_hint=${idToken}&post_logout_redirect_uri=${process.env.NEXT_PUBLIC_NEXTAUTH_URL}`;
+
+    console.log("logoutUrl", logoutUrl);
     // Prima invalidiamo tutte le query con userData o quelle protette da auth
     queryClient.invalidateQueries({ queryKey: ["userData"] });
 
     // Rimuovi completamente i dati dalla cache per evitare dati vecchi
     queryClient.removeQueries({ queryKey: ["userData"] });
 
-    if (callbackUrl) {
+    if (logoutUrl) {
       // Con redirect automatico di NextAuth
       await signOut({
-        redirect: true,
-        callbackUrl,
+        redirect: false,
       });
+      window.location.href = logoutUrl;
     } else {
       // Senza redirect automatico, lo gestiamo manualmente
       await signOut({ redirect: false });

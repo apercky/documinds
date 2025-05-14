@@ -23,7 +23,7 @@ export function UserNav() {
   const { logout } = useAuthUtils();
 
   const handleLogout = async () => {
-    await logout("/");
+    await logout();
   };
 
   if (!session || !session.user) {

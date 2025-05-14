@@ -38,7 +38,7 @@ export function NavUser({ user, isLoading }: NavUserProps) {
   const { logout } = useAuthUtils();
 
   const handleLogout = async () => {
-    await logout("/");
+    await logout();
   };
 
   if (isLoading) {

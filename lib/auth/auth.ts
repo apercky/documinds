@@ -86,6 +86,7 @@ const config: NextAuthConfig = {
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
+        token.idToken = account.id_token;
         token.id = profile.id as string;
         token.name = profile.name as string;
         token.email = profile.email as string;
