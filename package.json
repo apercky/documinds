@@ -8,6 +8,7 @@
     "build:docker": "next build --no-lint",
     "start": "next start",
     "start:prod": "cp -r public .next/standalone/public && node .next/standalone/server.js",
+    "build-and-push": "./scripts/build-and-push.sh",
     "lint": "next lint"
   },
   "dependencies": {
