@@ -54,7 +54,7 @@ const config: NextAuthConfig = {
         url: `${process.env.OIDC_ISSUER}/protocol/openid-connect/auth`,
         params: {
           scope:
-            process.env.OIDC_SCOPES ?? "openid profile email offline_access",
+            process.env.OIDC_SCOPES ?? "openid profile email documinds-scope",
         },
       },
       token: `${process.env.OIDC_ISSUER}/protocol/openid-connect/token`,
