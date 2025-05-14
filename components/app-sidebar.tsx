@@ -87,7 +87,7 @@ const createNavData = (
             currentChatId || Date.now()
           }`,
           isActive: currentCollection === collection.name,
-          disabled: !canReadCollections,
+          disable: !canReadCollections,
         })),
       },
       {
@@ -100,25 +100,25 @@ const createNavData = (
             title: t("general"),
             url: "/dashboard/admin",
             isActive: isPathActive("/dashboard/admin"),
-            disabled: !canCreateCollections,
+            disable: !canCreateCollections,
           },
           {
             title: t("team"),
             url: "/dashboard/admin/team",
             isActive: isPathActive("/dashboard/admin/team"),
-            disabled: !canCreateCollections,
+            disable: !canCreateCollections,
           },
           {
             title: t("billing"),
             url: "/dashboard/admin/billing",
             isActive: isPathActive("/dashboard/admin/billing"),
-            disabled: !canCreateCollections,
+            disable: !canCreateCollections,
           },
           {
             title: t("limits"),
             url: "/dashboard/admin/limits",
             isActive: isPathActive("/dashboard/admin/limits"),
-            disabled: !canCreateCollections,
+            disable: !canCreateCollections,
           },
         ],
       },

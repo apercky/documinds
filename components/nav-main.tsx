@@ -55,6 +55,18 @@ export function NavMain({ items }: NavMainProps) {
     if (activeSections.length > 0) {
       setOpenSections(activeSections);
     }
+
+    // Debug: logghiamo lo stato degli elementi e dei relativi subItems
+    console.log(
+      "NavMain items:",
+      items.map((item) => ({
+        title: item.title,
+        subItems: item.items?.map((subItem) => ({
+          title: subItem.title,
+          isDisabled: subItem.disable === true,
+        })),
+      }))
+    );
   }, [items]);
 
   console.log(items);
@@ -91,27 +103,35 @@ export function NavMain({ items }: NavMainProps) {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton
-                        asChild
-                        className={cn(
-                          subItem.isActive &&
-                            "bg-accent/50 text-accent-foreground underline underline-offset-4"
-                        )}
-                      >
-                        {!subItem.disable ? (
-                          <Link href={subItem.url}>
-                            <span>{subItem.title}</span>
-                          </Link>
-                        ) : (
-                          <span className="text-muted-foreground">
-                            {subItem.title}
-                          </span>
-                        )}
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
+                  {item.items?.map((subItem) => {
+                    // Verifica se l'elemento è disabilitato
+                    const isDisabled = subItem.disable === true;
+
+                    // Mostra l'elemento solo se non è disabilitato
+                    return (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton
+                          asChild
+                          className={cn(
+                            subItem.isActive &&
+                              "bg-accent/50 text-accent-foreground underline underline-offset-4",
+                            isDisabled &&
+                              "opacity-50 cursor-not-allowed pointer-events-none"
+                          )}
+                        >
+                          {isDisabled ? (
+                            <span className="text-muted-foreground">
+                              {subItem.title}
+                            </span>
+                          ) : (
+                            <Link href={subItem.url}>
+                              <span>{subItem.title}</span>
+                            </Link>
+                          )}
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    );
+                  })}
                 </SidebarMenuSub>
               </CollapsibleContent>
             </SidebarMenuItem>
