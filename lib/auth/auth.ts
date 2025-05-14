@@ -86,7 +86,9 @@ const config: NextAuthConfig = {
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
+        // Save the idToken in the JWT for use in the logout endpoint
         token.idToken = account.id_token;
+
         token.id = profile.id as string;
         token.name = profile.name as string;
         token.email = profile.email as string;
