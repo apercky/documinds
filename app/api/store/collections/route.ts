@@ -1,3 +1,4 @@
+import { checkAuth } from "@/lib/auth/server-helpers";
 import { vectorStore } from "@/lib/vs/qdrant/vector-store";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -5,6 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
  * Get all collections
  */
 export async function GET(request: NextRequest) {
+  // Authentication check
+  const authResponse = await checkAuth(request);
+  if (authResponse) return authResponse;
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const brand = searchParams.get("brand");
@@ -27,6 +32,10 @@ export async function GET(request: NextRequest) {
  * Create a new collection
  */
 export async function POST(request: NextRequest) {
+  // Authentication check
+  const authResponse = await checkAuth(request);
+  if (authResponse) return authResponse;
+
   try {
     const { name, metadata } = await request.json();
 
@@ -57,6 +66,10 @@ export async function POST(request: NextRequest) {
  * Delete a collection
  */
 export async function DELETE(request: NextRequest) {
+  // Authentication check
+  const authResponse = await checkAuth(request);
+  if (authResponse) return authResponse;
+
   try {
     const { collectionName } = await request.json();
 

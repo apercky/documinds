@@ -1,4 +1,5 @@
 //import { callLangFlow } from "@/lib/langflow-adapter";
+import { checkAuth } from "@/lib/auth/server-helpers";
 import {
   StreamEvent,
   Tweaks,
@@ -11,6 +12,10 @@ import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
+  // Authentication check
+  const authResponse = await checkAuth(req);
+  if (authResponse) return authResponse;
+
   const { messages, collection, id, language } = await req.json();
 
   if (!collection) {

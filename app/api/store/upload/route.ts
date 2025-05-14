@@ -1,4 +1,5 @@
 //import CustomPDFLoader from "@/lib/langchain/custom-pdf-loader";
+import { checkAuth } from "@/lib/auth/server-helpers";
 import { documentProcessor } from "@/lib/langchain/document-processor";
 import { vectorStore } from "@/lib/vs/qdrant/vector-store";
 import type { DocumentMetadata } from "@/types/document";
@@ -20,6 +21,10 @@ export async function POST(request: NextRequest) {
     encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`);
 
   try {
+    // Authentication check
+    const authResponse = await checkAuth(request);
+    if (authResponse) return authResponse;
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const collectionName = formData.get("collectionName") as string;
