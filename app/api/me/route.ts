@@ -1,24 +1,24 @@
 import { auth, getUserPermissions } from "@/lib/auth/auth";
+import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Endpoint per ottenere i dati completi dell'utente, inclusi i permessi e token
  * che non sono inclusi nel cookie di sessione per evitare CHUNKING_SESSION_COOKIE
  */
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, res: NextResponse) {
   // Ottieni la sessione utente (contiene solo dati leggeri)
   const session = await auth();
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
 
-  if (!session) {
-    return NextResponse.json(
-      { error: "Utente non autenticato" },
-      { status: 401 }
-    );
+  if (!token?.accessToken || !session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     // Ottieni il token completo - questo è disponibile nel backend tramite auth()
-    const token = (session as any).token || {};
+    // const token = (session as any).token || {};
+    // const token = (session as any).token || {};
 
     // Debug - logga solo in ambiente di sviluppo
     if (process.env.NODE_ENV === "development") {
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
         JSON.stringify(
           {
             userId: (session as any).userId,
-            user: session.user,
+            user: session?.user,
             hasToken: !!token,
             tokenKeys: Object.keys(token),
           },
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const accessToken = token.accessToken;
+    const accessToken = token.accessToken as string;
 
     // Recupera i permessi direttamente da Keycloak utilizzando l'access token
     const permissions = await getUserPermissions(accessToken);

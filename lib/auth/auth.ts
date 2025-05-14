@@ -203,20 +203,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     ...config.callbacks,
   },
-  events: {
-    async signIn(message) {
-      console.log("[SignIn Event]", JSON.stringify(message, null, 2));
-      process.stderr.write(
-        `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
-      );
-    },
-    async signOut(message) {
-      console.log("[SignOut Event]", JSON.stringify(message, null, 2));
-      process.stderr.write(
-        `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
-      );
-    },
-  },
+  // events: {
+  //   async signIn(message) {
+  //     console.log("[SignIn Event]", JSON.stringify(message, null, 2));
+  //     process.stderr.write(
+  //       `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
+  //     );
+  //   },
+  //   async signOut(message) {
+  //     console.log("[SignOut Event]", JSON.stringify(message, null, 2));
+  //     process.stderr.write(
+  //       `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
+  //     );
+  //   },
+  // },
 });
 
 // Utilità per ottenere i permessi - chiamata da /api/me
@@ -237,6 +237,7 @@ export async function getUserPermissions(
     return {};
   } catch (error) {
     console.error("Errore nell'ottenere i permessi:", error);
+    process.stderr.write(`[NextAuth Error Event]: ${error}\n`);
     return {};
   }
 }
