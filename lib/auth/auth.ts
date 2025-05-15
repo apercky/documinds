@@ -79,7 +79,7 @@ const config: NextAuthConfig = {
 
   session: {
     strategy: "jwt",
-    maxAge: 1 * 24 * 60 * 60, // 1 day
+    maxAge: 1800, // 30 minutes, the same of the refresh token
   },
 
   secret: process.env.AUTH_SECRET,
@@ -181,9 +181,10 @@ const config: NextAuthConfig = {
         // Aggiungi solo l'ID utente alla sessione per recuperare altri dati
         session.userId = token.sub as string;
         (session as any).roles = tokens.roles;
-        session.expires = new Date(
-          (token.expiresAt as number) * 1000
-        ) as unknown as Date & string;
+        // Converti correttamente expiresAt in una data ISO
+        session.expires = tokens.expiresAt
+          ? (new Date(tokens.expiresAt * 1000) as unknown as Date & string)
+          : (new Date(Date.now() + 1800 * 1000) as unknown as Date & string);
 
         // Mantieni il token per l'utilizzo nel backend (non va nel cookie)
         (session as any).idToken = token.idToken;
