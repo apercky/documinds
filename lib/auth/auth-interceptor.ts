@@ -2,7 +2,8 @@ import "server-only";
 
 import { auth } from "@/lib/auth/auth";
 import { getUserTokens } from "@/lib/auth/tokenStore";
-import { getToken } from "next-auth/jwt";
+import type { Session } from "next-auth";
+import { getToken, JWT } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 // Definizione più precisa di tipi per handler appropriati
@@ -19,6 +20,31 @@ type RequestHandler<T = unknown> = (
 type Handler<T = unknown> = NextRequestHandler<T> | RequestHandler<T>;
 
 /**
+ * Interface for the authentication context passed to route handlers
+ *
+ * This context is automatically passed to the handler function when using withAuth
+ * and contains all the authentication information needed for the route
+ */
+export interface AuthContext {
+  /** The user's access token for API calls */
+  accessToken: string;
+  /** The user's refresh token */
+  refreshToken: string;
+  /** The user's ID token */
+  idToken: string;
+  /** The user's ID (sub) */
+  userId: string;
+  /** The user's brand */
+  brand: string;
+  /** The user's roles */
+  roles: string[];
+  /** The user's session */
+  session: Session | null;
+  /** The user's JWT token */
+  token: JWT | null;
+}
+
+/**
  * Interceptor per proteggere le route con autenticazione e controllo ruoli
  *
  * @param allowedRoles Array di ruoli autorizzati. Se vuoto, richiede solo autenticazione
@@ -27,24 +53,32 @@ type Handler<T = unknown> = NextRequestHandler<T> | RequestHandler<T>;
  *
  * @example
  * // Route accessibile solo agli admin
- * export const POST = withAuth(['admin'], async (req) => {
+ * export const POST = withAuth(['admin'], async (req, context) => {
+ *   const { accessToken, userId, roles } = context;
  *   return NextResponse.json({ message: 'Admin only data' });
  * });
  *
  * @example
  * // Route accessibile a qualsiasi utente autenticato
- * export const GET = withAuth([], async (req) => {
+ * export const GET = withAuth([], async (req, context) => {
+ *   const { session, accessToken } = context;
  *   return NextResponse.json({ message: 'Authenticated user data' });
  * });
  */
 export function withAuth<R extends NextRequest | Request, C = unknown>(
   allowedRoles: string[],
-  handler: (req: R, context?: C) => Promise<Response | NextResponse>
+  handler: (
+    req: R,
+    context: AuthContext & C
+  ) => Promise<Response | NextResponse>
 ): (req: R, context?: C) => Promise<Response | NextResponse> {
   return async (req: R, context?: C) => {
     // Verifica autenticazione con NextAuth
-    const session = await auth();
-    const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+    const session: Session | null = await auth();
+    const token: JWT | null = await getToken({
+      req,
+      secret: process.env.AUTH_SECRET,
+    });
 
     if (!token?.sub || !session) {
       // Per richieste JSON (default)
@@ -106,14 +140,9 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
       userId: token.sub,
       brand: tokens.brand,
       roles: tokens.roles,
-    } as C & {
-      accessToken: string;
-      refreshToken: string;
-      idToken: string;
-      userId: string;
-      brand: string;
-      roles: string[];
-    };
+      session,
+      token,
+    } as AuthContext & C;
 
     return handler(req, extendedContext);
   };

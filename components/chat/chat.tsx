@@ -7,7 +7,7 @@ import { useChat } from "@ai-sdk/react";
 import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { MemoizedChatBubble } from "./chat-bubble-message";
 
 export default function Chat() {
@@ -26,10 +26,6 @@ export default function Chat() {
       },
       id: chatId,
     });
-
-  useEffect(() => {
-    process.env.NODE_ENV === "development" && console.log("chatId", chatId);
-  }, [chatId]);
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {

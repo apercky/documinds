@@ -38,9 +38,6 @@ export const POST = withAuth<Request>([ROLES.USER], async (req) => {
 
     const sessionId = id || "default_session";
 
-    console.log("Session ID:", sessionId);
-    console.log("Language:", language);
-
     const tweaks: Tweaks = {
       "Chroma DB advanced-co8kq": {
         collection_name: collection,

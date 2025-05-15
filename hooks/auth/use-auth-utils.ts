@@ -5,8 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 /**
- * Hook che fornisce utility per la gestione dell'autenticazione
- * e delle cache relate all'utente
+ * Hook that provides utilities for managing authentication
+ * and user-related caches
  */
 export function useAuthUtils() {
   const queryClient = useQueryClient();
@@ -14,48 +14,56 @@ export function useAuthUtils() {
   const { data: session } = useSession();
 
   /**
-   * Effettua il logout e pulisce tutte le cache dell'utente
-   * @param redirectTo URL opzionale per il redirect dopo il logout
+   * Performs logout and cleans all user caches
+   * @param redirectTo Optional URL for redirect after logout
    */
   const logout = async () => {
-    // Chiama l'API server-side per pulire la cache Redis dell'utente
-    await fetch("/api/auth/signout", { method: "POST" });
+    console.log(`[NextAuth session]: ${JSON.stringify(session, null, 2)}`);
 
     // Create logout url to logout from the OIDC provider
-    const idToken = (session as any).token?.idToken;
+    const idToken = (session as any).idToken;
     const logoutEndpoint = `${publicConfig.OIDC_ISSUER}/protocol/openid-connect/logout`;
-    const logoutUrl = `${logoutEndpoint}?id_token_hint=${idToken}&post_logout_redirect_uri=${publicConfig.NEXTAUTH_URL}`;
-
-    // Prima invalidiamo tutte le query con userData o quelle protette da auth
-    queryClient.invalidateQueries({ queryKey: ["userData"] });
-
-    // Rimuovi completamente i dati dalla cache per evitare dati vecchi
-    queryClient.removeQueries({ queryKey: ["userData"] });
+    const logoutUrl = `${logoutEndpoint}?id_token_hint=${idToken}&post_logout_redirect_uri=${encodeURIComponent(
+      publicConfig.NEXTAUTH_URL
+    )}`;
 
     console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);
 
-    if (idToken) {
-      // Con redirect automatico di NextAuth
-      await signOut({
-        redirect: false,
-      });
+    // Clears the session and invalidates all queries with userData or those protected by auth
+    await clearSession();
 
+    // With NextAuth automatic redirect
+    await signOut({
+      redirect: false,
+    });
+
+    if (idToken) {
       // Redirect to the logout url
       window.location.replace(logoutUrl);
     } else {
-      // Senza redirect automatico, lo gestiamo manualmente
-      await signOut({ redirect: false });
-
-      // Reindirizza alla home page o alla pagina di login
+      // Redirect to home page or login page
       router.push("/");
-
-      // Forza un refresh della pagina per pulire completamente lo stato
+      // Force a page refresh to completely clean the state
       router.refresh();
     }
   };
 
   /**
-   * Ricarica i dati dell'utente, forza un refresh dalla rete
+   * Clears the session and invalidates all queries with userData or those protected by auth
+   */
+  const clearSession = async () => {
+    // First invalidate all queries with userData or those protected by auth
+    queryClient.invalidateQueries({ queryKey: ["userData"] });
+
+    // Completely remove data from cache to avoid stale data
+    queryClient.removeQueries({ queryKey: ["userData"] });
+
+    // Call server-side API to clean the user's Redis cache
+    await fetch("/api/auth/signout-redis", { method: "POST" });
+  };
+
+  /**
+   * Reloads user data, forces a refresh from the network
    */
   const refreshUserData = () => {
     queryClient.invalidateQueries({ queryKey: ["userData"] });

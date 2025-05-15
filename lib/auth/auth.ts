@@ -177,7 +177,7 @@ const config: NextAuthConfig = {
         ) as unknown as Date & string;
 
         // Mantieni il token per l'utilizzo nel backend (non va nel cookie)
-        (session as any).idToken = tokens.idToken;
+        (session as any).idToken = token.idToken;
       }
       return session;
     },
@@ -225,24 +225,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     ...config.callbacks,
   },
-  events: {
-    async signIn(message) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[SignIn Event]", JSON.stringify(message, null, 2));
-        process.stderr.write(
-          `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
-        );
-      }
-    },
-    async signOut(message) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[SignOut Event]", JSON.stringify(message, null, 2));
-        process.stderr.write(
-          `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
-        );
-      }
-    },
-  },
+  // events: {
+  //   async signIn(message) {
+  //     if (process.env.NODE_ENV === "development") {
+  //       console.log("[SignIn Event]", JSON.stringify(message, null, 2));
+  //       process.stderr.write(
+  //         `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
+  //       );
+  //     }
+  //   },
+  //   async signOut(message) {
+  //     if (process.env.NODE_ENV === "development") {
+  //       console.log("[SignOut Event]", JSON.stringify(message, null, 2));
+  //       process.stderr.write(
+  //         `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
+  //       );
+  //     }
+  //   },
+  // },
 });
 
 // Utilità per ottenere i permessi - chiamata da /api/me
