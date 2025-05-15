@@ -152,7 +152,6 @@ const config: NextAuthConfig = {
       } as any; // Cast per evitare errori TypeScript
 
       // Aggiungi solo l'ID utente alla sessione per recuperare altri dati
-      (session as any).userId = token.sub;
       session.userId = token.sub || "";
       session.expires = new Date(
         (token.expiresAt as number) * 1000
