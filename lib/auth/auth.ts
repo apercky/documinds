@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
 import { groupPermissions } from "./helper";
-import { getUserTokens, storeUserTokens } from "./tokenStore";
+import { deleteUserTokens, getUserTokens, storeUserTokens } from "./tokenStore";
 
 async function getRPT(accessToken: string): Promise<any> {
   const params = new URLSearchParams();
@@ -128,6 +128,13 @@ const config: NextAuthConfig = {
                 }
               );
 
+              if (!res.ok) {
+                console.error("Token refresh failed with status:", res.status);
+                // Clear invalid tokens from Redis
+                await deleteUserTokens(token.sub);
+                return token; // Return without updated tokens
+              }
+
               const refreshed = await res.json();
               if (res.ok) {
                 await storeUserTokens(token.sub, {
@@ -146,6 +153,8 @@ const config: NextAuthConfig = {
               }
             } catch (err) {
               console.error("Refresh token error", err);
+              // Clear invalid tokens from Redis
+              await deleteUserTokens(token.sub);
             }
           }
         }

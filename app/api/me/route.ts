@@ -23,7 +23,6 @@ export const GET = withAuth<NextRequest>([], async (req, context) => {
             userId: (session as any).userId,
             user: session?.user,
             hasToken: !!accessToken,
-            accessToken: Object.keys(accessToken),
           },
           null,
           2
