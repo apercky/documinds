@@ -18,7 +18,8 @@ export const maxDuration = 1200;
 export const POST = withAuth<NextRequest>(
   [ROLES.EDITOR, ROLES.ADMIN],
   async (req) => {
-    console.log("POST method called");
+    process.env.NODE_ENV === "development" && console.log("POST method called");
+
     const encoder = new TextEncoder();
     const customEncode = (chunk: object) =>
       encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`);
@@ -34,7 +35,8 @@ export const POST = withAuth<NextRequest>(
         size: file?.size,
       };
 
-      console.log("File details:", documentMetadata);
+      process.env.NODE_ENV === "development" &&
+        console.log("File details:", documentMetadata);
 
       if (!file || !collectionName) {
         return new Response(
@@ -60,7 +62,6 @@ export const POST = withAuth<NextRequest>(
       }
 
       const docs = await loader.load();
-      // console.log(JSON.stringify(docs, null, 2));
 
       // Delete all documents from the collection
       await vectorStore.deleteDocumentsByMetadata(collectionName, {

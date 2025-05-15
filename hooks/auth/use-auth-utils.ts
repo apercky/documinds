@@ -29,7 +29,8 @@ export function useAuthUtils() {
     // Rimuovi completamente i dati dalla cache per evitare dati vecchi
     queryClient.removeQueries({ queryKey: ["userData"] });
 
-    console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);
+    process.env.NODE_ENV === "development" &&
+      console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);
 
     if (idToken) {
       // Con redirect automatico di NextAuth

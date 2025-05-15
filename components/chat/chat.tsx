@@ -28,7 +28,7 @@ export default function Chat() {
     });
 
   useEffect(() => {
-    console.log("chatId", chatId);
+    process.env.NODE_ENV === "development" && console.log("chatId", chatId);
   }, [chatId]);
 
   const onSubmit = useCallback(

@@ -41,8 +41,8 @@ export const documentProcessor = {
   async processUnstructuredDocs(docs: Document[]): Promise<Document[]> {
     const processedDocs = docs.map(async (doc) => {
       let combinedText = doc.pageContent || "";
-
-      console.log("doc", JSON.stringify(doc.metadata, null, 2));
+      process.env.NODE_ENV === "development" &&
+        console.log("doc", JSON.stringify(doc.metadata, null, 2));
 
       if (doc.metadata && doc.metadata.type) {
         // Convert type to lowercase for consistency.
@@ -52,14 +52,16 @@ export const documentProcessor = {
           // You might choose to run OCR or captioning on the image.
           // Here, we simply add a placeholder.
           const ocrText = await extractTextFromImage(doc.metadata.image_base64);
-          console.log("ocrText", ocrText);
+          process.env.NODE_ENV === "development" &&
+            console.log("ocrText", ocrText);
           combinedText += `\n[Image Content]: ${ocrText}`;
         }
         if (typeLower === "table") {
           // If available, include the table's HTML (or any other representation).
           if (doc.metadata.table_html) {
             combinedText += `\n[Table Content]: ${doc.metadata.table_html}`;
-            console.log("tableHtml", doc.metadata.table_html);
+            process.env.NODE_ENV === "development" &&
+              console.log("tableHtml", doc.metadata.table_html);
           } else {
             combinedText += "\n[Table Content]";
           }

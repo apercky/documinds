@@ -61,13 +61,15 @@ const createNavData = (
     ACTIONS.CREATE
   );
 
-  console.log(
-    `canReadCollections: ${canReadCollections} (loading: ${permissionsLoading})`
-  );
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `canReadCollections: ${canReadCollections} (loading: ${permissionsLoading})`
+    );
 
-  console.log(
-    `canCreateCollections: ${canCreateCollections} (loading: ${permissionsLoading})`
-  );
+    console.log(
+      `canCreateCollections: ${canCreateCollections} (loading: ${permissionsLoading})`
+    );
+  }
 
   // Get the current chatId from URL parameters
   const currentChatId = searchParams.get("chatId");
