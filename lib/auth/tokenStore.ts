@@ -1,10 +1,4 @@
-import { createClient } from "redis";
-
-const redis = createClient({ url: process.env.REDIS_URL });
-
-redis.on("error", (err) => console.error("Redis Client Error", err));
-
-await redis.connect();
+import { getRedisClient } from "@/lib/redis";
 
 export async function storeUserTokens(
   sub: string,
@@ -17,6 +11,7 @@ export async function storeUserTokens(
     roles?: string[];
   }
 ) {
+  const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
   await redis.hSet(key, {
     accessToken: tokens.accessToken,
@@ -32,6 +27,7 @@ export async function storeUserTokens(
 }
 
 export async function getUserTokens(sub: string) {
+  const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
   const data = await redis.hGetAll(key);
   if (!data || Object.keys(data).length === 0) return null;
@@ -47,6 +43,7 @@ export async function getUserTokens(sub: string) {
 }
 
 export async function deleteUserTokens(sub: string) {
+  const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
   await redis.del(key);
 }
