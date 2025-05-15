@@ -64,6 +64,15 @@ export interface AuthContext {
  *   const { session, accessToken } = context;
  *   return NextResponse.json({ message: 'Authenticated user data' });
  * });
+ *
+ * @example
+ * // Route con streaming (supporta Response.body come ReadableStream)
+ * export const POST = withAuth(['user'], async (req, context) => {
+ *   // ... codice che genera uno stream ...
+ *   return new Response(stream, {
+ *     headers: { 'Content-Type': 'text/event-stream' }
+ *   });
+ * });
  */
 export function withAuth<R extends NextRequest | Request, C = unknown>(
   allowedRoles: string[],
@@ -144,6 +153,32 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
       token,
     } as AuthContext & C;
 
-    return handler(req, extendedContext);
+    // Chiamiamo l'handler originale passando il contesto esteso
+    const response = await handler(req, extendedContext);
+
+    // Debug per verificare il tipo di risposta
+    if (process.env.NODE_ENV === "development") {
+      console.log("Auth interceptor response type:", response.constructor.name);
+      console.log(
+        "Auth interceptor response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+      console.log("Auth interceptor response has body:", !!response.body);
+
+      if (response.body) {
+        console.log(
+          "Auth interceptor response body type:",
+          typeof response.body
+        );
+        console.log(
+          "Auth interceptor response body is ReadableStream:",
+          response.body instanceof ReadableStream
+        );
+      }
+    }
+
+    // La risposta originale viene passata direttamente senza ulteriori elaborazioni
+    // per preservare lo streaming e altri tipi di risposte speciali
+    return response;
   };
 }

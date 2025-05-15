@@ -74,7 +74,15 @@ export function createStreamingResponseFromReadableStream(
     },
   });
 
-  return LangChainAdapter.toDataStreamResponse(textStream);
+  const response = LangChainAdapter.toDataStreamResponse(textStream);
+
+  response.headers.set("Content-Type", "text/plain; charset=utf-8");
+  response.headers.set("Transfer-Encoding", "chunked");
+  response.headers.set("Connection", "keep-alive");
+  response.headers.set("Cache-Control", "no-cache, no-transform");
+  response.headers.set("X-Accel-Buffering", "no");
+
+  return response;
 }
 
 /**
