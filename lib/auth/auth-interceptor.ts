@@ -1,6 +1,7 @@
 import "server-only";
 
 import { auth } from "@/lib/auth/auth";
+import { getUserTokens } from "@/lib/auth/tokenStore";
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -45,7 +46,7 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     const session = await auth();
     const token = await getToken({ req, secret: process.env.AUTH_SECRET });
 
-    if (!token?.accessToken || !session) {
+    if (!token?.sub || !session) {
       // Per richieste JSON (default)
       if (req.headers.get("Accept")?.includes("application/json")) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -70,9 +71,16 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Recupera token e privilegi da Redis usando il sub
+    const tokens = await getUserTokens(token.sub);
+
+    if (!tokens?.accessToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // Se sono specificati ruoli, verifica che l'utente ne abbia almeno uno
     if (allowedRoles.length > 0) {
-      const userRoles = Array.isArray(token.roles) ? token.roles : [];
+      const userRoles = Array.isArray(tokens.roles) ? tokens.roles : [];
       const hasRequiredRole = allowedRoles.some((role) =>
         userRoles.includes(role)
       );
@@ -89,6 +97,24 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     }
 
     // Se autenticazione e autorizzazione sono passate, esegui l'handler
-    return handler(req, context);
+    // Estende il context con accessToken e altre info utili
+    const extendedContext = {
+      ...(context || {}),
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      idToken: tokens.idToken,
+      userId: token.sub,
+      brand: tokens.brand,
+      roles: tokens.roles,
+    } as C & {
+      accessToken: string;
+      refreshToken: string;
+      idToken: string;
+      userId: string;
+      brand: string;
+      roles: string[];
+    };
+
+    return handler(req, extendedContext);
   };
 }

@@ -18,6 +18,9 @@ export function useAuthUtils() {
    * @param redirectTo URL opzionale per il redirect dopo il logout
    */
   const logout = async () => {
+    // Chiama l'API server-side per pulire la cache Redis dell'utente
+    await fetch("/api/auth/signout", { method: "POST" });
+
     // Create logout url to logout from the OIDC provider
     const idToken = (session as any).token?.idToken;
     const logoutEndpoint = `${publicConfig.OIDC_ISSUER}/protocol/openid-connect/logout`;
@@ -29,8 +32,7 @@ export function useAuthUtils() {
     // Rimuovi completamente i dati dalla cache per evitare dati vecchi
     queryClient.removeQueries({ queryKey: ["userData"] });
 
-    process.env.NODE_ENV === "development" &&
-      console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);
+    console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);
 
     if (idToken) {
       // Con redirect automatico di NextAuth

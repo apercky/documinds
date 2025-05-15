@@ -43,13 +43,10 @@ export function usePermissions() {
   const userData: UserWithPermissions = data
     ? {
         permissions: data.user.permissions || {},
-        accessToken: data.accessToken,
-        expiresAt: data.expiresAt,
         roles: data.user.roles || [],
       }
     : {
         permissions: {},
-        accessToken: undefined,
         roles: [],
       };
 
@@ -68,8 +65,6 @@ export function usePermissions() {
     isLoading: isLoading || status === "loading",
     error: error as Error | null,
     permissions: userData.permissions,
-    accessToken: userData.accessToken,
-    expiresAt: userData.expiresAt,
     roles: userData.roles,
     checkPermission,
     hasRole,
