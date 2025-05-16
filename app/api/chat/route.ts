@@ -52,6 +52,10 @@ export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
         output_type: OutputTypes.CHAT,
         session_id: sessionId,
         tweaks,
+      })
+      .catch((error) => {
+        console.error("Error during connection to LangFlow:", error);
+        throw error;
       });
 
     // IMPORTANTE: Trasforma direttamente lo stream e restituiscilo come Response
