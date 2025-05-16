@@ -14,7 +14,9 @@ import { CreateCollectionDialog } from "./create-collection-dialog";
 
 export function CollectionsTab() {
   // Utilizziamo il nostro hook personalizzato useCollection
-  const { collections, isLoading, refreshCollections } = useCollection();
+  const { collections, isLoading, refreshCollections } = useCollection({
+    useAdminMode: true,
+  });
   const [error, setError] = useState<string | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;

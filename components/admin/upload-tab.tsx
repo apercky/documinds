@@ -54,7 +54,9 @@ export function UploadTab() {
     collections,
     isLoading: collectionsLoading,
     refreshCollections,
-  } = useCollection();
+  } = useCollection({
+    useAdminMode: true,
+  });
 
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);

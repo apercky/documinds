@@ -43,7 +43,9 @@ export function CollectionDetailsDialog({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { updateCollectionInCache } = useCollection();
+  const { updateCollectionInCache } = useCollection({
+    useAdminMode: true,
+  });
 
   const handleEdit = () => {
     // Initialize with all metadata keys and their current values or empty strings
