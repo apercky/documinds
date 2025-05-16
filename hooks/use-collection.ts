@@ -13,7 +13,7 @@ const COLLECTIONS_QUERY_KEY = "collections";
 /**
  * Hook to retrieve and manage collections for a user
  * @param options Configuration options
- * @param options.useAdminMode If true, attempts to use admin endpoint (will only work if user has ADMIN role)
+ * @param options.useAdminMode If true, attempts to use admin endpoint for ADMIN users, or regular endpoint with brand filter for EDITOR users
  */
 export function useCollection({
   useAdminMode = false,
@@ -22,14 +22,18 @@ export function useCollection({
   const userBrand = session?.user?.brand;
   const queryClient = useQueryClient();
 
-  // Using the permissions hook to check admin role
+  // Using the permissions hook to check roles
   const { hasRole } = usePermissions();
 
-  // Determine if the user is actually an admin, regardless of useAdminMode parameter
-  const isActuallyAdmin = hasRole(ROLES.ADMIN);
+  // Determine user roles
+  const isAdmin = hasRole(ROLES.ADMIN);
+  const isEditor = hasRole(ROLES.EDITOR);
 
-  // Only use admin mode if both the flag is set AND the user is actually an admin
-  const effectiveAdminMode = useAdminMode && isActuallyAdmin;
+  // Define access mode based on roles and requested mode:
+  // - Admin in admin mode: Gets all collections across all brands
+  // - Editor in admin mode: Gets collections for their brand only
+  // - Regular users: Get collections for their brand only
+  const useAdminEndpoint = useAdminMode && isAdmin;
 
   // Using the centralized error handling hook
   const { handleError } = useErrorHandler();
@@ -41,9 +45,10 @@ export function useCollection({
     }
 
     try {
-      // If admin mode is requested AND user has admin role, use the admin endpoint
-      // Otherwise use regular endpoint with brand filter, even if adminMode was requested but user lacks permissions
-      const url = effectiveAdminMode
+      // Choose endpoint based on access level:
+      // - Use admin endpoint for admin users in admin mode
+      // - Use regular endpoint with brand filter for everyone else (including editors)
+      const url = useAdminEndpoint
         ? `/api/store/collections/admin`
         : `/api/store/collections?brand=${userBrand}`;
 
@@ -81,7 +86,7 @@ export function useCollection({
 
   // Using useQuery to manage cache and automatic invalidation
   const { data: collections = [], isLoading } = useQuery({
-    queryKey: [COLLECTIONS_QUERY_KEY, userBrand, effectiveAdminMode],
+    queryKey: [COLLECTIONS_QUERY_KEY, userBrand, useAdminEndpoint],
     queryFn: fetchCollections,
     enabled: status === "authenticated",
     staleTime: 60 * 1000, // 1 minute
@@ -91,7 +96,7 @@ export function useCollection({
   // Function to invalidate the cache and force a refresh of collections
   const refreshCollections = () => {
     queryClient.invalidateQueries({
-      queryKey: [COLLECTIONS_QUERY_KEY, userBrand, effectiveAdminMode],
+      queryKey: [COLLECTIONS_QUERY_KEY, userBrand, useAdminEndpoint],
     });
   };
 
@@ -104,7 +109,7 @@ export function useCollection({
     const currentData = queryClient.getQueryData<Collection[]>([
       COLLECTIONS_QUERY_KEY,
       userBrand,
-      effectiveAdminMode,
+      useAdminEndpoint,
     ]);
 
     if (currentData) {
@@ -115,18 +120,20 @@ export function useCollection({
       );
 
       queryClient.setQueryData(
-        [COLLECTIONS_QUERY_KEY, userBrand, effectiveAdminMode],
+        [COLLECTIONS_QUERY_KEY, userBrand, useAdminEndpoint],
         updatedData
       );
     }
   };
 
-  // Return data and functions
+  // Return data and functions along with role information
   return {
     collections,
     isLoading,
     refreshCollections,
     updateCollectionInCache,
-    isAdmin: isActuallyAdmin, // Also return whether the user is actually an admin
+    isAdmin,
+    isEditor,
+    hasAdminAccess: isAdmin || isEditor, // True if user has any admin access (either full or brand-limited)
   };
 }
