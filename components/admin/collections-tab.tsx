@@ -5,22 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteAlertDialog } from "@/components/ui/delete-alert-dialog";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { useCollection } from "@/hooks/use-collection";
+import { Collection } from "@/types/collection";
 import { Trash2 } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CreateCollectionDialog } from "./create-collection-dialog";
 
-interface Collection {
-  name: string;
-  documentCount: number;
-  metadata?: Record<string, unknown>;
-}
-
 export function CollectionsTab() {
-  const { data: session } = useSession();
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Utilizziamo il nostro hook personalizzato useCollection
+  const { collections, isLoading, refreshCollections } = useCollection();
   const [error, setError] = useState<string | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
@@ -39,47 +33,6 @@ export function CollectionsTab() {
 
   const t = useTranslations();
 
-  const fetchCollections = async () => {
-    if (!session?.user) {
-      setError("Utente non autenticato");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const userBrand = session?.user?.brand;
-      const response = await fetch(`/api/store/collections?brand=${userBrand}`);
-      if (!response.ok) throw new Error(t("collections.error.fetch"));
-      const collections = await response.json();
-      setCollections(collections);
-
-      // If details dialog is open, update its collection data with the latest data
-      if (detailsDialog.isOpen && detailsDialog.collection) {
-        const updatedCollection = collections.find(
-          (c: Collection) => c.name === detailsDialog.collection?.name
-        );
-        if (updatedCollection) {
-          setDetailsDialog({
-            isOpen: true,
-            collection: updatedCollection,
-          });
-        }
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("collections.error.fetch")
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (session?.user) {
-      fetchCollections();
-    }
-  }, [session]);
-
   const handleDelete = async (collectionName: string) => {
     try {
       const response = await fetch("/api/store/collections", {
@@ -94,8 +47,8 @@ export function CollectionsTab() {
         throw new Error(t("collections.error.delete"));
       }
 
-      // Refresh collections list
-      await fetchCollections();
+      // Refresh collections list e aggiorna anche la sidebar
+      refreshCollections();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : t("collections.error.delete")
@@ -105,10 +58,11 @@ export function CollectionsTab() {
 
   const handleCollectionCreated = async () => {
     setError(null);
-    await fetchCollections();
+    // Refresh collections list e aggiorna anche la sidebar
+    refreshCollections();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <LoadingIndicator text={t("collections.loading")} className="py-8" />
     );
@@ -117,6 +71,11 @@ export function CollectionsTab() {
   if (error) {
     return <div className="text-red-500 py-8">{error}</div>;
   }
+
+  // Quando apriamo il dialog dei dettagli di una collezione, aggiorna i dati
+  const openDetailsDialog = (collection: Collection) => {
+    setDetailsDialog({ isOpen: true, collection });
+  };
 
   return (
     <>
@@ -130,7 +89,7 @@ export function CollectionsTab() {
           <Card
             key={collection.name}
             className="cursor-pointer transition-colors hover:bg-muted/50"
-            onClick={() => setDetailsDialog({ isOpen: true, collection })}
+            onClick={() => openDetailsDialog(collection)}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -190,7 +149,7 @@ export function CollectionsTab() {
           })
         }
         collection={detailsDialog.collection}
-        onUpdate={fetchCollections}
+        onUpdate={refreshCollections}
       />
     </>
   );

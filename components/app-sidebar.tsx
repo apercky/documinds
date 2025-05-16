@@ -3,14 +3,13 @@
 import { PlusCircle, Settings2, SquareTerminal } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import type * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { Collection } from "@/types/collection";
 import { NavUser } from "./nav-user";
 
 import { usePathname, useRouter } from "@/app/i18n/routing";
 import { Button } from "@/components/ui/button";
-import { ErrorDialog } from "@/components/ui/error-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +20,8 @@ import {
 } from "@/components/ui/sidebar";
 import { ACTIONS, RESOURCES } from "@/consts/consts";
 import { usePermissions } from "@/hooks/auth/use-permissions";
+import { useCollection } from "@/hooks/use-collection";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { cn } from "@/lib/utils";
 import { getCollectionTitle } from "@/utils/messages.utils";
 import { useSession } from "next-auth/react";
@@ -38,7 +39,8 @@ const createNavData = (
   locale: string,
   messages: unknown,
   searchParams: URLSearchParams,
-  t: (key: string) => string
+  t: (key: string) => string,
+  checkPermission: (resource: string, action: string) => boolean
 ) => {
   // Helper function to check if a path matches the current pathname
   const isPathActive = (path: string) => {
@@ -51,11 +53,6 @@ const createNavData = (
     const localePath = `/${locale}${path}`;
     return pathname.startsWith(localePath);
   };
-  const {
-    checkPermission,
-    isLoading: permissionsLoading,
-    error,
-  } = usePermissions();
 
   const canReadCollections = checkPermission(
     RESOURCES.COLLECTION,
@@ -67,13 +64,8 @@ const createNavData = (
   );
 
   if (process.env.NODE_ENV === "development") {
-    console.log(
-      `canReadCollections: ${canReadCollections} (loading: ${permissionsLoading})`
-    );
-
-    console.log(
-      `canCreateCollections: ${canCreateCollections} (loading: ${permissionsLoading})`
-    );
+    console.log(`canReadCollections: ${canReadCollections}`);
+    console.log(`canCreateCollections: ${canCreateCollections}`);
   }
 
   // Get the current chatId from URL parameters
@@ -167,124 +159,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const locale = useLocale();
   const messages = useMessages();
   const t = useTranslations("Navigation");
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [errorDetails, setErrorDetails] = useState<string | null>(null);
-  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+
+  // Utilizziamo il nuovo hook useCollection per gestire le collezioni
+  const { collections, isLoading: collectionsLoading } = useCollection();
+
+  // Utilizziamo l'hook centralizzato per la gestione degli errori
+  const { handleError, ErrorDialogComponent } = useErrorHandler();
+
   const {
     checkPermission,
     isLoading: permissionsLoading,
     error: permissionsError,
   } = usePermissions();
 
-  const userBrand = session?.user?.brand; // Attempt to get brand from session
-
-  const canReadCollections = checkPermission("collections", "read");
-
-  // Handle permissions error
+  // Handle permissions error con il nostro handler centralizzato
   useEffect(() => {
     if (permissionsError) {
-      let details = null;
+      console.error("Permission error detected:", permissionsError);
 
-      // Extract technical details from error
-      if (
-        permissionsError.cause &&
-        typeof permissionsError.cause === "object" &&
-        permissionsError.cause !== null
-      ) {
-        try {
-          // Try to get response details
-          const cause = permissionsError.cause as any;
-          if (cause.response) {
-            details = JSON.stringify(cause.response, null, 2);
-          } else {
-            details = JSON.stringify(cause, null, 2);
-          }
-        } catch (e) {
-          console.error("Failed to stringify error cause:", e);
-          details = String(permissionsError.cause);
-        }
-      }
+      // Verifichiamo se è un errore di autenticazione (401)
+      const err = permissionsError as Error;
+      const cause = (err.cause as any) || {};
 
-      setError(permissionsError.message || "Permission error occurred");
-      setErrorDetails(details);
-      setIsErrorDialogOpen(true);
+      // Log dettagliato dell'errore per debug
+      console.log("Error cause:", cause);
+
+      // Passiamo l'errore all'handler centralizzato
+      handleError(permissionsError);
     }
-  }, [permissionsError]);
-
-  useEffect(() => {
-    if (status === "authenticated" && userBrand && canReadCollections) {
-      const fetchCollections = async () => {
-        try {
-          // Use userBrand from session
-          const response = await fetch(
-            `/api/store/collections?brand=${userBrand}`
-          );
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            let errorJson = null;
-            try {
-              errorJson = JSON.parse(errorText);
-            } catch (e) {
-              // Ignore parsing error
-            }
-
-            throw new Error("Failed to fetch collections", {
-              cause: {
-                status: response.status,
-                statusText: response.statusText,
-                data: errorJson || errorText,
-              },
-            });
-          }
-
-          const collectionsData: Collection[] = await response.json();
-          // Filter collections by user brand (potentially redundant if API does it, but safe)
-          const filteredCollections = collectionsData.filter(
-            (col) => col.metadata?.brand === userBrand
-          );
-          setCollections(filteredCollections);
-          setError(null); // Clear previous errors
-          setErrorDetails(null);
-        } catch (err) {
-          let errorMessage = "Failed to fetch collections";
-          let details = null;
-
-          if (err instanceof Error) {
-            errorMessage = err.message;
-
-            // Extract technical details from error
-            if (err.cause && typeof err.cause === "object") {
-              try {
-                details = JSON.stringify(err.cause, null, 2);
-              } catch (e) {
-                details = String(err.cause);
-              }
-            }
-          }
-
-          setError(errorMessage);
-          setErrorDetails(details);
-          setIsErrorDialogOpen(true);
-          console.error("Error fetching collections:", errorMessage);
-          setCollections([]); // Clear collections on error
-        }
-      };
-      fetchCollections();
-    } else if (status === "authenticated" && !userBrand) {
-      console.warn(
-        "User session available, but user.brand is missing. Cannot fetch collections."
-      );
-      setError("User brand information is missing, cannot load collections.");
-      setIsErrorDialogOpen(true);
-      setCollections([]);
-    } else if (status === "unauthenticated") {
-      setCollections([]); // Clear collections if user is not authenticated
-      setError(null); // Clear errors if any
-      setErrorDetails(null);
-    }
-  }, [session, status, userBrand, canReadCollections]);
+  }, [permissionsError]); // Non includiamo handleError per evitare cicli
 
   const currentCollection =
     searchParams.get("collection") ||
@@ -311,7 +214,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     locale,
     messages,
     searchParams,
-    t
+    t,
+    checkPermission
   );
 
   return (
@@ -340,14 +244,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarRail />
       </Sidebar>
 
-      {/* Error Dialog */}
-      <ErrorDialog
-        isOpen={isErrorDialogOpen}
-        onOpenChange={setIsErrorDialogOpen}
-        title="Application Error"
-        message={error || "An unexpected error occurred"}
-        details={errorDetails}
-      />
+      {/* Utilizziamo il componente dialog fornito dall'hook */}
+      <ErrorDialogComponent />
     </>
   );
 }

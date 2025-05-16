@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { SessionExpiredDialog } from "@/components/ui/session-expired-dialog";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useChat } from "@ai-sdk/react";
 import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MemoizedChatBubble } from "./chat-bubble-message";
 
 export default function Chat() {
@@ -20,6 +21,13 @@ export default function Chat() {
   const tCommon = useTranslations("Common");
   const [sessionExpired, setSessionExpired] = useState(false);
 
+  // Hook per la gestione centralizzata degli errori
+  const { handleError, ErrorDialogComponent } = useErrorHandler();
+
+  // Use a combined key of collection and chatId to force useChat to reset when either changes
+  const chatKey = `${collection || "none"}-${chatId || "default"}`;
+  console.log("chatKey", chatKey);
+
   const {
     messages,
     input,
@@ -28,6 +36,8 @@ export default function Chat() {
     status,
     stop,
     error,
+    setInput,
+    setData,
   } = useChat({
     api: "/api/chat",
     body: {
@@ -35,6 +45,8 @@ export default function Chat() {
       language: t(language),
     },
     id: chatId,
+    // The key property forces a complete reset of the hook state when it changes
+    key: chatKey,
     onError: (error) => {
       // Check if the error is related to authentication (401)
       if (
@@ -49,10 +61,21 @@ export default function Chat() {
         return; // Prevent the error from propagating to the default handler
       }
 
-      // For other errors, let them be handled by the default handler
-      console.error("Chat error:", error);
+      // Per altri errori, utilizziamo il nostro handler centralizzato
+      handleError(error);
     },
   });
+
+  // When collection or chatId changes, clear the input field and any cached messages
+  useEffect(() => {
+    // Reset input field on collection/chatId change
+    setInput("");
+
+    // Reset any messages
+    setData([]);
+
+    console.log(`Collection or chatId changed: ${chatKey}`);
+  }, [collection, chatId, setInput, setData, chatKey]);
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -81,6 +104,9 @@ export default function Chat() {
         isOpen={sessionExpired}
         onOpenChange={setSessionExpired}
       />
+
+      {/* Error Dialog gestito dal nostro hook centralizzato */}
+      <ErrorDialogComponent />
 
       <div className="flex-1 w-full overflow-hidden">
         <ChatMessageList className="scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">

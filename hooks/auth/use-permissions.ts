@@ -15,8 +15,14 @@ async function fetchUserData() {
   const response = await fetch("/api/me");
 
   if (!response.ok) {
+    // Creiamo un errore più dettagliato con informazioni sul tipo di errore
     throw new Error(`Errore ${response.status}: ${response.statusText}`, {
-      cause: response,
+      cause: {
+        status: response.status,
+        statusText: response.statusText,
+        isAuthError: response.status === 401,
+        response: response,
+      },
     });
   }
 
@@ -37,8 +43,8 @@ export function usePermissions() {
     // La query viene eseguita solo se l'utente è autenticato
     enabled: !!session?.user,
     // Opzioni specifiche per questa query
-    staleTime: 5 * 60 * 1000, // 5 minuti
-    gcTime: 30 * 60 * 1000, // 30 minuti
+    staleTime: 1 * 60 * 1000, // 5 minuti
+    gcTime: 1 * 60 * 1000, // 30 minuti
   });
 
   // Estrai i dati utente dalla risposta o utilizza valori predefiniti

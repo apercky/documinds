@@ -26,8 +26,8 @@ export function SessionExpiredDialog({
 
   const handleOkClick = () => {
     onOpenChange(false);
-    //window.location.replace("/dashboard");
-    router.refresh();
+    window.location.replace("/");
+    //router.refresh();
   };
 
   return (

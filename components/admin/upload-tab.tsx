@@ -18,19 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCollection } from "@/hooks/use-collection";
 import { ProcessProgress } from "@/lib/vs/qdrant/vector-store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CreateCollectionDialog } from "./create-collection-dialog";
-
-interface Collection {
-  name: string;
-  documentCount: number;
-}
 
 const collectionNameSchema = z
   .string()
@@ -54,11 +49,16 @@ interface UploadProgress extends ProcessProgress {
 }
 
 export function UploadTab() {
-  const { data: session } = useSession();
+  // Use our custom hook for collections
+  const {
+    collections,
+    isLoading: collectionsLoading,
+    refreshCollections,
+  } = useCollection();
+
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [collections, setCollections] = useState<Collection[]>([]);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(
     null
   );
@@ -78,31 +78,6 @@ export function UploadTab() {
     setUploadProgress(null);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const fetchCollections = async () => {
-    if (!session?.user) {
-      setError("Utente non autenticato");
-      return;
-    }
-
-    try {
-      const userBrand = session?.user?.brand;
-      const response = await fetch(`/api/store/collections?brand=${userBrand}`);
-      if (!response.ok) throw new Error("Failed to fetch collections");
-      const collections = await response.json();
-      setCollections(collections);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch collections"
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (session?.user) {
-      fetchCollections();
-    }
-  }, [session]);
-
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
   }, []);
@@ -120,7 +95,7 @@ export function UploadTab() {
 
   const handleCollectionCreated = async (collectionName: string) => {
     setError(null);
-    await fetchCollections();
+    refreshCollections();
     form.setValue("collectionName", collectionName);
   };
 
@@ -182,7 +157,8 @@ export function UploadTab() {
 
       setFiles([]);
       form.setValue("collectionName", values.collectionName);
-      await fetchCollections();
+      // Refresh collections list after upload
+      refreshCollections();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to upload documents"
@@ -228,7 +204,7 @@ export function UploadTab() {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        disabled={uploading}
+                        disabled={uploading || collectionsLoading}
                       >
                         <FormControl>
                           <SelectTrigger>
