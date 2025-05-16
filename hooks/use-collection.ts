@@ -22,21 +22,24 @@ export function useCollection({
   const userBrand = session?.user?.brand;
   const queryClient = useQueryClient();
 
-  // Using the permissions hook to check roles
-  const { hasRole } = usePermissions();
-
-  // Determine user roles
-  const isAdmin = hasRole(ROLES.ADMIN);
-  const isEditor = hasRole(ROLES.EDITOR);
-
-  // Define access mode based on roles and requested mode:
-  // - Admin in admin mode: Gets all collections across all brands
-  // - Editor in admin mode: Gets collections for their brand only
-  // - Regular users: Get collections for their brand only
-  const useAdminEndpoint = useAdminMode && isAdmin;
-
   // Using the centralized error handling hook
   const { handleError } = useErrorHandler();
+
+  // Using the permissions hook to check roles, with safe fallback
+  const {
+    hasRole,
+    isLoading: permissionsLoading,
+    error: permissionsError,
+  } = usePermissions();
+
+  // Determine user roles - default to false if permissions are still loading or failed
+  const isAdmin =
+    !permissionsLoading && !permissionsError ? hasRole(ROLES.ADMIN) : false;
+  const isEditor =
+    !permissionsLoading && !permissionsError ? hasRole(ROLES.EDITOR) : false;
+
+  // Define access mode based on roles and requested mode
+  const useAdminEndpoint = useAdminMode && isAdmin;
 
   // Function to fetch collections
   const fetchCollections = async () => {
@@ -45,9 +48,7 @@ export function useCollection({
     }
 
     try {
-      // Choose endpoint based on access level:
-      // - Use admin endpoint for admin users in admin mode
-      // - Use regular endpoint with brand filter for everyone else (including editors)
+      // Choose endpoint based on access level
       const url = useAdminEndpoint
         ? `/api/store/collections/admin`
         : `/api/store/collections?brand=${userBrand}`;
@@ -79,19 +80,26 @@ export function useCollection({
       return collectionsData;
     } catch (err) {
       console.error("Error fetching collections:", err);
+      // Only handle this error, not permission errors
       handleError(err);
       return [];
     }
   };
 
   // Using useQuery to manage cache and automatic invalidation
-  const { data: collections = [], isLoading } = useQuery({
+  const { data: collections = [], isLoading: collectionsLoading } = useQuery({
     queryKey: [COLLECTIONS_QUERY_KEY, userBrand, useAdminEndpoint],
     queryFn: fetchCollections,
-    enabled: status === "authenticated",
+    // Only enable if authenticated AND (not in admin mode OR permissions are loaded OR there was an error loading permissions)
+    enabled:
+      status === "authenticated" &&
+      (!useAdminMode || !permissionsLoading || !!permissionsError),
     staleTime: 60 * 1000, // 1 minute
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Combined loading state
+  const isLoading = collectionsLoading || (useAdminMode && permissionsLoading);
 
   // Function to invalidate the cache and force a refresh of collections
   const refreshCollections = () => {
@@ -134,6 +142,6 @@ export function useCollection({
     updateCollectionInCache,
     isAdmin,
     isEditor,
-    hasAdminAccess: isAdmin || isEditor, // True if user has any admin access (either full or brand-limited)
+    hasAdminAccess: isAdmin || isEditor,
   };
 }

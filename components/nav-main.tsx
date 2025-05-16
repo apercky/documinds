@@ -55,18 +55,6 @@ export function NavMain({ items }: NavMainProps) {
     if (activeSections.length > 0) {
       setOpenSections(activeSections);
     }
-
-    // Debug: logghiamo lo stato degli elementi e dei relativi subItems
-    // console.log(
-    //   "NavMain items:",
-    //   items.map((item) => ({
-    //     title: item.title,
-    //     subItems: item.items?.map((subItem) => ({
-    //       title: subItem.title,
-    //       isDisabled: subItem.disable === true,
-    //     })),
-    //   }))
-    // );
   }, [items]);
 
   return (

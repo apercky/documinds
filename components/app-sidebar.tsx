@@ -63,13 +63,13 @@ const createNavData = (
     ACTIONS.CREATE
   );
 
-  if (process.env.NODE_ENV === "development") {
-    console.log(`canReadCollections: ${canReadCollections}`);
-    console.log(`canCreateCollections: ${canCreateCollections}`);
-  }
-
   // Get the current chatId from URL parameters
   const currentChatId = searchParams.get("chatId");
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(`currentChatId: ${currentChatId}`);
+    console.log(`currentCollection: ${currentCollection}`);
+  }
 
   return {
     navMain: [
@@ -189,9 +189,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }, [permissionsError]); // Non includiamo handleError per evitare cicli
 
-  const currentCollection =
-    searchParams.get("collection") ||
-    (collections.length > 0 ? collections[0].name : null);
+  const currentCollection = searchParams.get("collection");
 
   const handleNewChat = () => {
     if (!currentCollection) {
