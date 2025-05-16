@@ -3,7 +3,7 @@
 import { PlusCircle, Settings2, SquareTerminal } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import type * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Collection } from "@/types/collection";
 import { NavUser } from "./nav-user";
@@ -40,7 +40,8 @@ const createNavData = (
   messages: unknown,
   searchParams: URLSearchParams,
   t: (key: string) => string,
-  checkPermission: (resource: string, action: string) => boolean
+  checkPermission: (resource: string, action: string) => boolean,
+  collectionChatMap: { [key: string]: string }
 ) => {
   // Helper function to check if a path matches the current pathname
   const isPathActive = (path: string) => {
@@ -83,7 +84,7 @@ const createNavData = (
         items: collections.map((collection) => ({
           title: getCollectionTitle(collection, messages),
           url: `/dashboard?collection=${collection.name}&chatId=${
-            currentChatId || Date.now()
+            collectionChatMap[collection.name] || Date.now()
           }`,
           isActive: currentCollection === collection.name,
           disable: !canReadCollections,
@@ -166,6 +167,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Utilizziamo l'hook centralizzato per la gestione degli errori
   const { handleError, ErrorDialogComponent } = useErrorHandler();
 
+  // Stato locale per tenere traccia del mapping tra collezioni e chatId
+  const [collectionChatMap, setCollectionChatMap] = useState<{
+    [key: string]: string;
+  }>({});
+
   const {
     checkPermission,
     isLoading: permissionsLoading,
@@ -189,18 +195,51 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }, [permissionsError]); // Non includiamo handleError per evitare cicli
 
+  // Ottieni la collezione corrente dall'URL
   const currentCollection = searchParams.get("collection");
+  // Ottieni il chatId corrente dall'URL
+  const urlChatId = searchParams.get("chatId");
+
+  // Effetto per aggiornare il mapping quando cambia la collection o la chatId nell'URL
+  useEffect(() => {
+    if (currentCollection && urlChatId) {
+      setCollectionChatMap((prev) => ({
+        ...prev,
+        [currentCollection]: urlChatId,
+      }));
+    }
+  }, [currentCollection, urlChatId]);
+
+  // Funzione per ottenere la chatId per una collezione specifica
+  const getChatIdForCollection = (collectionName: string): string => {
+    // Se la collezione ha già una chatId nel mapping, usala
+    if (collectionChatMap[collectionName]) {
+      return collectionChatMap[collectionName];
+    }
+    // Altrimenti genera una nuova chatId
+    return Date.now().toString();
+  };
 
   const handleNewChat = () => {
     if (!currentCollection) {
       console.warn(
         "New Chat button clicked, but no collection is selected. Aborting."
       );
-      // Optionally, you could show a user-facing notification here
       return;
     }
+
+    // Genera una nuova chatId
+    const newChatId = Date.now().toString();
+
+    // Aggiorna il mapping per questa collezione
+    setCollectionChatMap((prev) => ({
+      ...prev,
+      [currentCollection]: newChatId,
+    }));
+
+    // Naviga alla nuova chat
     router.replace(
-      `/dashboard?collection=${currentCollection}&chatId=${Date.now()}`
+      `/dashboard?collection=${currentCollection}&chatId=${newChatId}`
     );
     router.refresh();
   };
@@ -213,7 +252,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     messages,
     searchParams,
     t,
-    checkPermission
+    checkPermission,
+    collectionChatMap // Passa il mapping al createNavData
   );
 
   return (
