@@ -20,7 +20,8 @@
       "team": "Team",
       "billing": "Fatturazione",
       "limits": "Limiti",
-      "platform": "Piattaforma"
+      "platform": "Piattaforma",
+      "clearChat": "Cancella cronologia chat"
     },
     "UserNav": {
       "profile": "Profilo",

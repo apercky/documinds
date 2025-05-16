@@ -20,7 +20,8 @@
       "team": "Team",
       "billing": "Billing",
       "limits": "Limits",
-      "platform": "Platform"
+      "platform": "Platform",
+      "clearChat": "Clear chat history"
     },
     "UserNav": {
       "profile": "Profile",

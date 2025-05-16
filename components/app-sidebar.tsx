@@ -88,6 +88,8 @@ const createNavData = (
           }`,
           isActive: currentCollection === collection.name,
           disable: !canReadCollections,
+          clearable: true,
+          collectionName: collection.name,
         })),
       },
       {
@@ -244,6 +246,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     router.refresh();
   };
 
+  // Gestore per svuotare/ripristinare una chat
+  const handleClearChat = (collectionName: string) => {
+    // Genera una nuova chatId per questa collezione
+    const newChatId = Date.now().toString();
+
+    // Aggiorna il mapping
+    setCollectionChatMap((prev) => ({
+      ...prev,
+      [collectionName]: newChatId,
+    }));
+
+    // Se stiamo cancellando la collezione corrente, naviga alla nuova chat
+    if (collectionName === currentCollection) {
+      router.replace(
+        `/dashboard?collection=${collectionName}&chatId=${newChatId}`
+      );
+      router.refresh();
+    }
+  };
+
   const navData = createNavData(
     collections,
     pathname,
@@ -274,7 +296,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <span className="font-medium">{t("newChat")}</span>
             </Button>
           </div>
-          <NavMain items={navData.navMain} />
+          <NavMain items={navData.navMain} onClearChat={handleClearChat} />
         </SidebarContent>
         <SidebarFooter>
           <NavUser user={session?.user} isLoading={status === "loading"} />
