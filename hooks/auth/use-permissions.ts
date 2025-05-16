@@ -15,7 +15,9 @@ async function fetchUserData() {
   const response = await fetch("/api/me");
 
   if (!response.ok) {
-    throw new Error(`Errore ${response.status}: ${response.statusText}`);
+    throw new Error(`Errore ${response.status}: ${response.statusText}`, {
+      cause: response,
+    });
   }
 
   return response.json();

@@ -145,5 +145,17 @@
       "typeMessage": "Scrivi il tuo messaggio...",
       "pressShiftEnter": "Premi Shift + ↵ per una nuova riga",
       "sendMessage": "Invia Messaggio"
+    },
+    "Errors": {
+      "defaultTitle": "Errore",
+      "defaultMessage": "Si è verificato un errore imprevisto durante l'elaborazione della richiesta.",
+      "technicalDetails": "Dettagli Tecnici",
+      "showDetails": "Mostra Dettagli",
+      "hideDetails": "Nascondi Dettagli",
+      "okButton": "OK",
+      "permissionDenied": "Permesso Negato",
+      "authenticationFailed": "Autenticazione Fallita",
+      "networkError": "Errore di Rete",
+      "serverError": "Errore del Server"
     }
 }

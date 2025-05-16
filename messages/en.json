@@ -145,5 +145,17 @@
       "typeMessage": "Type your message...",
       "pressShiftEnter": "Press Shift + ↵ for new line",
       "sendMessage": "Send Message"
+    },
+    "Errors": {
+      "defaultTitle": "Error Occurred",
+      "defaultMessage": "An unexpected error occurred while processing your request.",
+      "technicalDetails": "Technical Details",
+      "showDetails": "Show Details",
+      "hideDetails": "Hide Details",
+      "okButton": "OK",
+      "permissionDenied": "Permission Denied",
+      "authenticationFailed": "Authentication Failed",
+      "networkError": "Network Error",
+      "serverError": "Server Error"
     }
 }

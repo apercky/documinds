@@ -1,9 +1,9 @@
 "use client";
 
-import { SessionExpiredDialog } from "@/components/session-expired-dialog";
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
+import { SessionExpiredDialog } from "@/components/ui/session-expired-dialog";
 import { useChat } from "@ai-sdk/react";
 import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";

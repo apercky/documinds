@@ -10,6 +10,7 @@ import { NavUser } from "./nav-user";
 
 import { usePathname, useRouter } from "@/app/i18n/routing";
 import { Button } from "@/components/ui/button";
+import { ErrorDialog } from "@/components/ui/error-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -50,7 +51,11 @@ const createNavData = (
     const localePath = `/${locale}${path}`;
     return pathname.startsWith(localePath);
   };
-  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
+  const {
+    checkPermission,
+    isLoading: permissionsLoading,
+    error,
+  } = usePermissions();
 
   const canReadCollections = checkPermission(
     RESOURCES.COLLECTION,
@@ -164,11 +169,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const t = useTranslations("Navigation");
   const [collections, setCollections] = useState<Collection[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+  const {
+    checkPermission,
+    isLoading: permissionsLoading,
+    error: permissionsError,
+  } = usePermissions();
 
   const userBrand = session?.user?.brand; // Attempt to get brand from session
 
   const canReadCollections = checkPermission("collections", "read");
+
+  // Handle permissions error
+  useEffect(() => {
+    if (permissionsError) {
+      let details = null;
+
+      // Extract technical details from error
+      if (
+        permissionsError.cause &&
+        typeof permissionsError.cause === "object" &&
+        permissionsError.cause !== null
+      ) {
+        try {
+          // Try to get response details
+          const cause = permissionsError.cause as any;
+          if (cause.response) {
+            details = JSON.stringify(cause.response, null, 2);
+          } else {
+            details = JSON.stringify(cause, null, 2);
+          }
+        } catch (e) {
+          console.error("Failed to stringify error cause:", e);
+          details = String(permissionsError.cause);
+        }
+      }
+
+      setError(permissionsError.message || "Permission error occurred");
+      setErrorDetails(details);
+      setIsErrorDialogOpen(true);
+    }
+  }, [permissionsError]);
 
   useEffect(() => {
     if (status === "authenticated" && userBrand && canReadCollections) {
@@ -178,8 +220,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           const response = await fetch(
             `/api/store/collections?brand=${userBrand}`
           );
-          if (!response.ok)
-            throw new Error("Failed to fetch collections (API error)");
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            let errorJson = null;
+            try {
+              errorJson = JSON.parse(errorText);
+            } catch (e) {
+              // Ignore parsing error
+            }
+
+            throw new Error("Failed to fetch collections", {
+              cause: {
+                status: response.status,
+                statusText: response.statusText,
+                data: errorJson || errorText,
+              },
+            });
+          }
+
           const collectionsData: Collection[] = await response.json();
           // Filter collections by user brand (potentially redundant if API does it, but safe)
           const filteredCollections = collectionsData.filter(
@@ -187,12 +246,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           );
           setCollections(filteredCollections);
           setError(null); // Clear previous errors
+          setErrorDetails(null);
         } catch (err) {
-          const errorMessage =
-            err instanceof Error
-              ? err.message
-              : "Failed to fetch collections (catch block)";
+          let errorMessage = "Failed to fetch collections";
+          let details = null;
+
+          if (err instanceof Error) {
+            errorMessage = err.message;
+
+            // Extract technical details from error
+            if (err.cause && typeof err.cause === "object") {
+              try {
+                details = JSON.stringify(err.cause, null, 2);
+              } catch (e) {
+                details = String(err.cause);
+              }
+            }
+          }
+
           setError(errorMessage);
+          setErrorDetails(details);
+          setIsErrorDialogOpen(true);
           console.error("Error fetching collections:", errorMessage);
           setCollections([]); // Clear collections on error
         }
@@ -203,18 +277,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         "User session available, but user.brand is missing. Cannot fetch collections."
       );
       setError("User brand information is missing, cannot load collections.");
+      setIsErrorDialogOpen(true);
       setCollections([]);
     } else if (status === "unauthenticated") {
       setCollections([]); // Clear collections if user is not authenticated
       setError(null); // Clear errors if any
+      setErrorDetails(null);
     }
   }, [session, status, userBrand, canReadCollections]);
-
-  // Display error in UI if collections failed and error is set
-  // This is a simple example; you might want a more user-friendly error display
-  if (error && collections.length === 0 && status === "authenticated") {
-    console.warn("Collections loading error shown to user:", error);
-  }
 
   const currentCollection =
     searchParams.get("collection") ||
@@ -245,28 +315,39 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   );
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarLogo />
-      </SidebarHeader>
-      <SidebarContent>
-        <div className="flex justify-end items-center px-4 mb-2 mt-4">
-          <Button
-            onClick={handleNewChat}
-            disabled={!currentCollection || status !== "authenticated"}
-            className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
-            size="sm"
-          >
-            <PlusCircle className="h-4 w-4" />
-            <span className="font-medium">{t("newChat")}</span>
-          </Button>
-        </div>
-        <NavMain items={navData.navMain} />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={session?.user} isLoading={status === "loading"} />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <SidebarLogo />
+        </SidebarHeader>
+        <SidebarContent>
+          <div className="flex justify-end items-center px-4 mb-2 mt-4">
+            <Button
+              onClick={handleNewChat}
+              disabled={!currentCollection || status !== "authenticated"}
+              className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
+              size="sm"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span className="font-medium">{t("newChat")}</span>
+            </Button>
+          </div>
+          <NavMain items={navData.navMain} />
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser user={session?.user} isLoading={status === "loading"} />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
+      {/* Error Dialog */}
+      <ErrorDialog
+        isOpen={isErrorDialogOpen}
+        onOpenChange={setIsErrorDialogOpen}
+        title="Application Error"
+        message={error || "An unexpected error occurred"}
+        details={errorDetails}
+      />
+    </>
   );
 }
