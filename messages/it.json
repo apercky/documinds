@@ -131,5 +131,19 @@
     "collectionDisplay": {
       "onestore-user-guide": "OneStore Diesel",
       "marni-user-guide": "OneStore Marni"
+    },
+    "Auth": {
+      "sessionExpired": {
+        "title": "Sessione Scaduta",
+        "description": "La tua sessione è scaduta. Effettua nuovamente il login per continuare.",
+        "okButton": "OK"
+      }
+    },
+    "Common": {
+      "selectCollection": "Seleziona una collezione dalla barra laterale",
+      "stopGenerating": "Interrompi generazione",
+      "typeMessage": "Scrivi il tuo messaggio...",
+      "pressShiftEnter": "Premi Shift + ↵ per una nuova riga",
+      "sendMessage": "Invia Messaggio"
     }
 }
