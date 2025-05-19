@@ -13,18 +13,150 @@
     "Navigation": {
       "dashboard": "Dashboard",
       "users": "Users",
-      "settings": "Settings"
+      "newChat": "New Chat",
+      "documentation": "Documentation",
+      "settings": "Settings",
+      "general": "General",
+      "team": "Team",
+      "billing": "Billing",
+      "limits": "Limits",
+      "platform": "Platform",
+      "clearChat": "Clear chat history"
     },
     "UserNav": {
       "profile": "Profile",
       "billing": "Billing",
       "settings": "Settings",
       "logout": "Log out",
-      "userAvatar": "User avatar"
+      "upgradeToPro": "Upgrade to Pro",
+      "account": "Account",
+      "notifications": "Notifications"
     },
     "Languages": {
       "en": "English",
       "it": "Italian",
       "switchLanguage": "Switch language"
+    },
+    "deleteAlert": {
+      "title": "Are you absolutely sure?",
+      "description": "This action cannot be undone. This will permanently delete the collection \"{name}\" and all its documents.",
+      "confirmText": "Please type {action} to confirm:",
+      "cancelButton": "Cancel",
+      "deleteButton": "Delete",
+      "confirmPlaceholder": "Type {action} to confirm"
+    },
+    "collectionDetails": {
+      "title": "Collection Details",
+      "description": "View and manage your collection information. The settings section allows you to update collection metadata properties.",
+      "stats": {
+        "title": "Statistics",
+        "documents": "Total Documents"
+      },
+      "settings": {
+        "title": "Settings",
+        "name": "Collection Name",
+        "metadata": "Metadata",
+        "addField": "Add Field",
+        "selectKey": "Select a key",
+        "valuePlaceholder": "Value (max 35 chars)",
+        "inUse": "in use",
+        "cancel": "Cancel",
+        "save": "Save Changes",
+        "edit": "Edit",
+        "deleteDocuments": "Delete All Documents",
+        "deletingDocuments": "Deleting Documents..."
+      },
+      "error": {
+        "update": "Failed to update collection",
+        "deleteDocuments": "Failed to delete documents"
+      },
+      "deleteDialog": {
+        "allDocumentsIn": "all documents in"
+      }
+    },
+    "metadataKeys": {
+      "brand": "Brand",
+      "category": "Category",
+      "displayName": "Display Name",
+      "displayKey": "Display Key"
+    },
+    "validation": {
+      "collection": {
+        "name": {
+          "min": "Collection name must be at least {min} characters",
+          "max": "Collection name must be less than {max} characters",
+          "format": "Only lowercase letters, numbers, and hyphens are allowed"
+        },
+        "metadata": {
+          "key": {
+            "required": "Please select a key"
+          },
+          "value": {
+            "required": "Value is required",
+            "max": "Value must be less than {max} characters",
+            "empty": "Value cannot be empty"
+          }
+        }
+      }
+    },
+    "collections": {
+      "loading": "Loading collections...",
+      "empty": "No collections found",
+      "title": "Collections",
+      "documents": "Documents",
+      "error": {
+        "fetch": "Failed to fetch collections",
+        "update": "Failed to update collection",
+        "delete": "Failed to delete collection",
+        "create": "Failed to create collection"
+      }
+    },
+    "createCollection": {
+      "button": "Create Collection",
+      "title": "Create New Collection",
+      "description": "Create a new collection to organize your documents. Provide a unique name and optional metadata properties to categorize your content effectively.",
+      "name": {
+        "label": "Collection Name",
+        "placeholder": "Enter collection name"
+      },
+      "metadata": {
+        "label": "Metadata",
+        "addField": "Add Field",
+        "selectPlaceholder": "Select a key",
+        "valuePlaceholder": "Value (max 35 chars)",
+        "inUse": "in use"
+      },
+      "cancel": "Cancel",
+      "submit": "Create"
+    },
+    "collectionDisplay": {
+      "onestore-user-guide": "OneStore Diesel",
+      "marni-user-guide": "OneStore Marni"
+    },
+    "Auth": {
+      "sessionExpired": {
+        "title": "Session Expired",
+        "description": "Your session has expired. Please login again to continue.",
+        "okButton": "OK"
+      }
+    },
+    "Common": {
+      "selectCollection": "Please select a collection from the sidebar",
+      "stopGenerating": "Stop generating",
+      "typeMessage": "Type your message...",
+      "pressShiftEnter": "Press Shift + ↵ for new line",
+      "sendMessage": "Send Message"
+    },
+    "Errors": {
+      "defaultTitle": "Error Occurred",
+      "defaultMessage": "An unexpected error occurred while processing your request.",
+      "technicalDetails": "Technical Details",
+      "showDetails": "Show Details",
+      "hideDetails": "Hide Details",
+      "okButton": "OK",
+      "permissionDenied": "Permission Denied",
+      "authenticationFailed": "Authentication Failed",
+      "networkError": "Network Error",
+      "serverError": "Server Error"
     }
-  }
+}

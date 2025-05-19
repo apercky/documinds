@@ -13,18 +13,150 @@
     "Navigation": {
       "dashboard": "Dashboard",
       "users": "Utenti",
-      "settings": "Impostazioni"
+      "settings": "Impostazioni",
+      "newChat": "Nuova Chat",
+      "documentation": "Documentazione",
+      "general": "Generale",
+      "team": "Team",
+      "billing": "Fatturazione",
+      "limits": "Limiti",
+      "platform": "Piattaforma",
+      "clearChat": "Cancella cronologia chat"
     },
     "UserNav": {
       "profile": "Profilo",
       "billing": "Fatturazione",
       "settings": "Impostazioni",
       "logout": "Esci",
-      "userAvatar": "Avatar utente"
+      "upgradeToPro": "Passa a Pro",
+      "account": "Account",
+      "notifications": "Notifiche"
     },
     "Languages": {
       "en": "Inglese",
       "it": "Italiano",
       "switchLanguage": "Cambia lingua"
+    },
+    "deleteAlert": {
+      "title": "Sei assolutamente sicuro?",
+      "description": "Questa azione non può essere annullata. Eliminerà permanentemente la collezione \"{name}\" e tutti i suoi documenti.",
+      "confirmText": "Digita {action} per confermare:",
+      "cancelButton": "Annulla",
+      "deleteButton": "Elimina",
+      "confirmPlaceholder": "Digita {action} per confermare"
+    },
+    "collectionDetails": {
+      "title": "Dettagli Collezione",
+      "description": "Visualizza e gestisci le informazioni della tua collezione. La sezione impostazioni consente di aggiornare le proprietà dei metadati della collezione.",
+      "stats": {
+        "title": "Statistiche",
+        "documents": "Documenti Totali"
+      },
+      "settings": {
+        "title": "Impostazioni",
+        "name": "Nome Collezione",
+        "metadata": "Metadati",
+        "addField": "Aggiungi Campo",
+        "selectKey": "Seleziona una chiave",
+        "valuePlaceholder": "Valore (max 35 caratteri)",
+        "inUse": "in uso",
+        "cancel": "Annulla",
+        "save": "Salva Modifiche",
+        "edit": "Modifica",
+        "deleteDocuments": "Elimina Tutti i Documenti",
+        "deletingDocuments": "Eliminazione Documenti..."
+      },
+      "error": {
+        "update": "Impossibile aggiornare la collezione",
+        "deleteDocuments": "Impossibile eliminare i documenti"
+      },
+      "deleteDialog": {
+        "allDocumentsIn": "tutti i documenti in"
+      }
+    },
+    "metadataKeys": {
+      "brand": "Marca",
+      "category": "Categoria",
+      "displayName": "Nome Visualizzato",
+      "displayKey": "Chiave di Visualizzazione"
+    },
+    "validation": {
+      "collection": {
+        "name": {
+          "min": "Il nome della collezione deve contenere almeno {min} caratteri",
+          "max": "Il nome della collezione deve contenere meno di {max} caratteri",
+          "format": "Sono consentiti solo lettere minuscole, numeri e trattini"
+        },
+        "metadata": {
+          "key": {
+            "required": "Seleziona una chiave"
+          },
+          "value": {
+            "required": "Il valore è obbligatorio",
+            "max": "Il valore deve contenere meno di {max} caratteri",
+            "empty": "Il valore non può essere vuoto"
+          }
+        }
+      }
+    },
+    "collections": {
+      "loading": "Caricamento collezioni...",
+      "empty": "Nessuna collezione trovata",
+      "title": "Collezioni",
+      "documents": "Documenti",
+      "error": {
+        "fetch": "Impossibile caricare le collezioni",
+        "update": "Impossibile aggiornare la collezione",
+        "delete": "Impossibile eliminare la collezione",
+        "create": "Impossibile creare la collezione"
+      }
+    },
+    "createCollection": {
+      "button": "Crea Collezione",
+      "title": "Crea Nuova Collezione",
+      "description": "Crea una nuova collezione per organizzare i tuoi documenti. Fornisci un nome univoco e proprietà di metadati opzionali per categorizzare efficacemente i tuoi contenuti.",
+      "name": {
+        "label": "Nome Collezione",
+        "placeholder": "Inserisci il nome della collezione"
+      },
+      "metadata": {
+        "label": "Metadati",
+        "addField": "Aggiungi Campo",
+        "selectPlaceholder": "Seleziona una chiave",
+        "valuePlaceholder": "Valore (max 35 caratteri)",
+        "inUse": "in uso"
+      },
+      "cancel": "Annulla",
+      "submit": "Crea"
+    },
+    "collectionDisplay": {
+      "onestore-user-guide": "OneStore Diesel",
+      "marni-user-guide": "OneStore Marni"
+    },
+    "Auth": {
+      "sessionExpired": {
+        "title": "Sessione Scaduta",
+        "description": "La tua sessione è scaduta. Effettua nuovamente il login per continuare.",
+        "okButton": "OK"
+      }
+    },
+    "Common": {
+      "selectCollection": "Seleziona una collezione dalla barra laterale",
+      "stopGenerating": "Interrompi generazione",
+      "typeMessage": "Scrivi il tuo messaggio...",
+      "pressShiftEnter": "Premi Shift + ↵ per una nuova riga",
+      "sendMessage": "Invia Messaggio"
+    },
+    "Errors": {
+      "defaultTitle": "Errore",
+      "defaultMessage": "Si è verificato un errore imprevisto durante l'elaborazione della richiesta.",
+      "technicalDetails": "Dettagli Tecnici",
+      "showDetails": "Mostra Dettagli",
+      "hideDetails": "Nascondi Dettagli",
+      "okButton": "OK",
+      "permissionDenied": "Permesso Negato",
+      "authenticationFailed": "Autenticazione Fallita",
+      "networkError": "Errore di Rete",
+      "serverError": "Errore del Server"
     }
-  }
+}

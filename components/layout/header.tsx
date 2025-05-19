@@ -17,7 +17,6 @@ export function Header() {
         <div className="flex items-center">
           <Link
             href="/"
-            locale={locale}
             className="mr-6 flex items-center space-x-2 group w-auto"
           >
             <Image
@@ -26,6 +25,7 @@ export function Header() {
               className="h-8 w-8 dark:invert"
               width={48}
               height={48}
+              priority
             />
             <AnimatedText
               text="DOCUMINDS"

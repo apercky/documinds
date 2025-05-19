@@ -5,7 +5,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
   // This typically corresponds to the `[locale]` segment
   let locale = await requestLocale;
 
-  console.log("locale", locale);
   // Ensure that the incoming locale is valid
   if (typeof locale !== "string" || !routing.locales.includes(locale)) {
     locale = routing.defaultLocale;

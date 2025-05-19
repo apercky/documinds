@@ -1,40 +1,75 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { ROLES } from "@/consts/consts";
+import { withAuth } from "@/lib/auth/auth-interceptor";
+import {
+  StreamEvent,
+  Tweaks,
+  createStreamingResponseFromReadableStream,
+} from "@/lib/langflow/langflow-adapter";
+import { LangflowClient } from "@datastax/langflow-client";
+import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  // custom settings, e.g.
-  compatibility: "strict", // strict mode, enable when using the OpenAI API
-});
+// Allow streaming responses up to 300 seconds
+export const maxDuration = 300;
 
-const ANTHROPIC_MODEL = "claude-3-5-sonnet-20240620";
-const OPENAI_MODEL = "gpt-4o-mini-2024-07-18";
+export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
+  const { messages, collection, id, language } = await req.json();
 
-const anthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  // custom settings
-});
+  if (!collection) {
+    return new Response("Collection name is required", { status: 400 });
+  }
 
-const openaiModel = openai(OPENAI_MODEL);
-const anthropicModel = anthropic(ANTHROPIC_MODEL);
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
-
-export async function POST(req: Request) {
-  const { messages } = await req.json();
-
-  console.log(messages);
   try {
-    const result = streamText({
-      model: anthropicModel,
-      messages,
+    // Get the last user message for similarity search
+    const lastUserMessage = messages
+      .slice()
+      .reverse()
+      .find((message: { role: string }) => message.role === "user");
+
+    if (!lastUserMessage) {
+      return new Response("No user message found", { status: 400 });
+    }
+
+    const client = new LangflowClient({
+      apiKey: process.env.LANGFLOW_API_KEY || "",
+      baseUrl: process.env.LANGFLOW_BASE_URL || "",
     });
 
-    console.log(result);
-    return result.toDataStreamResponse();
+    const sessionId = id || "default_session";
+
+    const tweaks: Tweaks = {
+      "QdrantVectorStoreComponent-6ZcvA": {
+        collection_name: collection,
+      },
+    };
+
+    console.log(JSON.stringify(tweaks));
+
+    // Ottieni la risposta in streaming dal LangflowClient
+    const response = await client
+      .flow(process.env.LANGFLOW_FLOW_ID || "")
+      .stream(lastUserMessage.content, {
+        input_type: InputTypes.CHAT,
+        output_type: OutputTypes.CHAT,
+        session_id: sessionId,
+        tweaks,
+      })
+      .catch((error) => {
+        console.error("Error during connection to LangFlow:", error);
+        throw error;
+      });
+
+    // IMPORTANTE: Trasforma direttamente lo stream e restituiscilo come Response
+    // Assicurandosi che le intestazioni siano impostate correttamente per lo streaming
+    const streamResponse = createStreamingResponseFromReadableStream(
+      response as ReadableStream<StreamEvent>
+    );
+
+    return streamResponse;
   } catch (error) {
-    console.error(error);
-    return new Response("Internal Server Error", { status: 500 });
+    console.error("Chat API error:", error);
+    return new Response(
+      error instanceof Error ? error.message : "Internal Server Error",
+      { status: 500 }
+    );
   }
-}
+});
