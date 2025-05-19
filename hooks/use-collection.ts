@@ -9,6 +9,8 @@ import { useErrorHandler } from "./use-error-handler";
 
 // Query key for collections
 const COLLECTIONS_QUERY_KEY = "collections";
+const STALE_TIME = 5 * 60 * 1000; // 5 minutes
+const GC_TIME = 1 * 60 * 1000; // 1 minute
 
 /**
  * Hook to retrieve and manage collections for a user
@@ -94,8 +96,8 @@ export function useCollection({
     enabled:
       status === "authenticated" &&
       (!useAdminMode || !permissionsLoading || !!permissionsError),
-    staleTime: 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
   });
 
   // Combined loading state
