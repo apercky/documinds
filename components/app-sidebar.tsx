@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/sidebar";
 import { ACTIONS, RESOURCES } from "@/consts/consts";
 import { usePermissions } from "@/hooks/auth/use-permissions";
+import { useCollection } from "@/hooks/use-collection";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { cn } from "@/lib/utils";
 import { getCollectionTitle } from "@/utils/messages.utils";
 import { useSession } from "next-auth/react";
@@ -37,7 +39,9 @@ const createNavData = (
   locale: string,
   messages: unknown,
   searchParams: URLSearchParams,
-  t: (key: string) => string
+  t: (key: string) => string,
+  checkPermission: (resource: string, action: string) => boolean,
+  collectionChatMap: { [key: string]: string }
 ) => {
   // Helper function to check if a path matches the current pathname
   const isPathActive = (path: string) => {
@@ -50,7 +54,6 @@ const createNavData = (
     const localePath = `/${locale}${path}`;
     return pathname.startsWith(localePath);
   };
-  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
 
   const canReadCollections = checkPermission(
     RESOURCES.COLLECTION,
@@ -61,18 +64,13 @@ const createNavData = (
     ACTIONS.CREATE
   );
 
-  if (process.env.NODE_ENV === "development") {
-    console.log(
-      `canReadCollections: ${canReadCollections} (loading: ${permissionsLoading})`
-    );
-
-    console.log(
-      `canCreateCollections: ${canCreateCollections} (loading: ${permissionsLoading})`
-    );
-  }
-
   // Get the current chatId from URL parameters
   const currentChatId = searchParams.get("chatId");
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(`currentChatId: ${currentChatId}`);
+    console.log(`currentCollection: ${currentCollection}`);
+  }
 
   return {
     navMain: [
@@ -86,10 +84,12 @@ const createNavData = (
         items: collections.map((collection) => ({
           title: getCollectionTitle(collection, messages),
           url: `/dashboard?collection=${collection.name}&chatId=${
-            currentChatId || Date.now()
+            collectionChatMap[collection.name] || Date.now()
           }`,
           isActive: currentCollection === collection.name,
           disable: !canReadCollections,
+          clearable: true,
+          collectionName: collection.name,
         })),
       },
       {
@@ -162,76 +162,108 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const locale = useLocale();
   const messages = useMessages();
   const t = useTranslations("Navigation");
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const { checkPermission, isLoading: permissionsLoading } = usePermissions();
 
-  const userBrand = session?.user?.brand; // Attempt to get brand from session
+  // Utilizziamo il nuovo hook useCollection per gestire le collezioni
+  const { collections, isLoading: collectionsLoading } = useCollection();
 
-  const canReadCollections = checkPermission("collections", "read");
+  // Utilizziamo l'hook centralizzato per la gestione degli errori
+  const { handleError, ErrorDialogComponent } = useErrorHandler();
 
+  // Stato locale per tenere traccia del mapping tra collezioni e chatId
+  const [collectionChatMap, setCollectionChatMap] = useState<{
+    [key: string]: string;
+  }>({});
+
+  const {
+    checkPermission,
+    isLoading: permissionsLoading,
+    error: permissionsError,
+  } = usePermissions();
+
+  // Handle permissions error con il nostro handler centralizzato
   useEffect(() => {
-    if (status === "authenticated" && userBrand && canReadCollections) {
-      const fetchCollections = async () => {
-        try {
-          // Use userBrand from session
-          const response = await fetch(
-            `/api/store/collections?brand=${userBrand}`
-          );
-          if (!response.ok)
-            throw new Error("Failed to fetch collections (API error)");
-          const collectionsData: Collection[] = await response.json();
-          // Filter collections by user brand (potentially redundant if API does it, but safe)
-          const filteredCollections = collectionsData.filter(
-            (col) => col.metadata?.brand === userBrand
-          );
-          setCollections(filteredCollections);
-          setError(null); // Clear previous errors
-        } catch (err) {
-          const errorMessage =
-            err instanceof Error
-              ? err.message
-              : "Failed to fetch collections (catch block)";
-          setError(errorMessage);
-          console.error("Error fetching collections:", errorMessage);
-          setCollections([]); // Clear collections on error
-        }
-      };
-      fetchCollections();
-    } else if (status === "authenticated" && !userBrand) {
-      console.warn(
-        "User session available, but user.brand is missing. Cannot fetch collections."
-      );
-      setError("User brand information is missing, cannot load collections.");
-      setCollections([]);
-    } else if (status === "unauthenticated") {
-      setCollections([]); // Clear collections if user is not authenticated
-      setError(null); // Clear errors if any
+    if (permissionsError) {
+      console.error("Permission error detected:", permissionsError);
+
+      // Verifichiamo se è un errore di autenticazione (401)
+      const err = permissionsError as Error;
+      const cause = (err.cause as any) || {};
+
+      // Log dettagliato dell'errore per debug
+      console.log("Error cause:", cause);
+
+      // Passiamo l'errore all'handler centralizzato
+      handleError(permissionsError);
     }
-  }, [session, status, userBrand, canReadCollections]);
+  }, [permissionsError]); // Non includiamo handleError per evitare cicli
 
-  // Display error in UI if collections failed and error is set
-  // This is a simple example; you might want a more user-friendly error display
-  if (error && collections.length === 0 && status === "authenticated") {
-    console.warn("Collections loading error shown to user:", error);
-  }
+  // Ottieni la collezione corrente dall'URL
+  const currentCollection = searchParams.get("collection");
+  // Ottieni il chatId corrente dall'URL
+  const urlChatId = searchParams.get("chatId");
 
-  const currentCollection =
-    searchParams.get("collection") ||
-    (collections.length > 0 ? collections[0].name : null);
+  // Effetto per aggiornare il mapping quando cambia la collection o la chatId nell'URL
+  useEffect(() => {
+    if (currentCollection && urlChatId) {
+      setCollectionChatMap((prev) => ({
+        ...prev,
+        [currentCollection]: urlChatId,
+      }));
+    }
+  }, [currentCollection, urlChatId]);
+
+  // Funzione per ottenere la chatId per una collezione specifica
+  const getChatIdForCollection = (collectionName: string): string => {
+    // Se la collezione ha già una chatId nel mapping, usala
+    if (collectionChatMap[collectionName]) {
+      return collectionChatMap[collectionName];
+    }
+    // Altrimenti genera una nuova chatId
+    return Date.now().toString();
+  };
 
   const handleNewChat = () => {
     if (!currentCollection) {
       console.warn(
         "New Chat button clicked, but no collection is selected. Aborting."
       );
-      // Optionally, you could show a user-facing notification here
       return;
     }
+
+    // Genera una nuova chatId
+    const newChatId = Date.now().toString();
+
+    // Aggiorna il mapping per questa collezione
+    setCollectionChatMap((prev) => ({
+      ...prev,
+      [currentCollection]: newChatId,
+    }));
+
+    // Naviga alla nuova chat
     router.replace(
-      `/dashboard?collection=${currentCollection}&chatId=${Date.now()}`
+      `/dashboard?collection=${currentCollection}&chatId=${newChatId}`
     );
     router.refresh();
+  };
+
+  // Gestore per svuotare/ripristinare una chat
+  const handleClearChat = (collectionName: string) => {
+    // Genera una nuova chatId per questa collezione
+    const newChatId = Date.now().toString();
+
+    // Aggiorna il mapping
+    setCollectionChatMap((prev) => ({
+      ...prev,
+      [collectionName]: newChatId,
+    }));
+
+    // Se stiamo cancellando la collezione corrente, naviga alla nuova chat
+    if (collectionName === currentCollection) {
+      router.replace(
+        `/dashboard?collection=${collectionName}&chatId=${newChatId}`
+      );
+      router.refresh();
+    }
   };
 
   const navData = createNavData(
@@ -241,32 +273,39 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     locale,
     messages,
     searchParams,
-    t
+    t,
+    checkPermission,
+    collectionChatMap // Passa il mapping al createNavData
   );
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarLogo />
-      </SidebarHeader>
-      <SidebarContent>
-        <div className="flex justify-end items-center px-4 mb-2 mt-4">
-          <Button
-            onClick={handleNewChat}
-            disabled={!currentCollection || status !== "authenticated"}
-            className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
-            size="sm"
-          >
-            <PlusCircle className="h-4 w-4" />
-            <span className="font-medium">{t("newChat")}</span>
-          </Button>
-        </div>
-        <NavMain items={navData.navMain} />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={session?.user} isLoading={status === "loading"} />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <SidebarLogo />
+        </SidebarHeader>
+        <SidebarContent>
+          <div className="flex justify-end items-center px-4 mb-2 mt-4">
+            <Button
+              onClick={handleNewChat}
+              disabled={!currentCollection || status !== "authenticated"}
+              className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
+              size="sm"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span className="font-medium">{t("newChat")}</span>
+            </Button>
+          </div>
+          <NavMain items={navData.navMain} onClearChat={handleClearChat} />
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser user={session?.user} isLoading={status === "loading"} />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
+      {/* Utilizziamo il componente dialog fornito dall'hook */}
+      <ErrorDialogComponent />
+    </>
   );
 }

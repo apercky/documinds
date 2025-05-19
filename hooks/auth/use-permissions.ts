@@ -3,6 +3,9 @@ import type { StructuredPermissions } from "@/types/permission";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
+const STALE_TIME = 5 * 60 * 1000; // 5 minutes
+const GC_TIME = 1 * 60 * 1000; // 1 minute
+
 interface UserWithPermissions {
   permissions: StructuredPermissions;
   accessToken?: string;
@@ -15,7 +18,15 @@ async function fetchUserData() {
   const response = await fetch("/api/me");
 
   if (!response.ok) {
-    throw new Error(`Errore ${response.status}: ${response.statusText}`);
+    // Creiamo un errore più dettagliato con informazioni sul tipo di errore
+    throw new Error(`Errore ${response.status}: ${response.statusText}`, {
+      cause: {
+        status: response.status,
+        statusText: response.statusText,
+        isAuthError: response.status === 401,
+        response: response,
+      },
+    });
   }
 
   return response.json();
@@ -35,21 +46,18 @@ export function usePermissions() {
     // La query viene eseguita solo se l'utente è autenticato
     enabled: !!session?.user,
     // Opzioni specifiche per questa query
-    staleTime: 5 * 60 * 1000, // 5 minuti
-    gcTime: 30 * 60 * 1000, // 30 minuti
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
   });
 
   // Estrai i dati utente dalla risposta o utilizza valori predefiniti
   const userData: UserWithPermissions = data
     ? {
         permissions: data.user.permissions || {},
-        accessToken: data.accessToken,
-        expiresAt: data.expiresAt,
         roles: data.user.roles || [],
       }
     : {
         permissions: {},
-        accessToken: undefined,
         roles: [],
       };
 
@@ -68,8 +76,6 @@ export function usePermissions() {
     isLoading: isLoading || status === "loading",
     error: error as Error | null,
     permissions: userData.permissions,
-    accessToken: userData.accessToken,
-    expiresAt: userData.expiresAt,
     roles: userData.roles,
     checkPermission,
     hasRole,

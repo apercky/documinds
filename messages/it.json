@@ -20,7 +20,8 @@
       "team": "Team",
       "billing": "Fatturazione",
       "limits": "Limiti",
-      "platform": "Piattaforma"
+      "platform": "Piattaforma",
+      "clearChat": "Cancella cronologia chat"
     },
     "UserNav": {
       "profile": "Profilo",
@@ -131,5 +132,31 @@
     "collectionDisplay": {
       "onestore-user-guide": "OneStore Diesel",
       "marni-user-guide": "OneStore Marni"
+    },
+    "Auth": {
+      "sessionExpired": {
+        "title": "Sessione Scaduta",
+        "description": "La tua sessione è scaduta. Effettua nuovamente il login per continuare.",
+        "okButton": "OK"
+      }
+    },
+    "Common": {
+      "selectCollection": "Seleziona una collezione dalla barra laterale",
+      "stopGenerating": "Interrompi generazione",
+      "typeMessage": "Scrivi il tuo messaggio...",
+      "pressShiftEnter": "Premi Shift + ↵ per una nuova riga",
+      "sendMessage": "Invia Messaggio"
+    },
+    "Errors": {
+      "defaultTitle": "Errore",
+      "defaultMessage": "Si è verificato un errore imprevisto durante l'elaborazione della richiesta.",
+      "technicalDetails": "Dettagli Tecnici",
+      "showDetails": "Mostra Dettagli",
+      "hideDetails": "Nascondi Dettagli",
+      "okButton": "OK",
+      "permissionDenied": "Permesso Negato",
+      "authenticationFailed": "Autenticazione Fallita",
+      "networkError": "Errore di Rete",
+      "serverError": "Errore del Server"
     }
 }

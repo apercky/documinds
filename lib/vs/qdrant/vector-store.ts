@@ -94,8 +94,8 @@ export const vectorStore = {
                   },
                 ],
               });
-              process.env.NODE_ENV === "development" &&
-                console.log("System metadata point created successfully");
+
+              console.log("System metadata point created successfully");
             } catch (error) {
               console.error("Error creating system metadata point:", error);
               // We don't want to fail the whole operation if just the metadata upsert fails

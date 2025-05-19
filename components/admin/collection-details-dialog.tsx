@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { METADATA_KEYS } from "@/consts/consts";
+import { useCollection } from "@/hooks/use-collection";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -41,6 +42,10 @@ export function CollectionDetailsDialog({
   const [error, setError] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { updateCollectionInCache } = useCollection({
+    useAdminMode: true,
+  });
 
   const handleEdit = () => {
     // Initialize with all metadata keys and their current values or empty strings
@@ -113,7 +118,7 @@ export function CollectionDetailsDialog({
         throw new Error(tDetails("error.deleteDocuments"));
       }
 
-      const result = await response.json();
+      await response.json();
 
       // Close the delete confirmation dialog
       setIsDeleteDialogOpen(false);
@@ -121,9 +126,14 @@ export function CollectionDetailsDialog({
       // Reset any errors
       setError(null);
 
+      // Update the collection count in the cache immediately for instant UI feedback
+      updateCollectionInCache(collection.name, { documentCount: 0 });
+
       // Call the update callback to refresh the collections list
-      // This will also update the collection data in this dialog via the parent component
       onUpdate();
+
+      // Close the dialog to prevent showing stale data
+      onOpenChange(false);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : tDetails("error.deleteDocuments")

@@ -104,6 +104,17 @@ services:
     networks:
       - documinds-net
 
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - documinds-net
+
 volumes:
   langflow-postgres:
     driver: local
@@ -124,6 +135,13 @@ volumes:
     driver_opts:
       type: none
       device: "${QDRANT_STORAGE_PATH}"
+      o: bind
+
+  redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${REDIS_DATA_PATH}"
       o: bind
 
   # chromadb-data:

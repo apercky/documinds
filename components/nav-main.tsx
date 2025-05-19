@@ -17,7 +17,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronRight, Trash2, type LucideIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -31,14 +31,17 @@ interface NavItem {
     url: string;
     isActive?: boolean;
     disable?: boolean;
+    clearable?: boolean;
+    collectionName?: string;
   }[];
 }
 
 interface NavMainProps {
   items: NavItem[];
+  onClearChat?: (collectionName: string) => void;
 }
 
-export function NavMain({ items }: NavMainProps) {
+export function NavMain({ items, onClearChat }: NavMainProps) {
   const locale = useLocale();
   const t = useTranslations("Navigation");
   const [openSections, setOpenSections] = useState<string[]>([]);
@@ -55,19 +58,16 @@ export function NavMain({ items }: NavMainProps) {
     if (activeSections.length > 0) {
       setOpenSections(activeSections);
     }
-
-    // Debug: logghiamo lo stato degli elementi e dei relativi subItems
-    // console.log(
-    //   "NavMain items:",
-    //   items.map((item) => ({
-    //     title: item.title,
-    //     subItems: item.items?.map((subItem) => ({
-    //       title: subItem.title,
-    //       isDisabled: subItem.disable === true,
-    //     })),
-    //   }))
-    // );
   }, [items]);
+
+  // Gestore per il clic sul pulsante cestino
+  const handleClearClick = (e: React.MouseEvent, collectionName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onClearChat) {
+      onClearChat(collectionName);
+    }
+  };
 
   return (
     <SidebarGroup>
@@ -105,6 +105,8 @@ export function NavMain({ items }: NavMainProps) {
                   {item.items?.map((subItem) => {
                     // Verifica se l'elemento è disabilitato
                     const isDisabled = subItem.disable === true;
+                    const isClearable =
+                      subItem.clearable === true && Boolean(onClearChat);
 
                     // Mostra l'elemento solo se non è disabilitato
                     return (
@@ -115,7 +117,8 @@ export function NavMain({ items }: NavMainProps) {
                             subItem.isActive &&
                               "bg-accent/50 text-accent-foreground underline underline-offset-4",
                             isDisabled &&
-                              "opacity-50 cursor-not-allowed pointer-events-none"
+                              "opacity-50 cursor-not-allowed pointer-events-none",
+                            "group/nav-item flex items-center justify-between"
                           )}
                         >
                           {isDisabled ? (
@@ -123,9 +126,22 @@ export function NavMain({ items }: NavMainProps) {
                               {subItem.title}
                             </span>
                           ) : (
-                            <Link href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </Link>
+                            <div className="flex w-full items-center justify-between">
+                              <Link href={subItem.url} className="flex-grow">
+                                <span>{subItem.title}</span>
+                              </Link>
+                              {isClearable && subItem.collectionName && (
+                                <button
+                                  onClick={(e) =>
+                                    handleClearClick(e, subItem.collectionName!)
+                                  }
+                                  className="ml-2 opacity-0 group-hover/nav-item:opacity-100 transition-opacity p-1 hover:text-red-500"
+                                  title={t("clearChat")}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </div>
                           )}
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

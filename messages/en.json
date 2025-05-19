@@ -20,7 +20,8 @@
       "team": "Team",
       "billing": "Billing",
       "limits": "Limits",
-      "platform": "Platform"
+      "platform": "Platform",
+      "clearChat": "Clear chat history"
     },
     "UserNav": {
       "profile": "Profile",
@@ -131,5 +132,31 @@
     "collectionDisplay": {
       "onestore-user-guide": "OneStore Diesel",
       "marni-user-guide": "OneStore Marni"
+    },
+    "Auth": {
+      "sessionExpired": {
+        "title": "Session Expired",
+        "description": "Your session has expired. Please login again to continue.",
+        "okButton": "OK"
+      }
+    },
+    "Common": {
+      "selectCollection": "Please select a collection from the sidebar",
+      "stopGenerating": "Stop generating",
+      "typeMessage": "Type your message...",
+      "pressShiftEnter": "Press Shift + ↵ for new line",
+      "sendMessage": "Send Message"
+    },
+    "Errors": {
+      "defaultTitle": "Error Occurred",
+      "defaultMessage": "An unexpected error occurred while processing your request.",
+      "technicalDetails": "Technical Details",
+      "showDetails": "Show Details",
+      "hideDetails": "Hide Details",
+      "okButton": "OK",
+      "permissionDenied": "Permission Denied",
+      "authenticationFailed": "Authentication Failed",
+      "networkError": "Network Error",
+      "serverError": "Server Error"
     }
 }
