@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useCollection } from "@/hooks/use-collection";
-import { AttributeType } from "@/lib/prisma/generated";
-import type { Attribute, Collection } from "@/lib/prisma/generated/client";
+import type { Attribute, AttributeType } from "@/lib/prisma/generated";
 import { attributeTypeValues } from "@/lib/schemas/attribute.schema";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -25,10 +24,15 @@ interface CollectionDetailsDialogProps {
   onUpdate: () => void;
 }
 
-// Extend the Collection type with documentCount which is not in Prisma schema
-interface CollectionWithCount extends Collection {
-  documentCount?: number;
+// Define the API response type
+interface CollectionResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
   attributes: Attribute[];
+  documentCount: number | null;
 }
 
 export function CollectionDetailsDialog({
@@ -38,11 +42,8 @@ export function CollectionDetailsDialog({
   onUpdate,
 }: CollectionDetailsDialogProps) {
   const tDetails = useTranslations("collectionDetails");
-  const tMetadata = useTranslations("metadataKeys");
   const [isEditing, setIsEditing] = useState(false);
-  const [collection, setCollection] = useState<CollectionWithCount | null>(
-    null
-  );
+  const [collection, setCollection] = useState<CollectionResponse | null>(null);
   const [editedAttributes, setEditedAttributes] = useState<
     Record<AttributeType, string>
   >({} as Record<AttributeType, string>);
@@ -72,7 +73,7 @@ export function CollectionDetailsDialog({
         throw new Error("Failed to fetch collection");
       }
 
-      const data = await response.json();
+      const data: CollectionResponse = await response.json();
       setCollection(data);
     } catch (err) {
       setError(

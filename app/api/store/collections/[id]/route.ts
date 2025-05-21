@@ -80,6 +80,9 @@ export const PUT = withAuth<NextRequest, { params: Promise<{ id: string }> }>(
   }
 );
 
+/**
+ * Delete documents from a collection
+ */
 export const DELETE = withAuth<
   NextRequest,
   { params: Promise<{ id: string }> }

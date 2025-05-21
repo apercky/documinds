@@ -55,6 +55,8 @@
       "settings": {
         "title": "Settings",
         "name": "Collection Name",
+        "description": "Description",
+        "attributes": "Attributes",
         "metadata": "Metadata",
         "addField": "Add Field",
         "selectKey": "Select a key",

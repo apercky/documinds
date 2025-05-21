@@ -77,7 +77,9 @@ export function CollectionsTab() {
 
   // Quando apriamo il dialog dei dettagli di una collezione, aggiorna i dati
   const openDetailsDialog = (collection: Collection) => {
-    setDetailsDialog({ isOpen: true, collection });
+    if (collection?.id) {
+      setDetailsDialog({ isOpen: true, collection });
+    }
   };
 
   return (
@@ -151,7 +153,7 @@ export function CollectionsTab() {
             collection: isOpen ? detailsDialog.collection : null,
           })
         }
-        collection={detailsDialog.collection}
+        collectionId={detailsDialog.collection?.id || ""}
         onUpdate={refreshCollections}
       />
     </>
