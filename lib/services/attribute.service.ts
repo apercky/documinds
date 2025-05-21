@@ -1,15 +1,12 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
-import { AttributeType } from "@/lib/prisma/generated";
-import { z } from "zod";
+import {
+  FindAttributesRequest,
+  FindAttributesSchema,
+} from "@/lib/schemas/attribute.schema";
 
-export const FindAttributesSchema = z.object({
-  collectionId: z.string().optional(),
-  type: z.nativeEnum(AttributeType).optional(),
-});
-
-export type FindAttributesInput = z.infer<typeof FindAttributesSchema>;
-
-export async function findAttributes(input: FindAttributesInput = {}) {
+export async function findAttributes(input: FindAttributesRequest = {}) {
   const data = FindAttributesSchema.parse(input);
 
   return prisma.attribute.findMany({
@@ -30,8 +27,4 @@ export async function findAttributeById(id: string) {
       collection: true,
     },
   });
-}
-
-export async function getAttributeTypes() {
-  return Object.values(AttributeType);
 }

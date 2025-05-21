@@ -25,51 +25,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { AttributeType } from "@/lib/prisma/generated";
+import {
+  CreateCollectionRequest,
+  CreateCollectionSchema,
+} from "@/lib/schemas/collection.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { METADATA_KEYS } from "@/consts/consts";
-
-// Updated type definition to match what next-intl provides
-type TranslateFunction = ReturnType<typeof useTranslations>;
-
-const createCollectionNameSchema = (t: TranslateFunction) =>
-  z
-    .string()
-    .min(3, { message: t("validation.collection.name.min", { min: 3 }) })
-    .max(63, { message: t("validation.collection.name.max", { max: 63 }) })
-    .regex(/^[a-z0-9-]+$/, { message: t("validation.collection.name.format") });
-
-const createMetadataSchema = (t: TranslateFunction) =>
-  z.array(
-    z.object({
-      key: z.enum(
-        ["brand", "category", "display-name", "display-key"] as const,
-        {
-          required_error: t("validation.collection.metadata.key.required"),
-        }
-      ),
-      value: z
-        .string()
-        .min(1, { message: t("validation.collection.metadata.value.required") })
-        .max(35, {
-          message: t("validation.collection.metadata.value.max", { max: 35 }),
-        })
-        .refine((val) => val.trim().length > 0, {
-          message: t("validation.collection.metadata.value.empty"),
-        }),
-    })
-  );
 
 interface CreateCollectionDialogProps {
-  onCollectionCreated: (
-    collectionName: string,
-    metadata: Record<string, unknown>
-  ) => void;
+  onCollectionCreated: (collection: {
+    id: string;
+    name: string;
+    description: string | null;
+  }) => void;
 }
 
 export function CreateCollectionDialog({
@@ -79,32 +52,26 @@ export function CreateCollectionDialog({
   const [apiError, setApiError] = useState<string | null>(null);
 
   const t = useTranslations();
-
-  const tMetadata = useTranslations("metadataKeys");
   const tCreate = useTranslations("createCollection");
 
-  const formSchema = z.object({
-    name: createCollectionNameSchema(t),
-    metadata: createMetadataSchema(t),
-  });
-
-  type FormValues = z.infer<typeof formSchema>;
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<CreateCollectionRequest>({
+    resolver: zodResolver(CreateCollectionSchema),
     defaultValues: {
       name: "",
-      metadata: [],
+      description: "",
+      attributes: [],
     },
+    mode: "onChange",
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "metadata",
+    name: "attributes",
   });
 
-  // Get all currently selected keys
-  const selectedKeys = form.watch("metadata")?.map((item) => item.key) || [];
+  // Get all currently selected types
+  const selectedTypes =
+    form.watch("attributes")?.map((item) => item.type) || [];
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
@@ -114,54 +81,40 @@ export function CreateCollectionDialog({
     }
   };
 
-  // Find the first available key that hasn't been used
-  const getNextAvailableKey = () => {
+  // Find the first available attribute type that hasn't been used
+  const getNextAvailableType = () => {
+    const allTypes = Object.values(AttributeType);
     return (
-      METADATA_KEYS.find((key) => !selectedKeys.includes(key.value))?.value ||
-      METADATA_KEYS[0].value
+      allTypes.find((type) => !selectedTypes.includes(type)) || allTypes[0]
     );
   };
 
   const handleAddField = () => {
-    const nextKey = getNextAvailableKey();
-    if (nextKey) {
-      append({ key: nextKey, value: "" });
-    }
+    const nextType = getNextAvailableType();
+    append({ type: nextType, value: "" });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const values = form.getValues();
-    if (!(await form.trigger())) return;
-
+  const handleSubmit = async (values: CreateCollectionRequest) => {
     setApiError(null);
     try {
-      // Convert metadata array to Record<string, unknown>
-      const metadataRecord = values.metadata.reduce((acc, { key, value }) => {
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, unknown>);
-
       const response = await fetch("/api/store/collections", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: values.name,
-          metadata: metadataRecord,
-        }),
+        body: JSON.stringify(values),
       });
 
       if (!response.ok) {
-        throw new Error(t("collections.error.create"));
+        // Extract the error message from the response
+        const errorData = await response.json();
+        throw new Error(errorData.error || t("collections.error.create"));
       }
 
+      const collection = await response.json();
       form.reset();
       setOpen(false);
-      onCollectionCreated(values.name, metadataRecord);
+      onCollectionCreated(collection);
     } catch (err) {
       setApiError(
         err instanceof Error ? err.message : t("collections.error.create")
@@ -178,20 +131,50 @@ export function CreateCollectionDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{tCreate("title")}</DialogTitle>
-          <DialogDescription>{tCreate("description")}</DialogDescription>
+          <DialogTitle>{tCreate("dialogTitle")}</DialogTitle>
+          <DialogDescription>{tCreate("dialogDescription")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{tCreate("name.label")}</FormLabel>
+                  <FormLabel className="flex items-center">
+                    {tCreate("name.label")}
+                    <span className="text-destructive ml-1">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={tCreate("name.placeholder")}
+                      placeholder={
+                        tCreate("name.placeholder") ||
+                        "Insert the collection name..."
+                      }
+                      {...field}
+                      aria-required="true"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{tCreate("description.label")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={
+                        tCreate("description.placeholder") ||
+                        "Add a description for the collection..."
+                      }
                       {...field}
                     />
                   </FormControl>
@@ -202,17 +185,19 @@ export function CreateCollectionDialog({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <FormLabel>{tCreate("metadata.label")}</FormLabel>
+                <FormLabel>{tCreate("attributes.label")}</FormLabel>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   className="h-7 px-2"
                   onClick={handleAddField}
-                  disabled={selectedKeys.length >= METADATA_KEYS.length}
+                  disabled={
+                    selectedTypes.length >= Object.keys(AttributeType).length
+                  }
                 >
                   <PlusCircle className="h-4 w-4 mr-1" />
-                  {tCreate("metadata.addField")}
+                  {tCreate("attributes.addField")}
                 </Button>
               </div>
 
@@ -221,7 +206,7 @@ export function CreateCollectionDialog({
                   <div key={field.id} className="flex gap-2 items-start">
                     <FormField
                       control={form.control}
-                      name={`metadata.${index}.key`}
+                      name={`attributes.${index}.type`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Select
@@ -232,28 +217,25 @@ export function CreateCollectionDialog({
                               <SelectTrigger>
                                 <SelectValue
                                   placeholder={tCreate(
-                                    "metadata.selectPlaceholder"
+                                    "attributes.typePlaceholder"
                                   )}
                                 />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {METADATA_KEYS.map((key) => {
-                                const isSelected = selectedKeys.includes(
-                                  key.value
-                                );
-                                const isCurrentField =
-                                  field.value === key.value;
+                              {Object.values(AttributeType).map((type) => {
+                                const isSelected = selectedTypes.includes(type);
+                                const isCurrentField = field.value === type;
                                 return (
                                   <SelectItem
-                                    key={key.value}
-                                    value={key.value}
+                                    key={type}
+                                    value={type}
                                     disabled={isSelected && !isCurrentField}
                                   >
-                                    {tMetadata(key.label)}
+                                    {type}
                                     {isSelected &&
                                       !isCurrentField &&
-                                      ` (${tCreate("metadata.inUse")})`}
+                                      ` (${tCreate("attributes.inUse")})`}
                                   </SelectItem>
                                 );
                               })}
@@ -263,15 +245,18 @@ export function CreateCollectionDialog({
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
-                      name={`metadata.${index}.value`}
+                      name={`attributes.${index}.value`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <FormControl>
                             <Input
-                              placeholder={tCreate("metadata.valuePlaceholder")}
-                              maxLength={35}
+                              placeholder={
+                                tCreate("attributes.valuePlaceholder") ||
+                                "Value"
+                              }
                               {...field}
                             />
                           </FormControl>
@@ -279,6 +264,7 @@ export function CreateCollectionDialog({
                         </FormItem>
                       )}
                     />
+
                     <Button
                       type="button"
                       variant="ghost"

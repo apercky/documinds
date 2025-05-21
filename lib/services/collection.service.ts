@@ -1,60 +1,52 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
-import { AttributeType } from "@/lib/prisma/generated";
+import {
+  CreateCollectionSchema,
+  GetCollectionRequest,
+  GetCollectionSchema,
+} from "@/lib/schemas/collection.schema";
 import { qdrantClient, type Schemas, VECTOR_SIZE } from "@/lib/vs/qdrant";
-import { z } from "zod";
 
-export const CreateCollectionSchema = z.object({
-  qdrantName: z.string().min(3),
-  name: z.string().min(1),
-  description: z.string().optional(),
-  attributes: z.array(
-    z.object({
-      type: z.nativeEnum(AttributeType),
-      displayKey: z.string().optional(),
-      displayName: z.string().optional(),
-    })
-  ),
-});
-
-export type CreateCollectionInput = z.infer<typeof CreateCollectionSchema>;
-
-export async function createCollection(input: CreateCollectionInput) {
-  // 1 – validazione
+export async function createCollection(input: any) {
+  // Validate input with schema
   const data = CreateCollectionSchema.parse(input);
+  console.log(data);
 
   // 2 – controlla se la collezione esiste su Qdrant
-  const exists = await qdrantClient.collectionExists(data.qdrantName);
+  const exists = await qdrantClient.collectionExists(data.name);
   if (exists) {
-    throw new Error("Qdrant collection already exists");
+    console.log(exists);
+    //throw new Error("Qdrant collection already exists");
   }
 
   // Map distance to Qdrant distance type
   let distanceValue: Schemas["Distance"] = "Cosine";
 
-  // 2 – Create the collection on Qdrant
-  await qdrantClient.createCollection(data.qdrantName, {
-    vectors: {
-      size: VECTOR_SIZE,
-      distance: distanceValue,
-    },
-  });
-
-  // 3 – Persist on Postgres in transaction
+  // Persist on Postgres in transaction
   return prisma.$transaction(async (tx) => {
+    // 1 – Create the collection on Qdrant
+    await qdrantClient.createCollection(data.name, {
+      vectors: {
+        size: VECTOR_SIZE,
+        distance: distanceValue,
+      },
+    });
+
+    // 2 – Persist on Postgres
     const collection = await tx.collection.create({
       data: {
-        qdrantName: data.qdrantName,
         name: data.name,
         description: data.description,
       },
     });
 
+    // 3 – Persist Attributes on Postgres
     await tx.attribute.createMany({
       data: data.attributes.map((a) => ({
         collectionId: collection.id,
         type: a.type,
-        displayKey: a.displayKey,
-        displayName: a.displayName,
+        value: a.value,
       })),
     });
 
@@ -62,22 +54,49 @@ export async function createCollection(input: CreateCollectionInput) {
   });
 }
 
-export const GetCollectionSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().optional(),
-  attributeFilters: z
-    .array(
-      z.object({
-        type: z.nativeEnum(AttributeType).optional(),
-        value: z.string().optional(),
-      })
-    )
-    .optional(),
-});
+export async function deleteCollection(name: string) {
+  // Find the collection first to get its name
+  const collection = await prisma.collection.findUnique({
+    where: { name },
+  });
 
-export type GetCollectionInput = z.infer<typeof GetCollectionSchema>;
+  if (!collection) {
+    throw new Error("Collection not found");
+  }
 
-export async function getCollections(input: GetCollectionInput = {}) {
+  // Delete in transaction to maintain consistency
+  return prisma.$transaction(async (tx) => {
+    // 1. Delete all attributes
+    await tx.attribute.deleteMany({
+      where: {
+        collectionId: collection.id,
+      },
+    });
+
+    // 2. Delete the collection from Postgres
+    await tx.collection.delete({
+      where: {
+        id: collection.id,
+      },
+    });
+
+    // 3. Delete the collection from Qdrant if it exists
+    try {
+      const qdrantExists = await qdrantClient.collectionExists(collection.name);
+      if (qdrantExists) {
+        await qdrantClient.deleteCollection(collection.name);
+      }
+    } catch (error) {
+      console.error("Error deleting Qdrant collection:", error);
+      // We still continue even if there's an error with Qdrant
+      // since we've already deleted from the database
+    }
+
+    return { success: true, message: "Collection deleted successfully" };
+  });
+}
+
+export async function getCollections(input: GetCollectionRequest = {}) {
   const data = GetCollectionSchema.parse(input);
 
   return prisma.collection.findMany({

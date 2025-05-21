@@ -1,9 +1,23 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
 import { AttributeType } from "@/lib/prisma/generated";
-import { getCollections } from "@/lib/services/collection.service";
-import { vectorStore } from "@/lib/vs/qdrant/vector-store";
+import { CreateCollectionRequest } from "@/lib/schemas/collection.schema";
+import {
+  createCollection,
+  deleteCollection,
+  getCollections,
+} from "@/lib/services/collection.service";
 import { NextRequest, NextResponse } from "next/server";
+
+// Standard error handler
+function handleApiError(error: any) {
+  console.error("API Error:", error);
+
+  const message = error?.message || "Bad Request";
+  const status = 400;
+
+  return NextResponse.json({ error: message }, { status });
+}
 
 /**
  * Get all collections
@@ -21,11 +35,7 @@ export const GET = withAuth<NextRequest>([ROLES.USER], async (req) => {
 
     return NextResponse.json(collections);
   } catch (error) {
-    console.error("Error getting collections:", error);
-    return NextResponse.json(
-      { error: "Failed to get collections" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 });
 
@@ -36,28 +46,17 @@ export const POST = withAuth<NextRequest>(
   [ROLES.EDITOR, ROLES.ADMIN],
   async (req) => {
     try {
-      const { name, metadata } = await req.json();
+      const createCollectionRequest: CreateCollectionRequest = await req.json();
 
-      if (!name) {
-        return NextResponse.json(
-          { error: "Collection name is required" },
-          { status: 400 }
-        );
+      if (!createCollectionRequest || !createCollectionRequest.name) {
+        throw new Error("Collection name is required");
       }
 
       // Create a new collection
-      await vectorStore.createOrGetCollection({
-        collectionName: name,
-        metadata: metadata || undefined,
-      });
-
-      return NextResponse.json({ message: "Collection created successfully" });
+      const collection = await createCollection(createCollectionRequest);
+      return NextResponse.json(collection);
     } catch (error) {
-      console.error("Error creating collection:", error);
-      return NextResponse.json(
-        { error: "Failed to create collection" },
-        { status: 500 }
-      );
+      return handleApiError(error);
     }
   }
 );
@@ -72,22 +71,13 @@ export const DELETE = withAuth<NextRequest>(
       const { collectionName } = await req.json();
 
       if (!collectionName) {
-        return NextResponse.json(
-          { error: "Collection name is required" },
-          { status: 400 }
-        );
+        throw new Error("Collection name is required");
       }
 
-      const response = await vectorStore.deleteCollection(collectionName);
-      return NextResponse.json({
-        message: `Collection deleted successfully ${response.deletedCount} documents`,
-      });
+      const response = await deleteCollection(collectionName);
+      return NextResponse.json(response);
     } catch (error) {
-      console.error("Error deleting collection:", error);
-      return NextResponse.json(
-        { error: "Failed to delete collection" },
-        { status: 500 }
-      );
+      return handleApiError(error);
     }
   }
 );

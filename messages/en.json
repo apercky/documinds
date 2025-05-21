@@ -74,12 +74,6 @@
         "allDocumentsIn": "all documents in"
       }
     },
-    "metadataKeys": {
-      "brand": "Brand",
-      "category": "Category",
-      "displayName": "Display Name",
-      "displayKey": "Display Key"
-    },
     "validation": {
       "collection": {
         "name": {
@@ -113,17 +107,21 @@
     },
     "createCollection": {
       "button": "Create Collection",
-      "title": "Create New Collection",
-      "description": "Create a new collection to organize your documents. Provide a unique name and optional metadata properties to categorize your content effectively.",
+      "dialogTitle": "Create New Collection",
+      "dialogDescription": "Create a new collection to organize your documents. Provide a unique name and optional attributes to categorize your content effectively.",
       "name": {
         "label": "Collection Name",
-        "placeholder": "Enter collection name"
+        "placeholder": "Insert the collection name..."
       },
-      "metadata": {
-        "label": "Metadata",
-        "addField": "Add Field",
-        "selectPlaceholder": "Select a key",
-        "valuePlaceholder": "Value (max 35 chars)",
+      "description": {
+        "label": "Description",
+        "placeholder": "Add a description for the collection..."
+      },
+      "attributes": {
+        "label": "Attributes",
+        "addField": "Add Attribute",
+        "typePlaceholder": "Select attribute type",
+        "valuePlaceholder": "Value",
         "inUse": "in use"
       },
       "cancel": "Cancel",

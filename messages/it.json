@@ -74,12 +74,6 @@
         "allDocumentsIn": "tutti i documenti in"
       }
     },
-    "metadataKeys": {
-      "brand": "Marca",
-      "category": "Categoria",
-      "displayName": "Nome Visualizzato",
-      "displayKey": "Chiave di Visualizzazione"
-    },
     "validation": {
       "collection": {
         "name": {
@@ -113,17 +107,21 @@
     },
     "createCollection": {
       "button": "Crea Collezione",
-      "title": "Crea Nuova Collezione",
-      "description": "Crea una nuova collezione per organizzare i tuoi documenti. Fornisci un nome univoco e proprietà di metadati opzionali per categorizzare efficacemente i tuoi contenuti.",
+      "dialogTitle": "Crea Nuova Collezione",
+      "dialogDescription": "Crea una nuova collezione per organizzare i tuoi documenti. Fornisci un nome univoco e attributi opzionali per categorizzare efficacemente i tuoi contenuti.",
       "name": {
         "label": "Nome Collezione",
         "placeholder": "Inserisci il nome della collezione"
       },
-      "metadata": {
-        "label": "Metadati",
-        "addField": "Aggiungi Campo",
-        "selectPlaceholder": "Seleziona una chiave",
-        "valuePlaceholder": "Valore (max 35 caratteri)",
+      "description": {
+        "label": "Descrizione",
+        "placeholder": "Inserisci una descrizione per la collezione..."
+      },
+      "attributes": {
+        "label": "Attributi",
+        "addField": "Aggiungi Attributo",
+        "typePlaceholder": "Seleziona tipo attributo",
+        "valuePlaceholder": "Valore",
         "inUse": "in uso"
       },
       "cancel": "Annulla",

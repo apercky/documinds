@@ -17,8 +17,7 @@ datasource db {
 
 model Collection {
   id          String      @id @default(uuid()) @map("id")
-  qdrantName  String      @unique @map("qdrant_name")
-  name        String      @map("name")
+  name        String      @unique @map("name")
   description String?     @map("description")
   attributes  Attribute[]
   createdAt   DateTime    @default(now()) @map("created_at")
@@ -41,8 +40,6 @@ model Attribute {
   collectionId String        @map("collection_id")
   type         AttributeType @map("type")
   value        String?       @map("value")
-  displayKey   String?       @map("display_key")
-  displayName  String?       @map("display_name")
   collection   Collection    @relation(fields: [collectionId], references: [id])
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
