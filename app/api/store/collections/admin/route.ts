@@ -1,6 +1,6 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
-import { vectorStore } from "@/lib/vs/qdrant/vector-store";
+import { getCollections } from "@/lib/services/collection.service";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = withAuth<NextRequest>([ROLES.ADMIN], async (req) => {
   try {
     // Get all collections without brand filtering
-    const collections = await vectorStore.getAllCollections();
+    const collections = await getCollections();
 
     return NextResponse.json(collections);
   } catch (error) {

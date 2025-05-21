@@ -1,5 +1,7 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
+import { AttributeType } from "@/lib/prisma/generated";
+import { getCollections } from "@/lib/services/collection.service";
 import { vectorStore } from "@/lib/vs/qdrant/vector-store";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,8 +13,10 @@ export const GET = withAuth<NextRequest>([ROLES.USER], async (req) => {
     const searchParams = req.nextUrl.searchParams;
     const brand = searchParams.get("brand");
 
-    const collections = await vectorStore.getCollections({
-      brand: brand || undefined,
+    const collections = await getCollections({
+      attributeFilters: [
+        { type: AttributeType.BRAND, value: brand || undefined },
+      ],
     });
 
     return NextResponse.json(collections);

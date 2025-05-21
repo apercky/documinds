@@ -2211,6 +2211,7 @@ export namespace Prisma {
     id: string | null
     collectionId: string | null
     type: $Enums.AttributeType | null
+    value: string | null
     displayKey: string | null
     displayName: string | null
     createdAt: Date | null
@@ -2221,6 +2222,7 @@ export namespace Prisma {
     id: string | null
     collectionId: string | null
     type: $Enums.AttributeType | null
+    value: string | null
     displayKey: string | null
     displayName: string | null
     createdAt: Date | null
@@ -2231,6 +2233,7 @@ export namespace Prisma {
     id: number
     collectionId: number
     type: number
+    value: number
     displayKey: number
     displayName: number
     createdAt: number
@@ -2243,6 +2246,7 @@ export namespace Prisma {
     id?: true
     collectionId?: true
     type?: true
+    value?: true
     displayKey?: true
     displayName?: true
     createdAt?: true
@@ -2253,6 +2257,7 @@ export namespace Prisma {
     id?: true
     collectionId?: true
     type?: true
+    value?: true
     displayKey?: true
     displayName?: true
     createdAt?: true
@@ -2263,6 +2268,7 @@ export namespace Prisma {
     id?: true
     collectionId?: true
     type?: true
+    value?: true
     displayKey?: true
     displayName?: true
     createdAt?: true
@@ -2346,6 +2352,7 @@ export namespace Prisma {
     id: string
     collectionId: string
     type: $Enums.AttributeType
+    value: string | null
     displayKey: string | null
     displayName: string | null
     createdAt: Date
@@ -2373,6 +2380,7 @@ export namespace Prisma {
     id?: boolean
     collectionId?: boolean
     type?: boolean
+    value?: boolean
     displayKey?: boolean
     displayName?: boolean
     createdAt?: boolean
@@ -2384,6 +2392,7 @@ export namespace Prisma {
     id?: boolean
     collectionId?: boolean
     type?: boolean
+    value?: boolean
     displayKey?: boolean
     displayName?: boolean
     createdAt?: boolean
@@ -2395,6 +2404,7 @@ export namespace Prisma {
     id?: boolean
     collectionId?: boolean
     type?: boolean
+    value?: boolean
     displayKey?: boolean
     displayName?: boolean
     createdAt?: boolean
@@ -2406,13 +2416,14 @@ export namespace Prisma {
     id?: boolean
     collectionId?: boolean
     type?: boolean
+    value?: boolean
     displayKey?: boolean
     displayName?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AttributeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "type" | "displayKey" | "displayName" | "createdAt" | "updatedAt", ExtArgs["result"]["attribute"]>
+  export type AttributeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "collectionId" | "type" | "value" | "displayKey" | "displayName" | "createdAt" | "updatedAt", ExtArgs["result"]["attribute"]>
   export type AttributeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collection?: boolean | CollectionDefaultArgs<ExtArgs>
   }
@@ -2432,6 +2443,7 @@ export namespace Prisma {
       id: string
       collectionId: string
       type: $Enums.AttributeType
+      value: string | null
       displayKey: string | null
       displayName: string | null
       createdAt: Date
@@ -2863,6 +2875,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Attribute", 'String'>
     readonly collectionId: FieldRef<"Attribute", 'String'>
     readonly type: FieldRef<"Attribute", 'AttributeType'>
+    readonly value: FieldRef<"Attribute", 'String'>
     readonly displayKey: FieldRef<"Attribute", 'String'>
     readonly displayName: FieldRef<"Attribute", 'String'>
     readonly createdAt: FieldRef<"Attribute", 'DateTime'>
@@ -4319,6 +4332,7 @@ export namespace Prisma {
     id: 'id',
     collectionId: 'collectionId',
     type: 'type',
+    value: 'value',
     displayKey: 'displayKey',
     displayName: 'displayName',
     createdAt: 'createdAt',
@@ -4495,6 +4509,7 @@ export namespace Prisma {
     id?: StringFilter<"Attribute"> | string
     collectionId?: StringFilter<"Attribute"> | string
     type?: EnumAttributeTypeFilter<"Attribute"> | $Enums.AttributeType
+    value?: StringNullableFilter<"Attribute"> | string | null
     displayKey?: StringNullableFilter<"Attribute"> | string | null
     displayName?: StringNullableFilter<"Attribute"> | string | null
     createdAt?: DateTimeFilter<"Attribute"> | Date | string
@@ -4506,6 +4521,7 @@ export namespace Prisma {
     id?: SortOrder
     collectionId?: SortOrder
     type?: SortOrder
+    value?: SortOrderInput | SortOrder
     displayKey?: SortOrderInput | SortOrder
     displayName?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -4520,6 +4536,7 @@ export namespace Prisma {
     NOT?: AttributeWhereInput | AttributeWhereInput[]
     collectionId?: StringFilter<"Attribute"> | string
     type?: EnumAttributeTypeFilter<"Attribute"> | $Enums.AttributeType
+    value?: StringNullableFilter<"Attribute"> | string | null
     displayKey?: StringNullableFilter<"Attribute"> | string | null
     displayName?: StringNullableFilter<"Attribute"> | string | null
     createdAt?: DateTimeFilter<"Attribute"> | Date | string
@@ -4531,6 +4548,7 @@ export namespace Prisma {
     id?: SortOrder
     collectionId?: SortOrder
     type?: SortOrder
+    value?: SortOrderInput | SortOrder
     displayKey?: SortOrderInput | SortOrder
     displayName?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -4547,6 +4565,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Attribute"> | string
     collectionId?: StringWithAggregatesFilter<"Attribute"> | string
     type?: EnumAttributeTypeWithAggregatesFilter<"Attribute"> | $Enums.AttributeType
+    value?: StringNullableWithAggregatesFilter<"Attribute"> | string | null
     displayKey?: StringNullableWithAggregatesFilter<"Attribute"> | string | null
     displayName?: StringNullableWithAggregatesFilter<"Attribute"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Attribute"> | Date | string
@@ -4681,6 +4700,7 @@ export namespace Prisma {
   export type AttributeCreateInput = {
     id?: string
     type: $Enums.AttributeType
+    value?: string | null
     displayKey?: string | null
     displayName?: string | null
     createdAt?: Date | string
@@ -4692,6 +4712,7 @@ export namespace Prisma {
     id?: string
     collectionId: string
     type: $Enums.AttributeType
+    value?: string | null
     displayKey?: string | null
     displayName?: string | null
     createdAt?: Date | string
@@ -4701,6 +4722,7 @@ export namespace Prisma {
   export type AttributeUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumAttributeTypeFieldUpdateOperationsInput | $Enums.AttributeType
+    value?: NullableStringFieldUpdateOperationsInput | string | null
     displayKey?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4712,6 +4734,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     collectionId?: StringFieldUpdateOperationsInput | string
     type?: EnumAttributeTypeFieldUpdateOperationsInput | $Enums.AttributeType
+    value?: NullableStringFieldUpdateOperationsInput | string | null
     displayKey?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4722,6 +4745,7 @@ export namespace Prisma {
     id?: string
     collectionId: string
     type: $Enums.AttributeType
+    value?: string | null
     displayKey?: string | null
     displayName?: string | null
     createdAt?: Date | string
@@ -4731,6 +4755,7 @@ export namespace Prisma {
   export type AttributeUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumAttributeTypeFieldUpdateOperationsInput | $Enums.AttributeType
+    value?: NullableStringFieldUpdateOperationsInput | string | null
     displayKey?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4741,6 +4766,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     collectionId?: StringFieldUpdateOperationsInput | string
     type?: EnumAttributeTypeFieldUpdateOperationsInput | $Enums.AttributeType
+    value?: NullableStringFieldUpdateOperationsInput | string | null
     displayKey?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4959,6 +4985,7 @@ export namespace Prisma {
     id?: SortOrder
     collectionId?: SortOrder
     type?: SortOrder
+    value?: SortOrder
     displayKey?: SortOrder
     displayName?: SortOrder
     createdAt?: SortOrder
@@ -4969,6 +4996,7 @@ export namespace Prisma {
     id?: SortOrder
     collectionId?: SortOrder
     type?: SortOrder
+    value?: SortOrder
     displayKey?: SortOrder
     displayName?: SortOrder
     createdAt?: SortOrder
@@ -4979,6 +5007,7 @@ export namespace Prisma {
     id?: SortOrder
     collectionId?: SortOrder
     type?: SortOrder
+    value?: SortOrder
     displayKey?: SortOrder
     displayName?: SortOrder
     createdAt?: SortOrder
@@ -5229,6 +5258,7 @@ export namespace Prisma {
   export type AttributeCreateWithoutCollectionInput = {
     id?: string
     type: $Enums.AttributeType
+    value?: string | null
     displayKey?: string | null
     displayName?: string | null
     createdAt?: Date | string
@@ -5238,6 +5268,7 @@ export namespace Prisma {
   export type AttributeUncheckedCreateWithoutCollectionInput = {
     id?: string
     type: $Enums.AttributeType
+    value?: string | null
     displayKey?: string | null
     displayName?: string | null
     createdAt?: Date | string
@@ -5277,6 +5308,7 @@ export namespace Prisma {
     id?: StringFilter<"Attribute"> | string
     collectionId?: StringFilter<"Attribute"> | string
     type?: EnumAttributeTypeFilter<"Attribute"> | $Enums.AttributeType
+    value?: StringNullableFilter<"Attribute"> | string | null
     displayKey?: StringNullableFilter<"Attribute"> | string | null
     displayName?: StringNullableFilter<"Attribute"> | string | null
     createdAt?: DateTimeFilter<"Attribute"> | Date | string
@@ -5338,6 +5370,7 @@ export namespace Prisma {
   export type AttributeCreateManyCollectionInput = {
     id?: string
     type: $Enums.AttributeType
+    value?: string | null
     displayKey?: string | null
     displayName?: string | null
     createdAt?: Date | string
@@ -5347,6 +5380,7 @@ export namespace Prisma {
   export type AttributeUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumAttributeTypeFieldUpdateOperationsInput | $Enums.AttributeType
+    value?: NullableStringFieldUpdateOperationsInput | string | null
     displayKey?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5356,6 +5390,7 @@ export namespace Prisma {
   export type AttributeUncheckedUpdateWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumAttributeTypeFieldUpdateOperationsInput | $Enums.AttributeType
+    value?: NullableStringFieldUpdateOperationsInput | string | null
     displayKey?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5365,6 +5400,7 @@ export namespace Prisma {
   export type AttributeUncheckedUpdateManyWithoutCollectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumAttributeTypeFieldUpdateOperationsInput | $Enums.AttributeType
+    value?: NullableStringFieldUpdateOperationsInput | string | null
     displayKey?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

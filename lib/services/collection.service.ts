@@ -61,3 +61,51 @@ export async function createCollection(input: CreateCollectionInput) {
     return collection;
   });
 }
+
+export const GetCollectionSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  attributeFilters: z
+    .array(
+      z.object({
+        type: z.nativeEnum(AttributeType).optional(),
+        value: z.string().optional(),
+      })
+    )
+    .optional(),
+});
+
+export type GetCollectionInput = z.infer<typeof GetCollectionSchema>;
+
+export async function getCollections(input: GetCollectionInput = {}) {
+  const data = GetCollectionSchema.parse(input);
+
+  return prisma.collection.findMany({
+    where: {
+      ...(data.id && { id: data.id }),
+      ...(data.name && { name: data.name }),
+      ...(data.attributeFilters &&
+        data.attributeFilters.length > 0 && {
+          attributes: {
+            some: {
+              OR: data.attributeFilters.map((filter) => ({
+                ...(filter.type && { type: filter.type }),
+              })),
+            },
+          },
+        }),
+    },
+    include: {
+      attributes: true,
+    },
+  });
+}
+
+export async function getCollectionById(id: string) {
+  return prisma.collection.findUnique({
+    where: { id },
+    include: {
+      attributes: true,
+    },
+  });
+}

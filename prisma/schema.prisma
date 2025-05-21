@@ -40,6 +40,7 @@ model Attribute {
   id            String         @id @default(uuid())         @map("id")
   collectionId  String                                      @map("collection_id")
   type          AttributeType                               @map("type")
+  value         String?                                     @map("value")
   displayKey    String?                                     @map("display_key")
   displayName   String?                                     @map("display_name")
   collection    Collection     @relation(fields: [collectionId], references: [id])
