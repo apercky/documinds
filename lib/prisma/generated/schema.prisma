@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../lib/prisma/generated"
+  previewFeatures = ["typedSql"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Collection {
+  id          String      @id @default(uuid()) @map("id")
+  qdrantName  String      @unique @map("qdrant_name")
+  name        String      @map("name")
+  description String?     @map("description")
+  attributes  Attribute[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("dm_collections")
+}
+
+enum AttributeType {
+  BRAND
+  CATEGORY
+  DISPLAY_NAME
+  DISPLAY_KEY
+
+  @@map("dm_attribute_type") // nome del tipo ENUM in Postgres
+}
+
+model Attribute {
+  id           String        @id @default(uuid()) @map("id")
+  collectionId String        @map("collection_id")
+  type         AttributeType @map("type")
+  displayKey   String?       @map("display_key")
+  displayName  String?       @map("display_name")
+  collection   Collection    @relation(fields: [collectionId], references: [id])
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([collectionId])
+  @@map("dm_collection_attributes")
+}
+
+model Translation {
+  id        String   @id @default(uuid()) @map("id")
+  locale    String   @map("locale")
+  namespace String   @map("namespace")
+  key       String   @map("key")
+  value     String   @map("value")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([locale, namespace, key])
+  @@map("dm_translations")
+}

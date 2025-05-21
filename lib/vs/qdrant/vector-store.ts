@@ -4,14 +4,14 @@ import { Collection } from "@/types/collection";
 import { DocumentMetadata } from "@/types/document";
 import { Document } from "@langchain/core/documents";
 import { OpenAIEmbeddings } from "@langchain/openai";
-import { QdrantClient, type Schemas } from "@qdrant/js-client-rest";
 import crypto from "crypto";
+import qdrantClient, { Schemas } from "./client";
 
 // Latest model as of 2024
 const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-large";
 
 // Vector dimension for text-embedding-3-large model
-const VECTOR_SIZE = 3072;
+export const VECTOR_SIZE = 3072;
 
 // Create OpenAI embeddings instance
 const embeddings = new OpenAIEmbeddings({
@@ -22,11 +22,6 @@ const embeddings = new OpenAIEmbeddings({
   timeout: 10000,
 });
 
-// Create Qdrant client
-const qdrantClient = new QdrantClient({
-  url: process.env.QDRANT_API_URL || "http://localhost:6333",
-  apiKey: process.env.QDRANT_API_KEY || "",
-});
 export interface ProcessProgress {
   currentDocument: number;
   totalDocuments: number;
