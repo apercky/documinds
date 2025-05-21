@@ -16,12 +16,13 @@ datasource db {
 }
 
 model Collection {
-  id          String    @id @default(uuid())            @map("id")
-  name        String    @unique                         @map("name")
-  description String?                                   @map("description")
-  attributes  Attribute[]
-  createdAt   DateTime  @default(now())                 @map("created_at")
-  updatedAt   DateTime  @updatedAt                      @map("updated_at")
+  id            String    @id @default(uuid())            @map("id")
+  name          String    @unique                         @map("name")
+  description   String?                                   @map("description")
+  attributes    Attribute[]
+  createdAt     DateTime  @default(now())                 @map("created_at")
+  updatedAt     DateTime  @updatedAt                      @map("updated_at")
+  documentCount Int? @default(0)                      @map("document_count")
 
   @@map("dm_collections")
 }

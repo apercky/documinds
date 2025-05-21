@@ -1120,8 +1120,18 @@ export namespace Prisma {
 
   export type AggregateCollection = {
     _count: CollectionCountAggregateOutputType | null
+    _avg: CollectionAvgAggregateOutputType | null
+    _sum: CollectionSumAggregateOutputType | null
     _min: CollectionMinAggregateOutputType | null
     _max: CollectionMaxAggregateOutputType | null
+  }
+
+  export type CollectionAvgAggregateOutputType = {
+    documentCount: number | null
+  }
+
+  export type CollectionSumAggregateOutputType = {
+    documentCount: number | null
   }
 
   export type CollectionMinAggregateOutputType = {
@@ -1130,6 +1140,7 @@ export namespace Prisma {
     description: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    documentCount: number | null
   }
 
   export type CollectionMaxAggregateOutputType = {
@@ -1138,6 +1149,7 @@ export namespace Prisma {
     description: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    documentCount: number | null
   }
 
   export type CollectionCountAggregateOutputType = {
@@ -1146,9 +1158,18 @@ export namespace Prisma {
     description: number
     createdAt: number
     updatedAt: number
+    documentCount: number
     _all: number
   }
 
+
+  export type CollectionAvgAggregateInputType = {
+    documentCount?: true
+  }
+
+  export type CollectionSumAggregateInputType = {
+    documentCount?: true
+  }
 
   export type CollectionMinAggregateInputType = {
     id?: true
@@ -1156,6 +1177,7 @@ export namespace Prisma {
     description?: true
     createdAt?: true
     updatedAt?: true
+    documentCount?: true
   }
 
   export type CollectionMaxAggregateInputType = {
@@ -1164,6 +1186,7 @@ export namespace Prisma {
     description?: true
     createdAt?: true
     updatedAt?: true
+    documentCount?: true
   }
 
   export type CollectionCountAggregateInputType = {
@@ -1172,6 +1195,7 @@ export namespace Prisma {
     description?: true
     createdAt?: true
     updatedAt?: true
+    documentCount?: true
     _all?: true
   }
 
@@ -1213,6 +1237,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: CollectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CollectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: CollectionMinAggregateInputType
@@ -1243,6 +1279,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: CollectionCountAggregateInputType | true
+    _avg?: CollectionAvgAggregateInputType
+    _sum?: CollectionSumAggregateInputType
     _min?: CollectionMinAggregateInputType
     _max?: CollectionMaxAggregateInputType
   }
@@ -1253,7 +1291,10 @@ export namespace Prisma {
     description: string | null
     createdAt: Date
     updatedAt: Date
+    documentCount: number | null
     _count: CollectionCountAggregateOutputType | null
+    _avg: CollectionAvgAggregateOutputType | null
+    _sum: CollectionSumAggregateOutputType | null
     _min: CollectionMinAggregateOutputType | null
     _max: CollectionMaxAggregateOutputType | null
   }
@@ -1278,6 +1319,7 @@ export namespace Prisma {
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    documentCount?: boolean
     attributes?: boolean | Collection$attributesArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["collection"]>
@@ -1288,6 +1330,7 @@ export namespace Prisma {
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    documentCount?: boolean
   }, ExtArgs["result"]["collection"]>
 
   export type CollectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1296,6 +1339,7 @@ export namespace Prisma {
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    documentCount?: boolean
   }, ExtArgs["result"]["collection"]>
 
   export type CollectionSelectScalar = {
@@ -1304,9 +1348,10 @@ export namespace Prisma {
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    documentCount?: boolean
   }
 
-  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+  export type CollectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt" | "documentCount", ExtArgs["result"]["collection"]>
   export type CollectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     attributes?: boolean | Collection$attributesArgs<ExtArgs>
     _count?: boolean | CollectionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1325,6 +1370,7 @@ export namespace Prisma {
       description: string | null
       createdAt: Date
       updatedAt: Date
+      documentCount: number | null
     }, ExtArgs["result"]["collection"]>
     composites: {}
   }
@@ -1754,6 +1800,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Collection", 'String'>
     readonly createdAt: FieldRef<"Collection", 'DateTime'>
     readonly updatedAt: FieldRef<"Collection", 'DateTime'>
+    readonly documentCount: FieldRef<"Collection", 'Int'>
   }
     
 
@@ -4282,7 +4329,8 @@ export namespace Prisma {
     name: 'name',
     description: 'description',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    documentCount: 'documentCount'
   };
 
   export type CollectionScalarFieldEnum = (typeof CollectionScalarFieldEnum)[keyof typeof CollectionScalarFieldEnum]
@@ -4370,6 +4418,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'AttributeType'
    */
   export type EnumAttributeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttributeType'>
@@ -4384,16 +4446,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
+   * Reference to a field of type 'Float'
    */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
   /**
-   * Reference to a field of type 'Int[]'
+   * Reference to a field of type 'Float[]'
    */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -4409,6 +4471,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Collection"> | string | null
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
+    documentCount?: IntNullableFilter<"Collection"> | number | null
     attributes?: AttributeListRelationFilter
   }
 
@@ -4418,6 +4481,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    documentCount?: SortOrderInput | SortOrder
     attributes?: AttributeOrderByRelationAggregateInput
   }
 
@@ -4430,6 +4494,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Collection"> | string | null
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
+    documentCount?: IntNullableFilter<"Collection"> | number | null
     attributes?: AttributeListRelationFilter
   }, "id" | "name">
 
@@ -4439,9 +4504,12 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    documentCount?: SortOrderInput | SortOrder
     _count?: CollectionCountOrderByAggregateInput
+    _avg?: CollectionAvgOrderByAggregateInput
     _max?: CollectionMaxOrderByAggregateInput
     _min?: CollectionMinOrderByAggregateInput
+    _sum?: CollectionSumOrderByAggregateInput
   }
 
   export type CollectionScalarWhereWithAggregatesInput = {
@@ -4453,6 +4521,7 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"Collection"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Collection"> | Date | string
+    documentCount?: IntNullableWithAggregatesFilter<"Collection"> | number | null
   }
 
   export type AttributeWhereInput = {
@@ -4579,6 +4648,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    documentCount?: number | null
     attributes?: AttributeCreateNestedManyWithoutCollectionInput
   }
 
@@ -4588,6 +4658,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    documentCount?: number | null
     attributes?: AttributeUncheckedCreateNestedManyWithoutCollectionInput
   }
 
@@ -4597,6 +4668,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentCount?: NullableIntFieldUpdateOperationsInput | number | null
     attributes?: AttributeUpdateManyWithoutCollectionNestedInput
   }
 
@@ -4606,6 +4678,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentCount?: NullableIntFieldUpdateOperationsInput | number | null
     attributes?: AttributeUncheckedUpdateManyWithoutCollectionNestedInput
   }
 
@@ -4615,6 +4688,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    documentCount?: number | null
   }
 
   export type CollectionUpdateManyMutationInput = {
@@ -4623,6 +4697,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentCount?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type CollectionUncheckedUpdateManyInput = {
@@ -4631,6 +4706,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentCount?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type AttributeCreateInput = {
@@ -4799,6 +4875,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type AttributeListRelationFilter = {
     every?: AttributeWhereInput
     some?: AttributeWhereInput
@@ -4820,6 +4907,11 @@ export namespace Prisma {
     description?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    documentCount?: SortOrder
+  }
+
+  export type CollectionAvgOrderByAggregateInput = {
+    documentCount?: SortOrder
   }
 
   export type CollectionMaxOrderByAggregateInput = {
@@ -4828,6 +4920,7 @@ export namespace Prisma {
     description?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    documentCount?: SortOrder
   }
 
   export type CollectionMinOrderByAggregateInput = {
@@ -4836,6 +4929,11 @@ export namespace Prisma {
     description?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    documentCount?: SortOrder
+  }
+
+  export type CollectionSumOrderByAggregateInput = {
+    documentCount?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -4886,6 +4984,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type EnumAttributeTypeFilter<$PrismaModel = never> = {
@@ -4996,6 +5110,14 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type AttributeUpdateManyWithoutCollectionNestedInput = {
     create?: XOR<AttributeCreateWithoutCollectionInput, AttributeUncheckedCreateWithoutCollectionInput> | AttributeCreateWithoutCollectionInput[] | AttributeUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: AttributeCreateOrConnectWithoutCollectionInput | AttributeCreateOrConnectWithoutCollectionInput[]
@@ -5081,6 +5203,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -5126,17 +5259,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5149,6 +5271,33 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumAttributeTypeFilter<$PrismaModel = never> = {
@@ -5228,6 +5377,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    documentCount?: number | null
   }
 
   export type CollectionUncheckedCreateWithoutAttributesInput = {
@@ -5236,6 +5386,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    documentCount?: number | null
   }
 
   export type CollectionCreateOrConnectWithoutAttributesInput = {
@@ -5260,6 +5411,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentCount?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type CollectionUncheckedUpdateWithoutAttributesInput = {
@@ -5268,6 +5420,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentCount?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type AttributeCreateManyCollectionInput = {

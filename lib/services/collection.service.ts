@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { type AttributeType } from "@/lib/prisma/generated";
 import {
   CreateCollectionSchema,
   GetCollectionRequest,
@@ -51,6 +52,58 @@ export async function createCollection(input: any) {
     });
 
     return collection;
+  });
+}
+
+/**
+ * Update a collection's attributes
+ */
+export async function updateCollectionAttributes(
+  collectionId: string,
+  attributes: { type: AttributeType; value: string | null }[]
+) {
+  // Check if collection exists
+  const collection = await prisma.collection.findUnique({
+    where: { id: collectionId },
+    include: { attributes: true },
+  });
+
+  if (!collection) {
+    throw new Error("Collection not found");
+  }
+
+  // Update attributes in a transaction
+  return prisma.$transaction(async (tx) => {
+    // Get existing attributes to determine which ones to update and which to create
+    const existingAttributes = collection.attributes;
+
+    // Process each attribute in the update request
+    for (const attr of attributes) {
+      const existingAttr = existingAttributes.find((a) => a.type === attr.type);
+
+      if (existingAttr) {
+        // Update existing attribute
+        await tx.attribute.update({
+          where: { id: existingAttr.id },
+          data: { value: attr.value },
+        });
+      } else {
+        // Create new attribute
+        await tx.attribute.create({
+          data: {
+            collectionId,
+            type: attr.type,
+            value: attr.value,
+          },
+        });
+      }
+    }
+
+    // Get the updated collection with attributes
+    return tx.collection.findUnique({
+      where: { id: collectionId },
+      include: { attributes: true },
+    });
   });
 }
 

@@ -7,17 +7,8 @@ import {
   deleteCollection,
   getCollections,
 } from "@/lib/services/collection.service";
+import { handleApiError } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
-
-// Standard error handler
-function handleApiError(error: any) {
-  console.error("API Error:", error);
-
-  const message = error?.message || "Bad Request";
-  const status = 400;
-
-  return NextResponse.json({ error: message }, { status });
-}
 
 /**
  * Get all collections
