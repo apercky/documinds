@@ -7,7 +7,12 @@ import {
   GetCollectionRequest,
   GetCollectionSchema,
 } from "@/lib/schemas/collection.schema";
-import { qdrantClient, VECTOR_SIZE, type Schemas } from "@/lib/vs/qdrant";
+import {
+  qdrantClient,
+  VECTOR_SIZE,
+  vectorStore,
+  type Schemas,
+} from "@/lib/vs/qdrant";
 
 export async function createCollection(input: any) {
   // Validate input with schema
@@ -149,12 +154,48 @@ export async function deleteCollection(name: string) {
   });
 }
 
+/**
+ * Helper function to get document count from Qdrant when needed
+ */
+async function getDocumentCountFromQdrant(
+  collectionName: string
+): Promise<number> {
+  try {
+    const stats = await vectorStore.getCollectionStats(collectionName);
+    return stats.documentCount;
+  } catch (error) {
+    console.error(
+      `Error getting document count from Qdrant for collection ${collectionName}:`,
+      error
+    );
+    return 0;
+  }
+}
+
+/**
+ * Helper function to enrich collection with document count from Qdrant if needed
+ */
+async function enrichCollectionWithDocumentCount(
+  collection: any
+): Promise<any> {
+  if (!collection.documentCount || collection.documentCount === 0) {
+    const qdrantDocumentCount = await getDocumentCountFromQdrant(
+      collection.name
+    );
+    return {
+      ...collection,
+      documentCount: qdrantDocumentCount,
+    };
+  }
+  return collection;
+}
+
 export async function getCollections(
   input: GetCollectionRequest = {}
 ): Promise<Collection[]> {
   const data = GetCollectionSchema.parse(input);
 
-  return prisma.collection.findMany({
+  const collections = await prisma.collection.findMany({
     where: {
       ...(data.id && { id: data.id }),
       ...(data.name && { name: data.name }),
@@ -173,15 +214,25 @@ export async function getCollections(
       attributes: true,
     },
   });
+
+  // Enrich collections with document count from Qdrant when needed
+  const enrichedCollections = await Promise.all(
+    collections.map(enrichCollectionWithDocumentCount)
+  );
+
+  return enrichedCollections;
 }
 
 export async function getCollectionById(
   id: string
 ): Promise<Collection | null> {
-  return prisma.collection.findUniqueOrThrow({
+  const collection = await prisma.collection.findUniqueOrThrow({
     where: { id },
     include: {
       attributes: true,
     },
   });
+
+  // Enrich collection with document count from Qdrant when needed
+  return await enrichCollectionWithDocumentCount(collection);
 }
