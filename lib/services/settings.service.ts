@@ -12,26 +12,89 @@ const ALGORITHM = "aes-256-cbc";
  * Encrypt a value using AES encryption
  */
 async function encryptValue(value: string): Promise<string> {
-  const iv = crypto.randomBytes(16);
-  const key = crypto.scryptSync(ENCRYPTION_KEY, "salt", 32);
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-  let encrypted = cipher.update(value, "utf8", "hex");
-  encrypted += cipher.final("hex");
-  return iv.toString("hex") + ":" + encrypted;
+  if (!value || typeof value !== "string") {
+    throw new Error("Value to encrypt must be a non-empty string");
+  }
+
+  if (
+    !ENCRYPTION_KEY ||
+    ENCRYPTION_KEY === "default-key-change-in-production"
+  ) {
+    throw new Error(
+      "SERVER_KEY environment variable must be set for encryption"
+    );
+  }
+
+  try {
+    const iv = crypto.randomBytes(16);
+    const key = crypto.scryptSync(ENCRYPTION_KEY, "salt", 32);
+    const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+
+    let encrypted = cipher.update(value, "utf8", "hex");
+    encrypted += cipher.final("hex");
+
+    // Format: iv:encrypted_data
+    return iv.toString("hex") + ":" + encrypted;
+  } catch (error) {
+    console.error("Encryption failed:", error);
+    throw new Error("Failed to encrypt value");
+  }
 }
 
 /**
  * Decrypt a value using AES encryption
  */
 async function decryptValue(encryptedValue: string): Promise<string> {
-  const textParts = encryptedValue.split(":");
-  const iv = Buffer.from(textParts.shift()!, "hex");
-  const encryptedText = textParts.join(":");
-  const key = crypto.scryptSync(ENCRYPTION_KEY, "salt", 32);
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-  let decrypted = decipher.update(encryptedText, "hex", "utf8");
-  decrypted += decipher.final("utf8");
-  return decrypted;
+  if (!encryptedValue || typeof encryptedValue !== "string") {
+    throw new Error("Encrypted value must be a non-empty string");
+  }
+
+  if (
+    !ENCRYPTION_KEY ||
+    ENCRYPTION_KEY === "default-key-change-in-production"
+  ) {
+    throw new Error(
+      "SERVER_KEY environment variable must be set for decryption"
+    );
+  }
+
+  try {
+    // Validate format: should contain exactly one colon separating IV and encrypted data
+    const parts = encryptedValue.split(":");
+    if (parts.length !== 2) {
+      throw new Error(
+        "Invalid encrypted value format. Expected format: iv:encrypted_data"
+      );
+    }
+
+    const [ivHex, encryptedHex] = parts;
+
+    // Validate IV length (should be 32 hex characters = 16 bytes)
+    if (ivHex.length !== 32) {
+      throw new Error("Invalid IV length. Expected 32 hex characters.");
+    }
+
+    // Validate encrypted data is not empty
+    if (!encryptedHex) {
+      throw new Error("Encrypted data is empty");
+    }
+
+    const iv = Buffer.from(ivHex, "hex");
+    const key = crypto.scryptSync(ENCRYPTION_KEY, "salt", 32);
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+
+    let decrypted = decipher.update(encryptedHex, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+
+    return decrypted;
+  } catch (error) {
+    console.error("Decryption failed:", error);
+    throw new Error(
+      `Failed to decrypt value: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
+  }
 }
 
 /**
@@ -197,7 +260,17 @@ export async function getSettingValue(
     try {
       return await decryptValue(setting.encryptedValue);
     } catch (error) {
-      console.error("Failed to decrypt setting value:", error);
+      console.error(
+        `Failed to decrypt setting ${brandCode}/${settingKey}:`,
+        error
+      );
+      // Log the corrupted value for debugging (first 20 chars only for security)
+      console.error(
+        `Corrupted encrypted value (first 20 chars): ${setting.encryptedValue.substring(
+          0,
+          20
+        )}...`
+      );
       return null;
     }
   }

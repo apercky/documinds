@@ -26,20 +26,40 @@ export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
   }
 
   try {
+    // Debug: Log the user brand
+    console.log("🔍 Chat API - User brand:", userBrand);
+
     // Get brand-specific settings
     const brandSettings = await getBrandSettings(userBrand);
 
+    // Debug: Log the retrieved settings
+    console.log("🔍 Chat API - Brand settings:", {
+      langflowApiKey: brandSettings.langflowApiKey ? "***SET***" : "NOT SET",
+      chatFlowId: brandSettings.chatFlowId || "NOT SET",
+      embeddingsFlowId: brandSettings.embeddingsFlowId || "NOT SET",
+    });
+
     if (!brandSettings.langflowApiKey) {
+      console.error(
+        "❌ Chat API - Langflow API key not configured for brand:",
+        userBrand
+      );
       return new Response("Langflow API key not configured for this brand", {
         status: 400,
       });
     }
 
     if (!brandSettings.chatFlowId) {
+      console.error(
+        "❌ Chat API - Chat flow ID not configured for brand:",
+        userBrand
+      );
       return new Response("Chat flow ID not configured for this brand", {
         status: 400,
       });
     }
+
+    console.log("✅ Chat API - All settings validated successfully");
 
     // Get the last user message for similarity search
     const lastUserMessage = messages
