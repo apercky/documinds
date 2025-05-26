@@ -3,6 +3,7 @@ import { withAuth } from "@/lib/auth/auth-interceptor";
 import { AttributeType } from "@/lib/prisma/generated";
 import { CreateCollectionRequest } from "@/lib/schemas/collection.schema";
 import {
+  connectToExistingCollection,
   createCollection,
   deleteCollection,
   getCollections,
@@ -46,7 +47,66 @@ export const POST = withAuth<NextRequest>(
       // Create a new collection
       const collection = await createCollection(createCollectionRequest);
       return NextResponse.json(collection);
-    } catch (error) {
+    } catch (error: any) {
+      // Handle specific error cases
+      if (error?.message === "COLLECTION_EXISTS_IN_DATABASE") {
+        return NextResponse.json(
+          {
+            error: "COLLECTION_EXISTS_IN_DATABASE",
+            message:
+              "A collection with this name already exists in the database",
+          },
+          { status: 409 }
+        );
+      }
+
+      return handleApiError(error);
+    }
+  }
+);
+
+/**
+ * Connect to an existing Qdrant collection
+ */
+export const PUT = withAuth<NextRequest>(
+  [ROLES.EDITOR, ROLES.ADMIN],
+  async (req) => {
+    try {
+      const connectCollectionRequest: CreateCollectionRequest =
+        await req.json();
+
+      if (!connectCollectionRequest || !connectCollectionRequest.name) {
+        throw new Error("Collection name is required");
+      }
+
+      // Connect to existing collection
+      const collection = await connectToExistingCollection(
+        connectCollectionRequest
+      );
+      return NextResponse.json(collection);
+    } catch (error: any) {
+      // Handle specific error cases
+      if (error?.message === "COLLECTION_EXISTS_IN_DATABASE") {
+        return NextResponse.json(
+          {
+            error: "COLLECTION_EXISTS_IN_DATABASE",
+            message:
+              "A collection with this name already exists in the database",
+          },
+          { status: 409 }
+        );
+      }
+
+      if (error?.message === "COLLECTION_NOT_FOUND_IN_QDRANT") {
+        return NextResponse.json(
+          {
+            error: "COLLECTION_NOT_FOUND_IN_QDRANT",
+            message: "No collection with this name exists in the vector store",
+          },
+          { status: 404 }
+        );
+      }
+
       return handleApiError(error);
     }
   }

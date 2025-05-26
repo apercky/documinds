@@ -19,25 +19,49 @@ export async function createCollection(input: any) {
   const data = CreateCollectionSchema.parse(input);
   console.log(data);
 
-  // 2 – controlla se la collezione esiste su Qdrant
-  const exists = await qdrantClient.collectionExists(data.name);
-  if (exists) {
-    console.log(exists);
-    //throw new Error("Qdrant collection already exists");
+  // Check if collection already exists in database
+  const existingCollection = await prisma.collection.findUnique({
+    where: { name: data.name },
+  });
+
+  if (existingCollection) {
+    throw new Error("COLLECTION_EXISTS_IN_DATABASE");
   }
+
+  // Check if collection exists in Qdrant
+  const qdrantExists = await qdrantClient.collectionExists(data.name);
 
   // Map distance to Qdrant distance type
   let distanceValue: Schemas["Distance"] = "Cosine";
 
   // Persist on Postgres in transaction
   return prisma.$transaction(async (tx) => {
-    // 1 – Create the collection on Qdrant
-    await qdrantClient.createCollection(data.name, {
-      vectors: {
-        size: VECTOR_SIZE,
-        distance: distanceValue,
-      },
-    });
+    let shouldCreateQdrantCollection = true;
+
+    // If collection exists in Qdrant, we'll connect to it instead of creating
+    if (qdrantExists) {
+      shouldCreateQdrantCollection = false;
+    } else {
+      // Try to create the collection on Qdrant
+      try {
+        await qdrantClient.createCollection(data.name, {
+          vectors: {
+            size: VECTOR_SIZE,
+            distance: distanceValue,
+          },
+        });
+      } catch (error: any) {
+        // Handle conflict error (409) - collection already exists
+        if (error?.status === 409 || error?.message?.includes("Conflict")) {
+          console.log(
+            `Collection ${data.name} already exists in Qdrant, connecting to existing collection`
+          );
+          shouldCreateQdrantCollection = false;
+        } else {
+          throw error;
+        }
+      }
+    }
 
     // 2 – Persist on Postgres
     const collection = await tx.collection.create({
@@ -56,7 +80,10 @@ export async function createCollection(input: any) {
       })),
     });
 
-    return collection;
+    return {
+      ...collection,
+      connectedToExisting: !shouldCreateQdrantCollection,
+    };
   });
 }
 
@@ -235,4 +262,57 @@ export async function getCollectionById(
 
   // Enrich collection with document count from Qdrant when needed
   return await enrichCollectionWithDocumentCount(collection);
+}
+
+/**
+ * Connect to an existing Qdrant collection and save it in the database
+ */
+export async function connectToExistingCollection(input: any) {
+  // Validate input with schema
+  const data = CreateCollectionSchema.parse(input);
+
+  // Check if collection already exists in database
+  const existingCollection = await prisma.collection.findUnique({
+    where: { name: data.name },
+  });
+
+  if (existingCollection) {
+    throw new Error("COLLECTION_EXISTS_IN_DATABASE");
+  }
+
+  // Check if collection exists in Qdrant
+  const qdrantExists = await qdrantClient.collectionExists(data.name);
+
+  if (!qdrantExists) {
+    throw new Error("COLLECTION_NOT_FOUND_IN_QDRANT");
+  }
+
+  // Persist on Postgres in transaction
+  return prisma.$transaction(async (tx) => {
+    // Persist on Postgres
+    const collection = await tx.collection.create({
+      data: {
+        name: data.name,
+        description: data.description,
+      },
+    });
+
+    // Persist Attributes on Postgres
+    await tx.attribute.createMany({
+      data: data.attributes.map((a) => ({
+        collectionId: collection.id,
+        type: a.type,
+        value: a.value,
+      })),
+    });
+
+    // Get document count from Qdrant for the connected collection
+    const documentCount = await getDocumentCountFromQdrant(data.name);
+
+    return {
+      ...collection,
+      documentCount,
+      connectedToExisting: true,
+    };
+  });
 }
