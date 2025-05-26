@@ -60,3 +60,49 @@ model Translation {
   @@unique([locale, namespace, key])
   @@map("dm_translations")
 }
+
+model Company {
+  id          Int      @id @default(autoincrement()) @map("id")
+  code        String   @unique @map("code")
+  name        String   @map("name")
+  description String?  @map("description")
+  brandCode   String   @unique @map("brand_code")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  settings Setting[]
+
+  @@index([brandCode])
+  @@map("dm_companies")
+}
+
+enum SettingKey {
+  OPENAI_API_KEY
+  LANGFLOW_API_KEY
+  LANGFLOW_FLOW_CHAT_ID
+  LANGFLOW_FLOW_EMBEDDINGS_ID
+
+  @@map("dm_setting_key")
+}
+
+model Setting {
+  id             Int        @id @default(autoincrement()) @map("id")
+  brandCode      String     @map("brand_code")
+  settingKey     SettingKey @map("setting_key")
+  encryptedValue String?    @map("encrypted_value")
+  plainValue     String?    @map("plain_value")
+  isEncrypted    Boolean    @map("is_encrypted")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  createdBy      String     @map("created_by")
+  lastModifiedBy String     @map("last_modified_by")
+
+  // Relations
+  company Company @relation(fields: [brandCode], references: [brandCode], onDelete: Cascade)
+
+  @@unique([brandCode, settingKey])
+  @@index([brandCode])
+  @@map("dm_settings")
+}

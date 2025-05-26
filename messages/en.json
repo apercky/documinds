@@ -158,5 +158,67 @@
       "authenticationFailed": "Authentication Failed",
       "networkError": "Network Error",
       "serverError": "Server Error"
+    },
+    "BrandConfiguration": {
+      "title": "Brand Configuration",
+      "description": "Manage API keys and settings for {companyName}",
+      "validatingBrand": "Validating brand access...",
+      "loadingSettings": "Loading settings...",
+      "brandNotSupported": {
+        "title": "Brand Not Supported",
+        "description": "Your brand is not supported or inactive.",
+        "contactAdmin": "Please contact your administrator to enable access for this brand.",
+        "brandCode": "Brand Code:",
+        "notAvailable": "Not available"
+      },
+      "verifiedBrand": "Verified Brand",
+      "company": "Company",
+      "brandCode": "Brand Code",
+      "description": "Description",
+      "securityNote": "API keys are encrypted • Flow IDs are stored as plain text",
+      "settings": {
+        "openaiApiKey": {
+          "title": "OpenAI API Key",
+          "description": "Configure OpenAI API access for AI-powered features"
+        },
+        "langflowApiKey": {
+          "title": "Langflow API Key",
+          "description": "Configure Langflow API access for workflow management"
+        },
+        "chatFlowId": {
+          "title": "Chat Flow ID",
+          "description": "Specify the Langflow chat workflow for {companyName}"
+        },
+        "embeddingsFlowId": {
+          "title": "Embeddings Flow ID",
+          "description": "Configure data processing workflow for {companyName}"
+        }
+      },
+      "errors": {
+        "noBrandInSession": "No brand found in user session",
+        "brandValidationFailed": "Brand validation failed",
+        "failedToValidate": "Failed to validate brand access",
+        "failedToLoadSettings": "Failed to load settings",
+        "failedToUpdateSetting": "Failed to update setting"
+      }
+    },
+    "SettingCard": {
+      "encrypted": "Encrypted",
+      "currentValue": "Current Value",
+      "notConfigured": "Not configured",
+      "configure": "Configure",
+      "update": "Update",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "company": "Company",
+      "encryptedNote": "This value is encrypted and securely stored.",
+      "flowIdNote": "Flow ID format: alphanumeric with hyphens (e.g., flow-abc-123)",
+      "placeholders": {
+        "apiKey": "Enter API key...",
+        "chatFlowId": "e.g., chat-flow-123",
+        "embeddingsFlowId": "e.g., embeddings-flow-456",
+        "default": "Enter value..."
+      }
     }
 }

@@ -158,5 +158,67 @@
       "authenticationFailed": "Autenticazione Fallita",
       "networkError": "Errore di Rete",
       "serverError": "Errore del Server"
+    },
+    "BrandConfiguration": {
+      "title": "Configurazione Brand",
+      "description": "Gestisci chiavi API e impostazioni per {companyName}",
+      "validatingBrand": "Validazione accesso brand...",
+      "loadingSettings": "Caricamento impostazioni...",
+      "brandNotSupported": {
+        "title": "Brand Non Supportato",
+        "description": "Il tuo brand non è supportato o non è attivo.",
+        "contactAdmin": "Contatta il tuo amministratore per abilitare l'accesso per questo brand.",
+        "brandCode": "Codice Brand:",
+        "notAvailable": "Non disponibile"
+      },
+      "verifiedBrand": "Brand Verificato",
+      "company": "Azienda",
+      "brandCode": "Codice Brand",
+      "description": "Descrizione",
+      "securityNote": "Le chiavi API sono crittografate • Gli ID dei flussi sono memorizzati in chiaro",
+      "settings": {
+        "openaiApiKey": {
+          "title": "Chiave API OpenAI",
+          "description": "Configura l'accesso API OpenAI per le funzionalità basate su AI"
+        },
+        "langflowApiKey": {
+          "title": "Chiave API Langflow",
+          "description": "Configura l'accesso API Langflow per la gestione dei workflow"
+        },
+        "chatFlowId": {
+          "title": "ID Flusso Chat",
+          "description": "Specifica il workflow chat Langflow per {companyName}"
+        },
+        "embeddingsFlowId": {
+          "title": "ID Flusso Embeddings",
+          "description": "Configura il workflow di elaborazione dati per {companyName}"
+        }
+      },
+      "errors": {
+        "noBrandInSession": "Nessun brand trovato nella sessione utente",
+        "brandValidationFailed": "Validazione brand fallita",
+        "failedToValidate": "Impossibile validare l'accesso al brand",
+        "failedToLoadSettings": "Impossibile caricare le impostazioni",
+        "failedToUpdateSetting": "Impossibile aggiornare l'impostazione"
+      }
+    },
+    "SettingCard": {
+      "encrypted": "Crittografato",
+      "currentValue": "Valore Corrente",
+      "notConfigured": "Non configurato",
+      "configure": "Configura",
+      "update": "Aggiorna",
+      "save": "Salva",
+      "saving": "Salvataggio...",
+      "cancel": "Annulla",
+      "company": "Azienda",
+      "encryptedNote": "Questo valore è crittografato e memorizzato in modo sicuro.",
+      "flowIdNote": "Formato ID flusso: alfanumerico con trattini (es. flow-abc-123)",
+      "placeholders": {
+        "apiKey": "Inserisci chiave API...",
+        "chatFlowId": "es. chat-flow-123",
+        "embeddingsFlowId": "es. embeddings-flow-456",
+        "default": "Inserisci valore..."
+      }
     }
 }
