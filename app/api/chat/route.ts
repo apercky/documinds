@@ -37,12 +37,12 @@ export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
     const sessionId = id || "default_session";
 
     const tweaks: Tweaks = {
-      "QdrantVectorStoreComponent-6ZcvA": {
+      Qdrant: {
         collection_name: collection,
       },
     };
 
-    console.log(JSON.stringify(tweaks));
+    // console.log(JSON.stringify(tweaks));
 
     // Ottieni la risposta in streaming dal LangflowClient
     const response = await client
