@@ -63,11 +63,6 @@ export const POST = withAuth<NextRequest>(
 
       const docs = await loader.load();
 
-      // Delete all documents from the collection
-      await vectorStore.deleteDocumentsByMetadata(collectionName, {
-        filename: file.name,
-      });
-
       // Create a new ReadableStream for SSE
       const stream = new ReadableStream({
         async start(controller) {

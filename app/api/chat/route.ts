@@ -46,7 +46,7 @@ export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
 
     // Ottieni la risposta in streaming dal LangflowClient
     const response = await client
-      .flow(process.env.LANGFLOW_FLOW_ID || "")
+      .flow(process.env.LANGFLOW_FLOW_CHAT_ID || "")
       .stream(lastUserMessage.content, {
         input_type: InputTypes.CHAT,
         output_type: OutputTypes.CHAT,
