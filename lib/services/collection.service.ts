@@ -1,13 +1,13 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { type AttributeType } from "@/lib/prisma/generated";
+import { Collection, type AttributeType } from "@/lib/prisma/generated";
 import {
   CreateCollectionSchema,
   GetCollectionRequest,
   GetCollectionSchema,
 } from "@/lib/schemas/collection.schema";
-import { qdrantClient, type Schemas, VECTOR_SIZE } from "@/lib/vs/qdrant";
+import { qdrantClient, VECTOR_SIZE, type Schemas } from "@/lib/vs/qdrant";
 
 export async function createCollection(input: any) {
   // Validate input with schema
@@ -149,7 +149,9 @@ export async function deleteCollection(name: string) {
   });
 }
 
-export async function getCollections(input: GetCollectionRequest = {}) {
+export async function getCollections(
+  input: GetCollectionRequest = {}
+): Promise<Collection[]> {
   const data = GetCollectionSchema.parse(input);
 
   return prisma.collection.findMany({
@@ -173,8 +175,10 @@ export async function getCollections(input: GetCollectionRequest = {}) {
   });
 }
 
-export async function getCollectionById(id: string) {
-  return prisma.collection.findUnique({
+export async function getCollectionById(
+  id: string
+): Promise<Collection | null> {
+  return prisma.collection.findUniqueOrThrow({
     where: { id },
     include: {
       attributes: true,

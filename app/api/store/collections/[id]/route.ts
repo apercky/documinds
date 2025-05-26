@@ -1,5 +1,6 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
+import { Collection } from "@/lib/prisma/generated";
 import {
   getCollectionById,
   updateCollectionAttributes,
@@ -28,7 +29,7 @@ export const GET = withAuth<NextRequest, { params: Promise<{ id: string }> }>(
         throw new Error("Collection ID is required");
       }
 
-      const collection = await getCollectionById(id);
+      const collection: Collection = await getCollectionById(id);
 
       if (!collection) {
         throw new Error("Collection not found");

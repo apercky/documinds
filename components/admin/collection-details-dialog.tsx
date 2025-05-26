@@ -149,12 +149,9 @@ export function CollectionDetailsDialog({
 
     setIsDeleting(true);
     try {
-      const response = await fetch(
-        `/api/store/collections/${collection.name}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`/api/store/collections/${collection.id}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error(tDetails("error.deleteDocuments"));
