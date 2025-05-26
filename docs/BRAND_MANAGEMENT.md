@@ -9,6 +9,7 @@ This system provides enterprise-level brand management with secure API key stora
 ### Database Schema
 
 #### Companies Table (`dm_companies`)
+
 - **Purpose**: Manage supported brands and company information
 - **Key Fields**:
   - `brand_code`: Unique identifier matching session.user.brand
@@ -17,6 +18,7 @@ This system provides enterprise-level brand management with secure API key stora
   - `is_active`: Enable/disable brand access
 
 #### Settings Table (`dm_settings`)
+
 - **Purpose**: Store brand-specific API configurations
 - **Key Fields**:
   - `brand_code`: Foreign key to companies table
@@ -35,18 +37,22 @@ This system provides enterprise-level brand management with secure API key stora
 ## API Endpoints
 
 ### Brand Validation
-```
+
+```bash
 GET /api/companies/validate?brand={brandCode}
 ```
+
 - Validates if a brand code exists and is active
 - Returns company information if valid
 - Used for initial brand access validation
 
 ### Settings Management
-```
+
+```bash
 GET /api/settings/{brandCode}
 PUT /api/settings/{brandCode}
-```
+
+```bash
 - Get/update settings for a specific brand
 - Automatic brand validation before access
 - Masked values for encrypted settings
@@ -86,12 +92,15 @@ npx prisma generate
 ```
 
 ### 2. Initialize Companies
+
 ```bash
 npx tsx scripts/setup-companies.ts
 ```
 
 ### 3. Environment Variables
+
 Ensure `SERVER_KEY` is set for encryption:
+
 ```env
 SERVER_KEY=your-secure-server-key
 ```
@@ -114,16 +123,19 @@ SERVER_KEY=your-secure-server-key
 ## Brand States
 
 ### Valid Brand
+
 - Shows full configuration interface
 - Displays company information
 - Enables all settings management
 
 ### Invalid Brand
+
 - Shows error message with brand code
 - Provides contact information
 - Hides configuration interface
 
 ### Loading State
+
 - Shows validation progress
 - Skeleton loading for better UX
 
@@ -161,6 +173,7 @@ SERVER_KEY=your-secure-server-key
 ## API Response Examples
 
 ### Successful Brand Validation
+
 ```json
 {
   "company": {
@@ -176,6 +189,7 @@ SERVER_KEY=your-secure-server-key
 ```
 
 ### Settings Response
+
 ```json
 {
   "company": {
@@ -196,4 +210,4 @@ SERVER_KEY=your-secure-server-key
 }
 ```
 
-This system provides a robust foundation for multi-brand API key management with enterprise-level security and user experience. 
+This system provides a robust foundation for multi-brand API key management with enterprise-level security and user experience.
