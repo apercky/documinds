@@ -1,25 +1,6 @@
 import "server-only";
 
-import { DocumentMetadata } from "@/types/document";
-import { Document } from "@langchain/core/documents";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import crypto from "crypto";
 import qdrantClient, { Schemas } from "./client";
-
-// Latest model as of 2024
-const OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-large";
-
-// Vector dimension for text-embedding-3-large model
-export const VECTOR_SIZE = 3072;
-
-// Create OpenAI embeddings instance
-const embeddings = new OpenAIEmbeddings({
-  openAIApiKey: process.env.OPENAI_API_KEY,
-  modelName: OPENAI_EMBEDDING_MODEL_NAME,
-  stripNewLines: true,
-  maxConcurrency: 5,
-  timeout: 10000,
-});
 
 export interface ProcessProgress {
   currentDocument: number;
@@ -34,103 +15,6 @@ export type ProgressCallback = (progress: ProcessProgress) => void;
 
 // Vector store manager functions
 export const vectorStore = {
-  /**
-   * Adds documents to a collection with batching and progress reporting
-   */
-  async addDocuments(
-    documents: Document[],
-    collectionName: string,
-    documentMetadata: DocumentMetadata,
-    batchSize: number = 5,
-    onProgress?: ProgressCallback
-  ): Promise<void> {
-    // Get collection metadata to merge with document metadata
-    const collectionMetadata = await this._getCollectionMetadata(
-      collectionName
-    );
-
-    const totalDocuments = documents.length;
-    const totalBatches = Math.ceil(totalDocuments / batchSize);
-
-    // Process documents in batches
-    for (let i = 0; i < documents.length; i += batchSize) {
-      const batch = documents.slice(i, i + batchSize);
-      const currentBatch = Math.floor(i / batchSize) + 1;
-
-      onProgress?.({
-        currentDocument: i,
-        totalDocuments,
-        currentBatch,
-        totalBatches,
-        status: "preparing",
-        details: `Preparing batch ${currentBatch}/${totalBatches}`,
-      });
-
-      // Prepare embeddings
-      onProgress?.({
-        currentDocument: i,
-        totalDocuments,
-        currentBatch,
-        totalBatches,
-        status: "embedding",
-        details: `Embedding documents ${i + 1}-${Math.min(
-          i + batch.length,
-          totalDocuments
-        )}/${totalDocuments}`,
-      });
-
-      // Generate IDs for each document
-      const ids = batch.map((doc) => doc.metadata?.id || crypto.randomUUID());
-
-      // Get embeddings for the batch
-      const embedPromises = batch.map((doc) =>
-        embeddings.embedDocuments([doc.pageContent])
-      );
-      const embeddingResults = await Promise.all(embedPromises);
-
-      onProgress?.({
-        currentDocument: i,
-        totalDocuments,
-        currentBatch,
-        totalBatches,
-        status: "storing",
-        details: `Storing documents ${i + 1}-${Math.min(
-          i + batch.length,
-          totalDocuments
-        )}/${totalDocuments}`,
-      });
-
-      // Add documents to Qdrant
-      const pointsToUpsert: Schemas["PointStruct"][] = batch.map((doc, idx) => {
-        const metadata = doc.metadata
-          ? { ...doc.metadata, documentMetadata }
-          : documentMetadata;
-        return {
-          id: ids[idx],
-          vector: embeddingResults[idx][0],
-          payload: {
-            page_content: doc.pageContent,
-            metadata,
-            _collection_metadata: collectionMetadata,
-          },
-        };
-      });
-
-      await qdrantClient.upsert(collectionName, {
-        points: pointsToUpsert,
-      });
-
-      onProgress?.({
-        currentDocument: Math.min(i + batchSize, totalDocuments),
-        totalDocuments,
-        currentBatch,
-        totalBatches,
-        status: "storing",
-        details: `Completed batch ${currentBatch}/${totalBatches}`,
-      });
-    }
-  },
-
   /**
    * Deletes documents from a collection
    */
@@ -161,25 +45,12 @@ export const vectorStore = {
               key: `metadata.${key}`,
               match: { value },
             })),
-            {
-              must_not: [
-                {
-                  key: "_is_system",
-                  match: { value: true },
-                },
-              ],
-            },
           ],
         };
       } else {
         // If no filter is provided, delete all non-system points
         deleteFilter = {
-          must_not: [
-            {
-              key: "_is_system",
-              match: { value: true },
-            },
-          ],
+          must_not: [],
         };
       }
 
@@ -212,133 +83,22 @@ export const vectorStore = {
    */
   async getCollectionStats(collectionName: string): Promise<{
     documentCount: number;
-    metadata: Record<string, unknown>;
   }> {
     try {
       const collectionInfo: Schemas["CollectionInfo"] =
         await qdrantClient.getCollection(collectionName);
 
-      // Get system metadata
-      const metadata = await this._getCollectionMetadata(collectionName);
-
-      // Get all non-system points count
-      const systemPointsCount = Object.keys(metadata).length > 0 ? 1 : 0;
-      const documentCount =
-        (collectionInfo.points_count || 0) - systemPointsCount;
+      // Get all points count
+      const documentCount = collectionInfo.points_count || 0;
 
       return {
         documentCount,
-        metadata,
       };
     } catch (error) {
       console.error("Error getting collection stats:", error);
       return {
         documentCount: 0,
-        metadata: {},
       };
-    }
-  },
-
-  /**
-   * Updates a collection's metadata
-   */
-  // async updateCollectionMetadata(
-  //   collectionName: string,
-  //   metadata: Record<string, unknown>
-  // ): Promise<void> {
-  //   try {
-  //     // Check if collection exists
-  //     const collectionExists = await this._checkCollectionExists(
-  //       collectionName
-  //     );
-
-  //     if (!collectionExists) {
-  //       throw new Error(`Collection ${collectionName} does not exist`);
-  //     }
-
-  //     // Get current metadata
-  //     const currentMetadata = await this._getCollectionMetadata(collectionName);
-
-  //     // If there's no id in metadata, we can't update anything
-  //     if (!currentMetadata.id) {
-  //       console.warn("No metadata ID found, nothing to update");
-  //       return;
-  //     }
-
-  //     // Create updated metadata by only changing the requested fields
-  //     const mergedMetadata = {
-  //       ...currentMetadata,
-  //       ...metadata,
-  //     };
-
-  //     // Find all points with this metadata ID
-  //     const filter: Schemas["Filter"] = {
-  //       must: [
-  //         {
-  //           key: "_collection_metadata.id",
-  //           match: { value: currentMetadata.id },
-  //         },
-  //       ],
-  //     };
-
-  //     // Use Qdrant's native setPayload operation to update ONLY the _collection_metadata field
-  //     await qdrantClient.setPayload(collectionName, {
-  //       payload: {
-  //         _collection_metadata: mergedMetadata,
-  //       },
-  //       filter,
-  //     });
-
-  //     console.log(
-  //       `Updated collection metadata for points with ID ${currentMetadata.id}`
-  //     );
-  //   } catch (error) {
-  //     console.error("Error updating collection metadata:", error);
-  //     throw error;
-  //   }
-  // },
-
-  /**
-   * Gets collection metadata
-   * @private
-   */
-  async _getCollectionMetadata(
-    collectionName: string
-  ): Promise<Record<string, unknown>> {
-    try {
-      // Try to retrieve the system metadata point
-      const searchRequest: Schemas["SearchRequest"] = {
-        filter: {
-          must: [
-            {
-              key: "_is_system",
-              match: { value: true },
-            },
-          ],
-        },
-        limit: 1,
-        vector: new Array(VECTOR_SIZE).fill(0), // Query with zero vector
-      };
-
-      const systemPoints = await qdrantClient.search(
-        collectionName,
-        searchRequest
-      );
-
-      if (
-        systemPoints.length > 0 &&
-        systemPoints[0].payload?._collection_metadata
-      ) {
-        return systemPoints[0].payload._collection_metadata as Record<
-          string,
-          unknown
-        >;
-      }
-
-      return {} as Record<string, unknown>;
-    } catch (error) {
-      console.warn("Failed to retrieve collection metadata:", error);
-      return {} as Record<string, unknown>;
     }
   },
 
@@ -350,7 +110,6 @@ export const vectorStore = {
     try {
       const response = await qdrantClient.collectionExists(collectionName);
       const exists = response.exists;
-      console.log("collectionExists:", exists ? "true" : "false");
       return exists;
     } catch (error) {
       console.error("Error checking if collection exists:", error);
