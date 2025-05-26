@@ -2,16 +2,36 @@
 
 import { prisma } from "@/lib/prisma";
 import { Setting, SettingKey } from "@/lib/prisma/generated";
-import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
-const SERVER_KEY = process.env.SERVER_KEY || "default-server-key";
+const ENCRYPTION_KEY =
+  process.env.SERVER_KEY || "default-key-change-in-production";
+const ALGORITHM = "aes-256-cbc";
 
 /**
- * Encrypt a value using bcrypt
+ * Encrypt a value using AES encryption
  */
 async function encryptValue(value: string): Promise<string> {
-  const saltRounds = 12;
-  return bcrypt.hash(value, saltRounds);
+  const iv = crypto.randomBytes(16);
+  const key = crypto.scryptSync(ENCRYPTION_KEY, "salt", 32);
+  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+  let encrypted = cipher.update(value, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
+
+/**
+ * Decrypt a value using AES encryption
+ */
+async function decryptValue(encryptedValue: string): Promise<string> {
+  const textParts = encryptedValue.split(":");
+  const iv = Buffer.from(textParts.shift()!, "hex");
+  const encryptedText = textParts.join(":");
+  const key = crypto.scryptSync(ENCRYPTION_KEY, "salt", 32);
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
 }
 
 /**
@@ -160,4 +180,83 @@ export async function getAllSettingsWithCompany() {
     },
     orderBy: [{ company: { name: "asc" } }, { settingKey: "asc" }],
   });
+}
+
+/**
+ * Get the actual decrypted value of a setting for API usage
+ */
+export async function getSettingValue(
+  brandCode: string,
+  settingKey: SettingKey
+): Promise<string | null> {
+  const setting = await getSetting(brandCode, settingKey);
+
+  if (!setting) return null;
+
+  if (setting.isEncrypted && setting.encryptedValue) {
+    try {
+      return await decryptValue(setting.encryptedValue);
+    } catch (error) {
+      console.error("Failed to decrypt setting value:", error);
+      return null;
+    }
+  }
+
+  return setting.plainValue;
+}
+
+/**
+ * Get multiple setting values for a brand
+ */
+export async function getBrandSettings(brandCode: string): Promise<{
+  openaiApiKey?: string;
+  langflowApiKey?: string;
+  chatFlowId?: string;
+  embeddingsFlowId?: string;
+}> {
+  const settings = await getSettingsByBrand(brandCode);
+
+  const result: {
+    openaiApiKey?: string;
+    langflowApiKey?: string;
+    chatFlowId?: string;
+    embeddingsFlowId?: string;
+  } = {};
+
+  for (const setting of settings) {
+    let value: string | null = null;
+
+    if (setting.isEncrypted && setting.encryptedValue) {
+      try {
+        value = await decryptValue(setting.encryptedValue);
+      } catch (error) {
+        console.error(
+          `Failed to decrypt setting ${setting.settingKey}:`,
+          error
+        );
+        continue;
+      }
+    } else {
+      value = setting.plainValue;
+    }
+
+    if (!value) continue;
+
+    switch (setting.settingKey) {
+      case SettingKey.OPENAI_API_KEY:
+        result.openaiApiKey = value;
+        break;
+      case SettingKey.LANGFLOW_API_KEY:
+        result.langflowApiKey = value;
+        break;
+      case SettingKey.LANGFLOW_FLOW_CHAT_ID:
+        result.chatFlowId = value;
+        break;
+      case SettingKey.LANGFLOW_FLOW_EMBEDDINGS_ID:
+        result.embeddingsFlowId = value;
+        break;
+    }
+  }
+
+  return result;
 }

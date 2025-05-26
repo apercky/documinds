@@ -2,6 +2,7 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
 import { Tweaks } from "@/lib/langflow/langflow-adapter";
+import { getBrandSettings } from "@/lib/services/settings.service";
 import { LangflowClient } from "@datastax/langflow-client";
 import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 import { NextRequest } from "next/server";
@@ -13,12 +14,42 @@ export const maxDuration = 1200;
 
 export const POST = withAuth<NextRequest>(
   [ROLES.EDITOR, ROLES.ADMIN],
-  async (req) => {
+  async (req, context) => {
     const encoder = new TextEncoder();
     const customEncode = (chunk: object) =>
       encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`);
 
+    // Get user's brand from auth context
+    const userBrand = context.brand;
+    if (!userBrand) {
+      return new Response(
+        customEncode({ error: "User brand not found in session" }),
+        { status: 400, headers: { "Content-Type": "text/event-stream" } }
+      );
+    }
+
     try {
+      // Get brand-specific settings
+      const brandSettings = await getBrandSettings(userBrand);
+
+      if (!brandSettings.langflowApiKey) {
+        return new Response(
+          customEncode({
+            error: "Langflow API key not configured for this brand",
+          }),
+          { status: 400, headers: { "Content-Type": "text/event-stream" } }
+        );
+      }
+
+      if (!brandSettings.embeddingsFlowId) {
+        return new Response(
+          customEncode({
+            error: "Embeddings flow ID not configured for this brand",
+          }),
+          { status: 400, headers: { "Content-Type": "text/event-stream" } }
+        );
+      }
+
       const formData = await req.formData();
       const file = formData.get("file") as File;
       const collectionName = formData.get("collectionName") as string;
@@ -30,23 +61,14 @@ export const POST = withAuth<NextRequest>(
         );
       }
 
-      // Initialize LangFlow client
+      // Initialize LangFlow client with brand-specific API key
       const client = new LangflowClient({
-        apiKey: process.env.LANGFLOW_API_KEY || "",
+        apiKey: brandSettings.langflowApiKey,
         baseUrl: process.env.LANGFLOW_BASE_URL || "",
       });
 
-      // Get flow ID from environment variables
-      const flowId = process.env.LANGFLOW_FLOW_EMBEDDINGS_ID || "";
-
-      if (!flowId) {
-        return new Response(
-          customEncode({
-            error: "LANGFLOW_FLOW_EMBEDDINGS_ID is not configured",
-          }),
-          { status: 500, headers: { "Content-Type": "text/event-stream" } }
-        );
-      }
+      // Use brand-specific flow ID
+      const flowId = brandSettings.embeddingsFlowId;
 
       // Create a new ReadableStream for SSE
       const stream = new ReadableStream({

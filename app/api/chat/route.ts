@@ -5,6 +5,7 @@ import {
   Tweaks,
   createStreamingResponseFromReadableStream,
 } from "@/lib/langflow/langflow-adapter";
+import { getBrandSettings } from "@/lib/services/settings.service";
 import { LangflowClient } from "@datastax/langflow-client";
 import { InputTypes, OutputTypes } from "@datastax/langflow-client/consts";
 
@@ -18,7 +19,28 @@ export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
     return new Response("Collection name is required", { status: 400 });
   }
 
+  // Get user's brand from auth context
+  const userBrand = context.brand;
+  if (!userBrand) {
+    return new Response("User brand not found in session", { status: 400 });
+  }
+
   try {
+    // Get brand-specific settings
+    const brandSettings = await getBrandSettings(userBrand);
+
+    if (!brandSettings.langflowApiKey) {
+      return new Response("Langflow API key not configured for this brand", {
+        status: 400,
+      });
+    }
+
+    if (!brandSettings.chatFlowId) {
+      return new Response("Chat flow ID not configured for this brand", {
+        status: 400,
+      });
+    }
+
     // Get the last user message for similarity search
     const lastUserMessage = messages
       .slice()
@@ -30,7 +52,7 @@ export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
     }
 
     const client = new LangflowClient({
-      apiKey: process.env.LANGFLOW_API_KEY || "",
+      apiKey: brandSettings.langflowApiKey,
       baseUrl: process.env.LANGFLOW_BASE_URL || "",
     });
 
@@ -46,7 +68,7 @@ export const POST = withAuth<Request>([ROLES.USER], async (req, context) => {
 
     // Ottieni la risposta in streaming dal LangflowClient
     const response = await client
-      .flow(process.env.LANGFLOW_FLOW_CHAT_ID || "")
+      .flow(brandSettings.chatFlowId)
       .stream(lastUserMessage.content, {
         input_type: InputTypes.CHAT,
         output_type: OutputTypes.CHAT,
