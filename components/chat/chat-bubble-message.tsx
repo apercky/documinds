@@ -28,7 +28,7 @@ const ChatBubbleMessageComponent = ({
         src={
           message.role === "user"
             ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop"
-            : "https://no-image.png"
+            : undefined
         }
         fallback={message.role === "user" ? "US" : "AI"}
       />
