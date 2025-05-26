@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useCollection } from "@/hooks/use-collection";
 import type { Attribute, AttributeType } from "@/lib/prisma/generated";
 import { attributeTypeValues } from "@/lib/schemas/attribute.schema";
@@ -185,7 +186,7 @@ export function CollectionDetailsDialog({
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingIndicator text="Loading..." className="py-8" />;
   }
 
   return (
