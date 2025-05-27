@@ -39,7 +39,6 @@
     "@tanstack/react-query": "^5.75.7",
     "@tesseract.js-data/eng": "^1.0.0",
     "@tesseract.js-data/ita": "^1.0.0",
-    "@types/bcryptjs": "^3.0.0",
     "@types/tesseract.js": "^2.0.0",
     "ai": "^4.1.41",
     "bcryptjs": "^3.0.2",

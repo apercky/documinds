@@ -31,6 +31,9 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy the rest of the application code
 COPY . .
 
+# Generate Prisma client with correct binary targets
+RUN npx prisma generate
+
 # Build the Next.js app (optimized for production)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
