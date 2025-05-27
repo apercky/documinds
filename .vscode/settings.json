@@ -1,0 +1,17 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "typescript": "typescript",
+    "javascript": "javascript",
+    "typescriptreact": "typescriptreact",
+    "javascriptreact": "javascriptreact"
+  },
+  "tailwindCSS.experimental.configFile": "./tailwind.config.ts",
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/.nuxt/**",
+    "**/.vuepress/**",
+    "**/dist/**"
+  ]
+} 

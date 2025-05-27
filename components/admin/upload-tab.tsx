@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCollection } from "@/hooks/use-collection";
-import { ProcessProgress } from "@/lib/vs/qdrant/vector-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -42,10 +41,13 @@ const uploadSchema = z.object({
 
 type UploadFormValues = z.infer<typeof uploadSchema>;
 
-interface UploadProgress extends ProcessProgress {
+interface UploadProgress {
   type: "progress" | "status" | "complete" | "error";
   message?: string;
-  documentCount?: number;
+  currentDocument?: number;
+  totalDocuments?: number;
+  details?: string;
+  session_id?: string;
 }
 
 export function UploadTab() {
@@ -95,10 +97,14 @@ export function UploadTab() {
     },
   });
 
-  const handleCollectionCreated = async (collectionName: string) => {
+  const handleCollectionCreated = async (collection: {
+    id: string;
+    name: string;
+    description: string | null;
+  }) => {
     setError(null);
     refreshCollections();
-    form.setValue("collectionName", collectionName);
+    form.setValue("collectionName", collection.name);
   };
 
   const handleUpload = async (values: UploadFormValues) => {
@@ -116,7 +122,7 @@ export function UploadTab() {
         formData.append("collectionName", values.collectionName);
         formData.append("file", files[i]);
 
-        const response = await fetch("/api/store/upload", {
+        const response = await fetch("/api/store/embed", {
           method: "POST",
           body: formData,
         });
@@ -175,7 +181,11 @@ export function UploadTab() {
   const getProgressValue = (progress: UploadProgress) => {
     if (progress.type === "status") return 0;
     if (progress.type === "complete") return 100;
-    if (progress.type === "progress") {
+    if (
+      progress.type === "progress" &&
+      progress.currentDocument &&
+      progress.totalDocuments
+    ) {
       return (progress.currentDocument / progress.totalDocuments) * 100;
     }
     return 0;
@@ -273,6 +283,14 @@ export function UploadTab() {
                   status={
                     uploadProgress.type === "progress"
                       ? uploadProgress.details
+                      : uploadProgress.type === "complete" &&
+                        uploadProgress.session_id
+                      ? `${
+                          uploadProgress.message
+                        } (Session ID: ${uploadProgress.session_id.substring(
+                          0,
+                          8
+                        )}...)`
                       : uploadProgress.message
                   }
                   className="mt-4"

@@ -2,7 +2,8 @@
 
 import { ROLES } from "@/consts/consts";
 import { usePermissions } from "@/hooks/auth/use-permissions";
-import { Collection } from "@/types/collection";
+
+import { Collection } from "@/lib/prisma/generated";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useErrorHandler } from "./use-error-handler";

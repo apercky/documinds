@@ -1,6 +1,8 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
-import { vectorStore } from "@/lib/vs/qdrant/vector-store";
+import { Collection } from "@/lib/prisma/generated";
+import { getCollections } from "@/lib/services/collection.service";
+import { handleApiError } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -9,14 +11,10 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = withAuth<NextRequest>([ROLES.ADMIN], async (req) => {
   try {
     // Get all collections without brand filtering
-    const collections = await vectorStore.getAllCollections();
+    const collections: Collection[] = await getCollections();
 
     return NextResponse.json(collections);
   } catch (error) {
-    console.error("Error getting all collections:", error);
-    return NextResponse.json(
-      { error: "Failed to get collections" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 });

@@ -1,6 +1,14 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
-import { vectorStore } from "@/lib/vs/qdrant/vector-store";
+import { AttributeType } from "@/lib/prisma/generated";
+import { CreateCollectionRequest } from "@/lib/schemas/collection.schema";
+import {
+  connectToExistingCollection,
+  createCollection,
+  deleteCollection,
+  getCollections,
+} from "@/lib/services/collection.service";
+import { handleApiError } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -11,17 +19,15 @@ export const GET = withAuth<NextRequest>([ROLES.USER], async (req) => {
     const searchParams = req.nextUrl.searchParams;
     const brand = searchParams.get("brand");
 
-    const collections = await vectorStore.getCollections({
-      brand: brand || undefined,
+    const collections = await getCollections({
+      attributeFilters: [
+        { type: AttributeType.BRAND, value: brand || undefined },
+      ],
     });
 
     return NextResponse.json(collections);
   } catch (error) {
-    console.error("Error getting collections:", error);
-    return NextResponse.json(
-      { error: "Failed to get collections" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 });
 
@@ -32,28 +38,76 @@ export const POST = withAuth<NextRequest>(
   [ROLES.EDITOR, ROLES.ADMIN],
   async (req) => {
     try {
-      const { name, metadata } = await req.json();
+      const createCollectionRequest: CreateCollectionRequest = await req.json();
 
-      if (!name) {
-        return NextResponse.json(
-          { error: "Collection name is required" },
-          { status: 400 }
-        );
+      if (!createCollectionRequest || !createCollectionRequest.name) {
+        throw new Error("Collection name is required");
       }
 
       // Create a new collection
-      await vectorStore.createOrGetCollection({
-        collectionName: name,
-        metadata: metadata || undefined,
-      });
+      const collection = await createCollection(createCollectionRequest);
+      return NextResponse.json(collection);
+    } catch (error: any) {
+      // Handle specific error cases
+      if (error?.message === "COLLECTION_EXISTS_IN_DATABASE") {
+        return NextResponse.json(
+          {
+            error: "COLLECTION_EXISTS_IN_DATABASE",
+            message:
+              "A collection with this name already exists in the database",
+          },
+          { status: 409 }
+        );
+      }
 
-      return NextResponse.json({ message: "Collection created successfully" });
-    } catch (error) {
-      console.error("Error creating collection:", error);
-      return NextResponse.json(
-        { error: "Failed to create collection" },
-        { status: 500 }
+      return handleApiError(error);
+    }
+  }
+);
+
+/**
+ * Connect to an existing Qdrant collection
+ */
+export const PUT = withAuth<NextRequest>(
+  [ROLES.EDITOR, ROLES.ADMIN],
+  async (req) => {
+    try {
+      const connectCollectionRequest: CreateCollectionRequest =
+        await req.json();
+
+      if (!connectCollectionRequest || !connectCollectionRequest.name) {
+        throw new Error("Collection name is required");
+      }
+
+      // Connect to existing collection
+      const collection = await connectToExistingCollection(
+        connectCollectionRequest
       );
+      return NextResponse.json(collection);
+    } catch (error: any) {
+      // Handle specific error cases
+      if (error?.message === "COLLECTION_EXISTS_IN_DATABASE") {
+        return NextResponse.json(
+          {
+            error: "COLLECTION_EXISTS_IN_DATABASE",
+            message:
+              "A collection with this name already exists in the database",
+          },
+          { status: 409 }
+        );
+      }
+
+      if (error?.message === "COLLECTION_NOT_FOUND_IN_QDRANT") {
+        return NextResponse.json(
+          {
+            error: "COLLECTION_NOT_FOUND_IN_QDRANT",
+            message: "No collection with this name exists in the vector store",
+          },
+          { status: 404 }
+        );
+      }
+
+      return handleApiError(error);
     }
   }
 );
@@ -68,22 +122,13 @@ export const DELETE = withAuth<NextRequest>(
       const { collectionName } = await req.json();
 
       if (!collectionName) {
-        return NextResponse.json(
-          { error: "Collection name is required" },
-          { status: 400 }
-        );
+        throw new Error("Collection name is required");
       }
 
-      const response = await vectorStore.deleteCollection(collectionName);
-      return NextResponse.json({
-        message: `Collection deleted successfully ${response.deletedCount} documents`,
-      });
+      const response = await deleteCollection(collectionName);
+      return NextResponse.json(response);
     } catch (error) {
-      console.error("Error deleting collection:", error);
-      return NextResponse.json(
-        { error: "Failed to delete collection" },
-        { status: 500 }
-      );
+      return handleApiError(error);
     }
   }
 );
