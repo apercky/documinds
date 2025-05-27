@@ -68,6 +68,6 @@ build-multiarch:
 		.
 	@echo "✅ Multi-architecture build complete for $(VERSION)"
 
-all: login build push
+all: login build
 
-dist: login build-multiarch push
+dist: login build-multiarch
