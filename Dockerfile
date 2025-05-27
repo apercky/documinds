@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies only when needed
-FROM --platform=$BUILDPLATFORM node:20-alpine AS deps
+FROM node:20-alpine AS deps
 
 # Install required system packages
 RUN apk add --no-cache libc6-compat
@@ -19,7 +19,7 @@ RUN \
   fi
 
 # Stage 2: Build the Next.js application
-FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
+FROM node:20-alpine AS builder
 
 RUN apk add --no-cache libc6-compat
 
@@ -32,6 +32,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY prisma ./prisma/
 
 # Generate Prisma client with binary targets defined in schema.prisma
+# Force generation for all platforms defined in schema.prisma
 RUN npx prisma generate
 
 # Copy the rest of the application code
