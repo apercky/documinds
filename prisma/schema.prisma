@@ -13,7 +13,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DOCUMINDS_DATABASE_URL")
 }
 
 model Collection {
@@ -23,7 +23,7 @@ model Collection {
   attributes    Attribute[]
   createdAt     DateTime  @default(now())                 @map("created_at")
   updatedAt     DateTime  @updatedAt                      @map("updated_at")
-  documentCount Int? @default(0)                      @map("document_count")
+  documentCount Int? @default(0)                          @map("document_count")
 
   @@map("dm_collections")
 }
