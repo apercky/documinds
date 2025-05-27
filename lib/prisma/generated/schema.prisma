@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../lib/prisma/generated"
+  previewFeatures = ["typedSql"]
+  binaryTargets   = ["native", "darwin-arm64", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DOCUMINDS_DATABASE_URL")
+}
+
+model Collection {
+  id            String      @id @default(uuid()) @map("id")
+  name          String      @unique @map("name")
+  description   String?     @map("description")
+  attributes    Attribute[]
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  documentCount Int?        @default(0) @map("document_count")
+
+  @@map("dm_collections")
+}
+
+enum AttributeType {
+  BRAND
+  CATEGORY
+  DISPLAY_NAME
+  DISPLAY_KEY
+
+  @@map("dm_attribute_type") // nome del tipo ENUM in Postgres
+}
+
+model Attribute {
+  id           String        @id @default(uuid()) @map("id")
+  collectionId String        @map("collection_id")
+  type         AttributeType @map("type")
+  value        String?       @map("value")
+  collection   Collection    @relation(fields: [collectionId], references: [id])
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([collectionId])
+  @@map("dm_collection_attributes")
+}
+
+model Translation {
+  id        String   @id @default(uuid()) @map("id")
+  locale    String   @map("locale")
+  namespace String   @map("namespace")
+  key       String   @map("key")
+  value     String   @map("value")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([locale, namespace, key])
+  @@map("dm_translations")
+}
+
+model Company {
+  id          Int      @id @default(autoincrement()) @map("id")
+  code        String   @unique @map("code")
+  name        String   @map("name")
+  description String?  @map("description")
+  brandCode   String   @unique @map("brand_code")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  settings Setting[]
+
+  @@index([brandCode])
+  @@map("dm_companies")
+}
+
+enum SettingKey {
+  OPENAI_API_KEY
+  LANGFLOW_API_KEY
+  LANGFLOW_FLOW_CHAT_ID
+  LANGFLOW_FLOW_EMBEDDINGS_ID
+
+  @@map("dm_setting_key")
+}
+
+model Setting {
+  id             Int        @id @default(autoincrement()) @map("id")
+  brandCode      String     @map("brand_code")
+  settingKey     SettingKey @map("setting_key")
+  encryptedValue String?    @map("encrypted_value")
+  plainValue     String?    @map("plain_value")
+  isEncrypted    Boolean    @map("is_encrypted")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  createdBy      String     @map("created_by")
+  lastModifiedBy String     @map("last_modified_by")
+
+  // Relations
+  company Company @relation(fields: [brandCode], references: [brandCode], onDelete: Cascade)
+
+  @@unique([brandCode, settingKey])
+  @@index([brandCode])
+  @@map("dm_settings")
+}

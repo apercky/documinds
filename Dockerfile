@@ -28,6 +28,13 @@ WORKDIR /app
 # Copy the installed dependencies from deps
 COPY --from=deps /app/node_modules ./node_modules
 
+# Copy just prisma files first for better layer caching
+COPY prisma ./prisma/
+
+# Generate Prisma client with binary targets defined in schema.prisma
+# Force generation for all platforms defined in schema.prisma
+RUN npx prisma generate
+
 # Copy the rest of the application code
 COPY . .
 
@@ -76,6 +83,7 @@ WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Define the path to the custom CA certificate
 ENV NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem

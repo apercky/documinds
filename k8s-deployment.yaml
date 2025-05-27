@@ -150,7 +150,8 @@ spec:
     spec:
       containers:
       - name: documinds
-        image: documinds:latest
+        image: ghcr.io/apercky/documinds:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         resources:
@@ -187,6 +188,8 @@ spec:
       - name: certs-volume
         configMap:
           name: documinds-certs
+      imagePullSecrets:
+      - name: ghcr-auth
 ---
 apiVersion: v1
 kind: Service

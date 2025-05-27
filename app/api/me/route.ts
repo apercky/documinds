@@ -1,5 +1,6 @@
 import { getUserPermissions } from "@/lib/auth/auth";
 import { withAuth } from "@/lib/auth/auth-interceptor";
+import { handleApiError } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -11,7 +12,7 @@ export const GET = withAuth<NextRequest>([], async (req, context) => {
     const { session, accessToken, roles, token } = context;
 
     if (!accessToken || !session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      throw new Error("Unauthorized");
     }
 
     // Debug - log only in development environment
@@ -56,10 +57,6 @@ export const GET = withAuth<NextRequest>([], async (req, context) => {
       expiresAt: token?.expiresAt,
     });
   } catch (error) {
-    console.error("Error retrieving user data:", error);
-    return NextResponse.json(
-      { error: "Error retrieving user data" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 });
