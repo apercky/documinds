@@ -138,7 +138,7 @@ If you encounter build issues:
 - Fix ENV variables in Dockerfile to use `KEY=value` format instead of `KEY value`
 - Make sure you're copying the correct output files in the final stage
 - If you get ESLint or TypeScript errors during build:
-  - Add `--no-lint` flag to the build command 
+  - Add `--no-lint` flag to the build command
   - Use the `build:docker` script which skips linting: `npm run build:docker`
   - Fix your ESLint configuration in `.eslintrc.js` to ensure valid rules
 
@@ -160,6 +160,96 @@ If you encounter runtime issues with the container:
     -v /Users/apercky/certs:/app/certs \
     ghcr.io/apercky/documinds:$VERSION
   ```
+
+### Multi-Architecture Docker Builds
+
+To build Docker images that can run on different CPU architectures (like x86/amd64 and ARM64), use the multi-architecture build through the Makefile:
+
+```bash
+# Set your GitHub token for container registry
+export GHCR_TOKEN=your_github_token
+
+# Build and push multi-arch image 
+make build-multiarch
+```
+
+This single command will:
+
+1. Log in to the GitHub Container Registry
+2. Set up the Docker Buildx environment
+3. Build for both `linux/amd64` and `linux/arm64` architectures
+4. Push the multi-architecture image to your registry
+
+Your containers will now run on different CPU architectures, including Kubernetes clusters with mixed node architectures.
+
+#### Troubleshooting Multi-Architecture Builds
+
+If you encounter issues with multi-architecture builds:
+
+1. **Error with Prisma client generation**:
+   - The schema.prisma file has the correct binary targets configured
+   - No need to specify targets in the Dockerfile command
+
+2. **Missing architecture support**:
+
+   - Install QEMU for cross-platform emulation:
+
+     ```bash
+     docker run --privileged --rm tonistiigi/binfmt --install all
+     ```
+
+3. **Buildx permission issues**:
+   - Make sure you have the correct permissions to create and use builders
+   - On Linux, you might need to use sudo
+
+4. **Verify your multi-architecture image**:
+
+   ```bash
+   docker buildx imagetools inspect ghcr.io/apercky/documinds:latest
+   ```
+
+5. **Test the image on different architectures**:
+
+   ```bash
+   # For ARM64
+   docker run --platform linux/arm64 ghcr.io/apercky/documinds:latest
+   
+   # For AMD64
+   docker run --platform linux/amd64 ghcr.io/apercky/documinds:latest
+   ```
+
+### Kubernetes Deployment with Multi-Architecture Images
+
+When deploying to Kubernetes with multi-architecture images, you need to set up access to the GitHub Container Registry:
+
+1.Create a secret for GitHub Container Registry authentication:
+
+```bash
+# Create a secret with your GitHub credentials
+kubectl create secret docker-registry ghcr-auth \
+  --docker-server=ghcr.io \
+  --docker-username=YOUR_GITHUB_USERNAME \
+  --docker-password=YOUR_GITHUB_TOKEN \
+  --docker-email=YOUR_EMAIL
+```
+
+2.Apply the Kubernetes deployment:
+
+```bash
+kubectl apply -f k8s-deployment.yaml
+```
+
+3.Check that pods are being scheduled correctly:
+
+```bash
+# See which nodes your pods are running on
+kubectl get pods -o wide
+
+# Check node architectures
+kubectl get nodes -o wide
+```
+
+Your pods should be scheduled on nodes with the appropriate architecture automatically, thanks to the multi-architecture image.
 
 ### Kubernetes Deployment
 
@@ -184,7 +274,7 @@ kubectl get pods
 kubectl port-forward svc/documinds-service 8080:80
 ```
 
-The application will be available at http://localhost:8080
+The application will be available at <http://localhost:8080>
 
 #### Certificate Configuration for Kubernetes
 

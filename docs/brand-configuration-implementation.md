@@ -7,22 +7,26 @@ This implementation provides a comprehensive brand-specific API key management s
 ## Features Implemented
 
 ### 🗄️ Database Schema
+
 - **Companies Table** (`dm_companies`): Stores brand information with unique brand codes
 - **Settings Table** (`dm_settings`): Stores brand-specific configuration with selective encryption
 - **Foreign Key Relationship**: Links settings to companies via `brandCode`
 
 ### 🔐 Security Features
+
 - **AES Encryption**: API keys are encrypted using AES-256-CBC with proper key derivation
 - **Selective Encryption**: Only sensitive data (API keys) are encrypted, flow IDs remain plain text
 - **Brand Isolation**: Each brand can only access their own settings
 - **Audit Trail**: Tracks who created/modified settings and when
 
 ### 🌍 Internationalization
+
 - **English & Italian Support**: Complete translation for all UI elements
 - **Dynamic Content**: Parameter interpolation for company names and dynamic messages
 - **Consistent Naming**: Follows existing i18n patterns in the application
 
 ### 🎨 User Interface
+
 - **Modern Design**: Uses Shadcn/ui components with Tailwind CSS
 - **Responsive Layout**: Works on all screen sizes
 - **Loading States**: Proper loading indicators during API calls
@@ -30,13 +34,14 @@ This implementation provides a comprehensive brand-specific API key management s
 - **Password Visibility**: Toggle show/hide for API keys
 
 ### 🔌 API Integration
+
 - **Brand-Specific Settings**: Chat and embed APIs now use brand-specific settings from database
 - **Fallback Handling**: Graceful error handling when settings are missing
 - **Real-time Updates**: Settings changes are immediately available to APIs
 
 ## File Structure
 
-```
+```bash
 ├── lib/
 │   ├── services/
 │   │   ├── company.service.ts      # Brand validation and company management
@@ -67,6 +72,7 @@ This implementation provides a comprehensive brand-specific API key management s
 ## Database Schema Details
 
 ### Companies Table (`dm_companies`)
+
 ```sql
 CREATE TABLE dm_companies (
   id SERIAL PRIMARY KEY,
@@ -81,6 +87,7 @@ CREATE TABLE dm_companies (
 ```
 
 ### Settings Table (`dm_settings`)
+
 ```sql
 CREATE TABLE dm_settings (
   id SERIAL PRIMARY KEY,
@@ -99,6 +106,7 @@ CREATE TABLE dm_settings (
 ```
 
 ### Setting Keys Enum
+
 ```sql
 CREATE TYPE dm_setting_key AS ENUM (
   'OPENAI_API_KEY',
@@ -111,12 +119,14 @@ CREATE TYPE dm_setting_key AS ENUM (
 ## Security Implementation
 
 ### Encryption Method
+
 - **Algorithm**: AES-256-CBC
 - **Key Derivation**: scrypt with salt
 - **IV**: Random 16-byte initialization vector per encryption
 - **Format**: `{iv_hex}:{encrypted_data_hex}`
 
 ### Access Control
+
 - Users can only access settings for their authenticated brand
 - Brand validation occurs on every API request
 - Settings are isolated by `brandCode` in all queries
@@ -124,12 +134,14 @@ CREATE TYPE dm_setting_key AS ENUM (
 ## API Endpoints
 
 ### Brand Validation
-```
+
+```bash
 GET /api/companies/validate?brandCode={code}
 ```
 
 ### Settings Management
-```
+
+```bash
 GET /api/settings/{brandCode}     # Get all settings for brand
 PUT /api/settings/{brandCode}     # Update settings for brand
 ```
@@ -137,12 +149,14 @@ PUT /api/settings/{brandCode}     # Update settings for brand
 ## Migration Strategy
 
 ### From bcrypt to AES
+
 1. **Detection**: Identify bcrypt hashes by pattern (`$2a$`, `$2b$`, etc.)
 2. **Clearing**: Remove bcrypt values (cannot be decrypted)
 3. **User Action**: Force re-entry through UI
 4. **New Encryption**: Use AES for all new API keys
 
 ### Running Migration
+
 ```bash
 npx tsx scripts/migrate-encryption.ts
 ```
@@ -150,11 +164,13 @@ npx tsx scripts/migrate-encryption.ts
 ## Testing
 
 ### Comprehensive Test Suite
+
 ```bash
 npx tsx scripts/test-brand-settings.ts
 ```
 
 Tests cover:
+
 - Brand validation
 - API key encryption/decryption
 - Plain text settings
@@ -164,6 +180,7 @@ Tests cover:
 ## Usage Examples
 
 ### Frontend Component
+
 ```tsx
 import { BrandConfigurationSection } from './BrandConfigurationSection';
 
@@ -172,6 +189,7 @@ import { BrandConfigurationSection } from './BrandConfigurationSection';
 ```
 
 ### Backend Service
+
 ```typescript
 import { getBrandSettings } from '@/lib/services/settings.service';
 
@@ -204,7 +222,9 @@ SERVER_KEY=your-encryption-key-here  # For AES encryption
 4. **API Integration**: Verify brand context is available in API routes
 
 ### Debug Mode
+
 Enable Prisma query logging:
+
 ```env
 DEBUG=prisma:query
 ```
@@ -219,4 +239,4 @@ DEBUG=prisma:query
 
 ---
 
-This implementation provides enterprise-grade brand management with complete data isolation, secure encrypted storage, and seamless integration with the existing Next.js application architecture. 
+This implementation provides enterprise-grade brand management with complete data isolation, secure encrypted storage, and seamless integration with the existing Next.js application architecture.

@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies only when needed
-FROM node:20-alpine AS deps
+FROM --platform=$BUILDPLATFORM node:20-alpine AS deps
 
 # Install required system packages
 RUN apk add --no-cache libc6-compat
@@ -19,7 +19,7 @@ RUN \
   fi
 
 # Stage 2: Build the Next.js application
-FROM node:20-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
 RUN apk add --no-cache libc6-compat
 
@@ -28,11 +28,14 @@ WORKDIR /app
 # Copy the installed dependencies from deps
 COPY --from=deps /app/node_modules ./node_modules
 
+# Copy just prisma files first for better layer caching
+COPY prisma ./prisma/
+
+# Generate Prisma client with binary targets defined in schema.prisma
+RUN npx prisma generate
+
 # Copy the rest of the application code
 COPY . .
-
-# Generate Prisma client with correct binary targets
-RUN npx prisma generate
 
 # Build the Next.js app (optimized for production)
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -79,6 +82,7 @@ WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Define the path to the custom CA certificate
 ENV NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem

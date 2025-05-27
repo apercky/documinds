@@ -9,7 +9,7 @@ BUILD_ARGS = $(shell grep '^NEXT_PUBLIC_' .env | sed 's/^/--build-arg /' | xargs
 
 # Comandi
 
-.PHONY: dev build push all
+.PHONY: dev build push all build-multiarch dist
 
 dev:
 	@echo "🛠️  Starting dev container with hot-reload..."
@@ -41,4 +41,33 @@ login:
 	fi
 	@echo $$GHCR_TOKEN | docker login $(CR_PATH) -u $(CR_USER) --password-stdin
 
+build-multiarch: 
+	@echo "🏗️  Building multi-architecture image for $(VERSION)..."
+	@if [ -z "$$GHCR_TOKEN" ]; then \
+		echo "❌ ERROR: GHCR_TOKEN is not set"; \
+		exit 1; \
+	fi
+	@echo $$GHCR_TOKEN | docker login $(CR_PATH) -u $(CR_USER) --password-stdin
+	@if ! docker buildx version >/dev/null 2>&1; then \
+		echo "❌ ERROR: Docker Buildx is not available. Please upgrade Docker or install the buildx plugin."; \
+		exit 1; \
+	fi
+	@echo "Setting up Docker Buildx environment..."
+	@if ! docker buildx inspect multiarch-builder >/dev/null 2>&1; then \
+		docker buildx create --name multiarch-builder --driver docker-container --bootstrap; \
+	else \
+		echo "Using existing builder instance"; \
+		docker buildx use multiarch-builder; \
+		docker buildx inspect; \
+	fi
+	@docker buildx build $(BUILD_ARGS) \
+		--platform linux/amd64,linux/arm64 \
+		--tag $(CR_PATH)/$(CR_USER)/$(REPO_NAME):$(VERSION) \
+		--tag $(CR_PATH)/$(CR_USER)/$(REPO_NAME):latest \
+		--push \
+		.
+	@echo "✅ Multi-architecture build complete for $(VERSION)"
+
 all: login build push
+
+dist: login build-multiarch push
