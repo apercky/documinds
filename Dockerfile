@@ -28,33 +28,18 @@ WORKDIR /app
 # Copy the installed dependencies from deps
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy just prisma files first for better layer caching
-COPY prisma ./prisma/
+# Copy the rest of the application code
+COPY . .
 
 # Generate Prisma client with binary targets defined in schema.prisma
 # Force generation for all platforms defined in schema.prisma
 RUN npx prisma generate
-
-# Copy the rest of the application code
-COPY . .
 
 # Build the Next.js app (optimized for production)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_LINT_IGNORE=true
 ENV HOSTNAME="0.0.0.0"
-
-# ARG per build-time (NEXT_PUBLIC_)
-ARG NEXT_PUBLIC_OIDC_ISSUER
-ARG NEXT_PUBLIC_NEXTAUTH_URL
-
-# ENV per next build-time substitution
-ENV NEXT_PUBLIC_OIDC_ISSUER=${NEXT_PUBLIC_OIDC_ISSUER}
-ENV NEXT_PUBLIC_NEXTAUTH_URL=${NEXT_PUBLIC_NEXTAUTH_URL}
-
-# Debug log per verifica
-RUN echo "NEXT_PUBLIC_OIDC_ISSUER=${NEXT_PUBLIC_OIDC_ISSUER}" 
-RUN echo "NEXT_PUBLIC_NEXTAUTH_URL=${NEXT_PUBLIC_NEXTAUTH_URL}"
 
 RUN npm run build:docker
 
@@ -84,6 +69,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/lib/prisma/generated ./lib/prisma/generated
 
 # Define the path to the custom CA certificate
 ENV NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem

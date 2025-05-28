@@ -61,6 +61,7 @@ build-multiarch:
 		docker buildx inspect; \
 	fi
 	@docker buildx build $(BUILD_ARGS) \
+		--no-cache \
 		--platform linux/amd64,linux/arm64 \
 		--tag $(CR_PATH)/$(CR_USER)/$(REPO_NAME):$(VERSION) \
 		--tag $(CR_PATH)/$(CR_USER)/$(REPO_NAME):latest \

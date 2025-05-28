@@ -1,6 +1,5 @@
 "use client";
 
-import { publicConfig } from "@/config/public-vars";
 import { useQueryClient } from "@tanstack/react-query";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -20,11 +19,13 @@ export function useAuthUtils() {
   const logout = async () => {
     console.log(`[NextAuth session]: ${JSON.stringify(session, null, 2)}`);
 
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     // Create logout url to logout from the OIDC provider
     const idToken = (session as any).idToken;
-    const logoutEndpoint = `${publicConfig.OIDC_ISSUER}/protocol/openid-connect/logout`;
+    const oidcIssuer = (session as any).oidcIssuer;
+    const logoutEndpoint = `${oidcIssuer}/protocol/openid-connect/logout`;
     const logoutUrl = `${logoutEndpoint}?id_token_hint=${idToken}&post_logout_redirect_uri=${encodeURIComponent(
-      publicConfig.NEXTAUTH_URL
+      origin
     )}`;
 
     console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);

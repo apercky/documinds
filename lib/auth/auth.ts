@@ -188,6 +188,7 @@ const config: NextAuthConfig = {
 
         // Mantieni il token per l'utilizzo nel backend (non va nel cookie)
         (session as any).idToken = token.idToken;
+        (session as any).oidcIssuer = process.env.OIDC_ISSUER;
       }
       return session;
     },
