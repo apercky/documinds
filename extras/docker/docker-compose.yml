@@ -1,4 +1,3 @@
-
 services:
   qdrant:
     container_name: qdrant
@@ -109,7 +108,9 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
-    command: redis-server --save "" --appendonly no --maxmemory 128mb --maxmemory-policy allkeys-lru
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    command: sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then redis-server --requirepass "$$REDIS_PASSWORD" --save "" --appendonly no --maxmemory 128mb --maxmemory-policy allkeys-lru; else redis-server --save "" --appendonly no --maxmemory 128mb --maxmemory-policy allkeys-lru; fi'
     volumes:
       - redis-data:/data
     networks:
