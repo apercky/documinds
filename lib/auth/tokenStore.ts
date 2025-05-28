@@ -11,6 +11,7 @@ export async function storeUserTokens(
     roles?: string[];
   }
 ) {
+  process.stderr.write(`[Redis Debug] Storing tokens for user: ${sub}\n`);
   const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
   await redis.hSet(key, {
@@ -24,6 +25,9 @@ export async function storeUserTokens(
 
   const ttl = tokens.expiresAt - Math.floor(Date.now() / 1000) + 7200;
   await redis.expire(key, Math.max(ttl, 0));
+  process.stderr.write(
+    `[Redis Debug] Tokens stored successfully for user: ${sub}\n`
+  );
 }
 
 export async function getUserTokens(sub: string) {
