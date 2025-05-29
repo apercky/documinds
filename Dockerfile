@@ -21,6 +21,7 @@ RUN \
 # Stage 2: Build the Next.js application
 FROM node:20-alpine AS builder
 
+# Install required system packages
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
@@ -68,13 +69,19 @@ WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-# Copy prisma files for migrations and seed
+
+# Copy prisma client runtime and binary (necessario per le migrate e per il runtime app)
 COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
+
+# Copy cartella prisma con seed.ts e schema.prisma (serve per migrazioni e seeding)
 COPY --from=builder /app/prisma ./prisma
 
+# Copy tsconfig.json per eseguire `ts-node prisma/seed.ts`
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # Install only what we need to support migrations and seed on runner
+# Solo CLI Prisma e ts-node per eseguire `ts-node prisma/seed.ts`
 RUN npm install -g prisma ts-node
 
 # Define the path to the custom CA certificate
