@@ -82,6 +82,13 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
   ) => Promise<Response | NextResponse>
 ): (req: R, context?: C) => Promise<Response | NextResponse> {
   return async (req: R, context?: C) => {
+    // DEBUG TEMPORANEO - aggiungi questo all'inizio
+    console.log(`[DEBUG] withAuth called for URL: ${req.url}`);
+    console.log(
+      `[DEBUG] Request headers:`,
+      Object.fromEntries(req.headers.entries())
+    );
+
     // Verifica autenticazione con NextAuth
     const session: Session | null = await auth();
     const token: JWT | null = await getToken({
@@ -89,7 +96,12 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
       secret: process.env.AUTH_SECRET,
     });
 
+    console.log(`[DEBUG] Session found:`, !!session);
+    console.log(`[DEBUG] Token found:`, !!token);
+    console.log(`[DEBUG] Token sub:`, token?.sub);
+
     if (!token?.sub || !session) {
+      console.log(`[DEBUG] Returning 401 - no session or token`);
       // Per richieste JSON (default)
       if (req.headers.get("Accept")?.includes("application/json")) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -115,7 +127,29 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     }
 
     // Recupera token e privilegi da Redis usando il sub
+    console.log(`[Auth Debug] Attempting to get tokens for user: ${token.sub}`);
+    console.log(`[Auth Debug] Token object:`, JSON.stringify(token, null, 2));
+
     const tokens = await getUserTokens(token.sub);
+
+    console.log(`[Auth Debug] getUserTokens result:`, tokens);
+    console.log(
+      `[Auth Debug] Tokens is null/undefined:`,
+      tokens === null || tokens === undefined
+    );
+    console.log(`[Auth Debug] Tokens has accessToken:`, !!tokens?.accessToken);
+
+    if (tokens) {
+      console.log(`[Auth Debug] Token details:`, {
+        hasAccessToken: !!tokens.accessToken,
+        hasRefreshToken: !!tokens.refreshToken,
+        hasIdToken: !!tokens.idToken,
+        expiresAt: tokens.expiresAt,
+        brand: tokens.brand,
+        roles: tokens.roles,
+        accessTokenLength: tokens.accessToken?.length || 0,
+      });
+    }
 
     if (!tokens?.accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
