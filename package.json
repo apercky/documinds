@@ -10,6 +10,9 @@
     "start:prod": "cp -r public .next/standalone/public && node .next/standalone/server.js",
     "lint": "next lint"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.8",
     "@ai-sdk/openai": "^1.1.11",
