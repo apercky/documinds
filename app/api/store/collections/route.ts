@@ -1,6 +1,5 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
-import { AttributeType } from "@/lib/prisma/generated";
 import { CreateCollectionRequest } from "@/lib/schemas/collection.schema";
 import {
   connectToExistingCollection,
@@ -9,6 +8,7 @@ import {
   getCollections,
 } from "@/lib/services/collection.service";
 import { handleApiError } from "@/lib/utils/api-error";
+import { AttributeType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 /**

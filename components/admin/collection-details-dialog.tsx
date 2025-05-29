@@ -13,8 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useCollection } from "@/hooks/use-collection";
-import type { Attribute, AttributeType } from "@/lib/prisma/generated";
 import { attributeTypeValues } from "@/lib/schemas/attribute.schema";
+import type { Attribute, AttributeType } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 

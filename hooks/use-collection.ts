@@ -3,7 +3,7 @@
 import { ROLES } from "@/consts/consts";
 import { usePermissions } from "@/hooks/auth/use-permissions";
 
-import { Collection } from "@/lib/prisma/generated";
+import { Collection } from "@prisma/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useErrorHandler } from "./use-error-handler";

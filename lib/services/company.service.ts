@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Company } from "@/lib/prisma/generated";
+import { Company } from "@prisma/client";
 
 /**
  * Validate if a brand code exists and is active

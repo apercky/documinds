@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { SettingKey } from "@/lib/prisma/generated";
 import { validateBrandAccess } from "@/lib/services/company.service";
 import {
   getBrandSettings,
   getSettingValue,
   upsertSetting,
 } from "@/lib/services/settings.service";
+import { SettingKey } from "@prisma/client";
 
 async function testBrandSettings() {
   console.log("🧪 Testing brand settings functionality...\n");

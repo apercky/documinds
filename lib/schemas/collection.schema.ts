@@ -1,4 +1,4 @@
-import { AttributeType } from "@/lib/prisma/generated";
+import { AttributeType } from "@prisma/client";
 import { z } from "zod";
 
 export const CreateCollectionSchema = z.object({

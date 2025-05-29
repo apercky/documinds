@@ -68,11 +68,11 @@ WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/lib/prisma/generated ./lib/prisma/generated
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+# Copy prisma files for migrations and seed
 COPY --from=builder /app/prisma ./prisma
 
+# Install only what we need to support migrations and seed on runner
+RUN npm install -g prisma ts-node
 
 # Define the path to the custom CA certificate
 ENV NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem

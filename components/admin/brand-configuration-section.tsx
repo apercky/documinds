@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { SettingKey } from "@/lib/prisma/generated";
+import { SettingKey } from "@prisma/client";
 import { AlertCircle, Building2, CheckCircle2, Shield } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
