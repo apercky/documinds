@@ -51,3 +51,5 @@ k8s-deployment.yaml
 # Eclusions
 extras
 scripts
+
+prisma/seed.js
