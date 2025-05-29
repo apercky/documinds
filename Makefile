@@ -9,7 +9,7 @@ BUILD_ARGS = $(shell grep '^NEXT_PUBLIC_' .env | sed 's/^/--build-arg /' | xargs
 
 # Comandi
 
-.PHONY: dev build push all build-multiarch dist
+.PHONY: dev build push all build-multiarch dist seed
 
 dev:
 	@echo "🛠️  Starting dev container with hot-reload..."
@@ -72,3 +72,8 @@ build-multiarch:
 all: login build
 
 dist: login build-multiarch
+
+# Esegui il seed localmente (dev only)
+seed:
+	npx prisma db seed
+
