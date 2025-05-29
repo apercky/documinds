@@ -69,7 +69,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 # Copy prisma files for migrations and seed
+COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
 COPY --from=builder /app/prisma ./prisma
+
 
 # Install only what we need to support migrations and seed on runner
 RUN npm install -g prisma ts-node
