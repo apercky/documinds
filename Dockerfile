@@ -77,9 +77,6 @@ COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/c
 # Copy cartella prisma con seed.ts e schema.prisma (serve per migrazioni e seeding)
 COPY --from=builder /app/prisma ./prisma
 
-# Copy seed.js for seeding
-COPY --from=builder /app/prisma/seed.js ./prisma/seed.js
-
 # Install only what we need to support migrations and seed on runner
 RUN npm install -g prisma
 
