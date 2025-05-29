@@ -70,6 +70,9 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/lib/prisma/generated ./lib/prisma/generated
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/prisma ./prisma
+
 
 # Define the path to the custom CA certificate
 ENV NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem
