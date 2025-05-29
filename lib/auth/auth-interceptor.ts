@@ -19,6 +19,8 @@ type RequestHandler<T = unknown> = (
 
 type Handler<T = unknown> = NextRequestHandler<T> | RequestHandler<T>;
 
+const isProd = process.env.NODE_ENV === "production";
+
 /**
  * Interface for the authentication context passed to route handlers
  *
@@ -94,6 +96,7 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     const token: JWT | null = await getToken({
       req,
       secret: process.env.AUTH_SECRET,
+      secureCookie: isProd,
     });
 
     console.log(`[DEBUG] Session found:`, !!session);
