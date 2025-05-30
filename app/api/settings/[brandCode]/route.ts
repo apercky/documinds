@@ -1,12 +1,12 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
-import { SettingKey } from "@/lib/prisma/generated";
 import { validateBrandAccess } from "@/lib/services/company.service";
 import {
   getSettingsForUI,
   upsertSetting,
 } from "@/lib/services/settings.service";
 import { handleApiError } from "@/lib/utils/api-error";
+import { SettingKey } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 /**

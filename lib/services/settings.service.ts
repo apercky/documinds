@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Setting, SettingKey } from "@/lib/prisma/generated";
+import { Setting, SettingKey } from "@prisma/client";
 import crypto from "crypto";
 
 const ENCRYPTION_KEY =

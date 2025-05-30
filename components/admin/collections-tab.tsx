@@ -7,7 +7,7 @@ import { DeleteAlertDialog } from "@/components/ui/delete-alert-dialog";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useCollection } from "@/hooks/use-collection";
 
-import { Collection } from "@/lib/prisma/generated";
+import { Collection } from "@prisma/client";
 import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

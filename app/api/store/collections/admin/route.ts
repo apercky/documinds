@@ -1,8 +1,8 @@
 import { ROLES } from "@/consts/consts";
 import { withAuth } from "@/lib/auth/auth-interceptor";
-import { Collection } from "@/lib/prisma/generated";
 import { getCollections } from "@/lib/services/collection.service";
 import { handleApiError } from "@/lib/utils/api-error";
+import { Collection } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 /**

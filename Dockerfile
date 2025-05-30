@@ -21,6 +21,7 @@ RUN \
 # Stage 2: Build the Next.js application
 FROM node:20-alpine AS builder
 
+# Install required system packages
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
@@ -68,8 +69,16 @@ WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/lib/prisma/generated ./lib/prisma/generated
+
+# Copy prisma client runtime and binary (necessario per le migrate e per il runtime app)
+COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
+
+# Copy cartella prisma con seed.ts e schema.prisma (serve per migrazioni e seeding)
+COPY --from=builder /app/prisma ./prisma
+
+# Install only what we need to support migrations and seed on runner
+RUN npm install -g prisma
 
 # Define the path to the custom CA certificate
 ENV NODE_EXTRA_CA_CERTS=/app/certs/staging-documinds-certs.pem

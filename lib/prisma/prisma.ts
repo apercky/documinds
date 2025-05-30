@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/lib/prisma/generated";
+import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 const globalForPrisma = global as unknown as {

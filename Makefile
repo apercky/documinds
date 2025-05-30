@@ -9,7 +9,7 @@ BUILD_ARGS = $(shell grep '^NEXT_PUBLIC_' .env | sed 's/^/--build-arg /' | xargs
 
 # Comandi
 
-.PHONY: dev build push all build-multiarch dist
+.PHONY: dev build push all build-multiarch dist seed compile-seed
 
 dev:
 	@echo "🛠️  Starting dev container with hot-reload..."
@@ -71,4 +71,15 @@ build-multiarch:
 
 all: login build
 
-dist: login build-multiarch
+dist: login compile-seed build-multiarch
+
+# Esegui il seed localmente (dev only)
+seed:
+	npx prisma db seed
+
+# Compila seed.ts in seed.js per Docker
+compile-seed:
+	@echo "🔧 Compiling seed.ts to seed.js..."
+	npx tsc prisma/seed.ts --outDir prisma --target es2020 --module commonjs --esModuleInterop --resolveJsonModule --skipLibCheck
+	@echo "✅ seed.js compiled successfully"
+

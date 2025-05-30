@@ -5,6 +5,8 @@ import NextAuth from "next-auth";
 import { groupPermissions } from "./helper";
 import { deleteUserTokens, getUserTokens, storeUserTokens } from "./tokenStore";
 
+const isProd = process.env.NODE_ENV === "production";
+
 async function getRPT(accessToken: string): Promise<any> {
   const params = new URLSearchParams();
   params.append("grant_type", "urn:ietf:params:oauth:grant-type:uma-ticket");
@@ -86,7 +88,14 @@ const config: NextAuthConfig = {
 
   callbacks: {
     async jwt({ token, account, profile }) {
+      process.stderr.write(
+        `[NextAuth Debug] JWT callback - account present: ${!!account}, profile present: ${!!profile}\n`
+      );
+
       if (account && profile) {
+        process.stderr.write(
+          `[NextAuth Debug] New login - storing tokens for user: ${profile.sub}\n`
+        );
         // Save tokens in Redis
         await storeUserTokens(profile.sub as string, {
           accessToken: account.access_token as string,
@@ -106,10 +115,16 @@ const config: NextAuthConfig = {
       }
 
       if (token.sub) {
+        process.stderr.write(
+          `[NextAuth Debug] Checking tokens for user: ${token.sub}\n`
+        );
         const tokens = await getUserTokens(token.sub);
         if (tokens) {
           const now = Math.floor(Date.now() / 1000);
           if (tokens.expiresAt < now + 60) {
+            process.stderr.write(
+              `[NextAuth Debug] Token refresh needed for user: ${token.sub}\n`
+            );
             // Refresh token logic
             try {
               const res = await fetch(
@@ -157,6 +172,10 @@ const config: NextAuthConfig = {
               await deleteUserTokens(token.sub);
             }
           }
+        } else {
+          process.stderr.write(
+            `[NextAuth Debug] No tokens found in Redis for user: ${token.sub}\n`
+          );
         }
       }
 
@@ -201,7 +220,7 @@ const config: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: isProd,
       },
     },
     callbackUrl: {
@@ -210,7 +229,7 @@ const config: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: isProd,
       },
     },
     state: {
@@ -219,12 +238,13 @@ const config: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: isProd,
       },
     },
   },
 
-  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith("https://"),
+  useSecureCookies: isProd,
+
   trustHost: true,
 
   debug: process.env.NODE_ENV === "development",

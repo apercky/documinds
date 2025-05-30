@@ -26,12 +26,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AttributeType } from "@/lib/prisma/generated";
 import {
   CreateCollectionRequest,
   CreateCollectionSchema,
 } from "@/lib/schemas/collection.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AttributeType } from "@prisma/client";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

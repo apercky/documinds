@@ -1,31 +1,41 @@
-import { createClient } from "redis";
+import Redis, { RedisOptions } from "ioredis";
 
-let redisClient: ReturnType<typeof createClient> | null = null;
+let redisClient: Redis | null = null;
 
 export function getRedisClient() {
   if (!redisClient) {
-    const redisConfig: any = {
-      url: process.env.REDIS_URL,
+    const hostUrl = process.env.REDIS_URL || "redis://localhost:6379";
+
+    const usePassword =
+      process.env.REDIS_PASSWORD && process.env.REDIS_PASSWORD.trim() !== "";
+
+    const redisOptions: RedisOptions = {
+      connectTimeout: parseInt(
+        process.env.REDIS_CONNECT_TIMEOUT ?? "10000",
+        10
+      ),
+      commandTimeout: parseInt(process.env.REDIS_COMMAND_TIMEOUT ?? "5000", 10),
+      maxRetriesPerRequest: parseInt(
+        process.env.REDIS_RETRY_ATTEMPTS ?? "3",
+        10
+      ),
+      retryStrategy: (times) => Math.min(times * 100, 2000),
     };
 
-    // Only add password if it's actually set and not empty
-    if (
-      process.env.REDIS_PASSWORD &&
-      process.env.REDIS_PASSWORD.trim() !== ""
-    ) {
-      redisConfig.password = process.env.REDIS_PASSWORD;
+    if (usePassword) {
+      redisOptions.password = process.env.REDIS_PASSWORD;
       console.log("Redis: Using password authentication");
     } else {
       console.log("Redis: No password authentication");
     }
 
-    console.log("Redis: Attempting to connect to:", process.env.REDIS_URL);
+    console.log("Redis: Attempting to connect to:", hostUrl);
 
-    redisClient = createClient(redisConfig);
+    redisClient = new Redis(hostUrl, redisOptions);
 
     redisClient.on("error", (err) => {
       console.error("Redis Client Error:", err);
-      console.error("Redis URL:", process.env.REDIS_URL);
+      console.error("Redis URL:", hostUrl);
     });
 
     redisClient.on("connect", () => {
@@ -39,14 +49,6 @@ export function getRedisClient() {
     redisClient.on("end", () => {
       console.log("Redis: Connection ended");
     });
-
-    // Connect only when needed
-    if (!redisClient.isOpen) {
-      redisClient.connect().catch((err) => {
-        console.error("Redis Connection Failed:", err);
-        console.error("Redis URL:", process.env.REDIS_URL);
-      });
-    }
   }
 
   return redisClient;

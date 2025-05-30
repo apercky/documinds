@@ -10,6 +10,9 @@
     "start:prod": "cp -r public .next/standalone/public && node .next/standalone/server.js",
     "lint": "next lint"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.8",
     "@ai-sdk/openai": "^1.1.11",
@@ -51,6 +54,7 @@
     "d3-dsv": "^2.0.0",
     "dropzone": "^6.0.0-beta.2",
     "framer-motion": "^12.4.2",
+    "ioredis": "^5.6.1",
     "jwt-decode": "^4.0.0",
     "langchain": "^0.3.15",
     "lucide-react": "^0.475.0",
@@ -68,7 +72,6 @@
     "react-hook-form": "^7.54.2",
     "react-markdown": "^9.0.3",
     "react-syntax-highlighter": "^15.6.1",
-    "redis": "^5.0.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "remove": "^0.1.5",

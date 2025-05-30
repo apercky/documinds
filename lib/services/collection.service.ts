@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Collection, type AttributeType } from "@/lib/prisma/generated";
 import {
   CreateCollectionSchema,
   GetCollectionRequest,
@@ -13,6 +12,7 @@ import {
   vectorStore,
   type Schemas,
 } from "@/lib/vs/qdrant";
+import { Collection, type AttributeType } from "@prisma/client";
 
 export async function createCollection(input: any) {
   // Validate input with schema
