@@ -138,7 +138,7 @@ export default function Chat() {
         </ChatMessageList>
       </div>
 
-      <div className="p-4">
+      <div className="sticky bottom-0 p-4">
         <form
           onSubmit={onSubmit}
           className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1"
@@ -159,7 +159,7 @@ export default function Chat() {
               }
             }}
           />
-          <div className="sticky bottom-0 flex items-center p-3 pt-0 justify-between">
+          <div className="flex items-center p-3 pt-0 justify-between">
             <p className="text-xs text-muted-foreground">
               {tCommon("pressShiftEnter", {
                 defaultValue: "Press Shift + ↵ for new line",
