@@ -33,7 +33,7 @@ export default async function AdminLayout({
     <SidebarProvider>
       <div className="flex w-full h-[calc(100vh-4rem)]">
         <AppSidebar />
-        <SidebarInset className="w-ful">
+        <SidebarInset className="w-full">
           <header className="flex flex-row w-full shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex w-full items-center justify-between gap-2 px-4 py-1.5 ">
               <>
