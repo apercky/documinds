@@ -37,6 +37,7 @@ export async function generateMetadata({
       initialScale: 1,
       maximumScale: 5,
       userScalable: true,
+      viewportFit: "cover",
     },
     themeColor: [
       { media: "(prefers-color-scheme: light)", color: "#ffffff" },
@@ -70,7 +71,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased overflow-x-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased overflow-x-hidden overscroll-none`}
       >
         <ThemeProvider
           attribute="class"
@@ -81,7 +82,7 @@ export default async function RootLayout({
           <NextIntlClientProvider messages={messages}>
             <SessionProviderWrapper>
               <Providers>
-                <div className="flex flex-col min-h-screen">
+                <div className="flex flex-col min-h-screen max-h-screen overflow-hidden">
                   <main className="flex-1">{children}</main>
                 </div>
               </Providers>

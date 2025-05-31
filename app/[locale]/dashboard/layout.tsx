@@ -31,11 +31,11 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex w-full h-[calc(100vh-4rem)]">
+      <div className="flex w-full h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]">
         <AppSidebar />
         <SidebarInset className="w-full">
           <header className="flex flex-row w-full shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-            <div className="flex w-full items-center justify-between gap-2 px-4 py-1.5 ">
+            <div className="flex w-full items-center justify-between gap-2 px-4 py-1.5">
               <>
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
@@ -48,7 +48,7 @@ export default async function AdminLayout({
             </div>
           </header>
 
-          <main className="flex flex-1 h-[calc(100vh-4rem)] flex-col gap-4 overflow-y-auto bg-background dark:bg-background">
+          <main className="flex flex-1 h-[calc(100vh-4rem-48px)] flex-col overflow-hidden bg-background dark:bg-background">
             {children}
           </main>
         </SidebarInset>

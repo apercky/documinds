@@ -81,13 +81,18 @@ export default function Chat() {
     (e: React.FormEvent) => {
       e.preventDefault();
       handleSubmit(e);
+
+      // Nascondi la tastiera mobile rimuovendo il focus dall'input
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
     },
     [handleSubmit]
   );
 
   if (!collection) {
     return (
-      <div className="mt-6 h-[calc(100vh-75px)] bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg flex flex-col">
+      <div className="h-full flex flex-col bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg overflow-hidden">
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
           {tCommon("selectCollection", {
             defaultValue: "Please select a collection from the sidebar",
@@ -98,7 +103,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="mt-6 h-[calc(100vh-75px)] bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg flex flex-col">
+    <div className="h-full flex flex-col bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg overflow-hidden">
       {/* Session Expired Dialog */}
       <SessionExpiredDialog
         isOpen={sessionExpired}
@@ -108,8 +113,8 @@ export default function Chat() {
       {/* Error Dialog gestito dal nostro hook centralizzato */}
       <ErrorDialogComponent />
 
-      <div className="flex-1 w-full overflow-hidden">
-        <ChatMessageList className="scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex-1 overflow-hidden">
+        <ChatMessageList className="h-full scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {messages.map((message) => (
             <MemoizedChatBubble key={message.id} message={message} />
           ))}
@@ -138,7 +143,7 @@ export default function Chat() {
         </ChatMessageList>
       </div>
 
-      <div className="sticky bottom-0 p-4">
+      <div className="p-4 sticky bottom-0 bg-gradient-to-b from-transparent to-slate-50 dark:to-slate-950 pt-6">
         <form
           onSubmit={onSubmit}
           className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1"
@@ -155,11 +160,15 @@ export default function Chat() {
                 e.preventDefault();
                 if (input.trim()) {
                   onSubmit(e);
+                  // Nascondi la tastiera mobile
+                  if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                  }
                 }
               }
             }}
           />
-          <div className="flex items-center p-3 pt-0 justify-between">
+          <div className="sticky bottom-0 flex items-center p-3 pt-0 justify-between">
             <p className="text-xs text-muted-foreground">
               {tCommon("pressShiftEnter", {
                 defaultValue: "Press Shift + ↵ for new line",
