@@ -4,6 +4,6 @@ import createMiddleware from "next-intl/middleware";
 export default createMiddleware(routing);
 
 export const config = {
-  // Match only internationalized pathnames
-  matcher: ["/", "/(de|en)/:path*"],
+  // Match all paths that should be internationalized
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

@@ -21,10 +21,19 @@ export function LanguageSelector() {
   const handleLanguageChange = (locale: string) => {
     if (locale === currentLocale) return;
 
-    // Remove the locale from the pathname if it exists
-    const pathnameWithoutLocale = pathname.replace(`/${currentLocale}`, "");
-    const newPathname = pathnameWithoutLocale || "/";
+    // Otteniamo il percorso senza il locale corrente
+    // 1. Dividiamo il pathname in segmenti
+    const segments = pathname.split("/").filter(Boolean);
 
+    // 2. Se il primo segmento è un locale, lo rimuoviamo
+    if (segments.length > 0 && locales.includes(segments[0])) {
+      segments.shift();
+    }
+
+    // 3. Ricostruiamo il percorso
+    const newPathname = segments.length > 0 ? `/${segments.join("/")}` : "/";
+
+    // Navighiamo al nuovo URL con il locale desiderato
     router.replace(newPathname, { locale });
   };
 
@@ -48,7 +57,9 @@ export function LanguageSelector() {
           <DropdownMenuItem
             key={locale}
             onClick={() => handleLanguageChange(locale)}
-            className="cursor-pointer"
+            className={`cursor-pointer ${
+              locale === currentLocale ? "font-bold" : ""
+            }`}
           >
             {t(locale)}
           </DropdownMenuItem>
