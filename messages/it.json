@@ -6,6 +6,20 @@
       "about": "Chi siamo",
       "gotoDashboard": "Vai al Pannello di Amministrazione"
     },
+    "Footer": {
+      "copyright": "© {year} ALGOSET SRL — P.IVA 03976390249 — REA VI-369285 — Sede legale: Via Lago d'Iseo 53, 36100 Vicenza (VI) — PEC: algoset@legalmail.it",
+      "privacyPolicy": "Privacy Policy",
+      "cookiePolicy": "Cookie Policy",
+      "viewPrivacyPolicy": "Visualizza Privacy Policy",
+      "viewCookiePolicy": "Visualizza Cookie Policy",
+      "closePrivacyPolicy": "Chiudi",
+      "closeCookiePolicy": "Chiudi",
+      "allRightsReserved": "Tutti i diritti riservati",
+      "legals": "Informazioni legali",
+      "companyAddress": "Via Lago d'Iseo 53, 36100 Vicenza (VI)",
+      "companyVatRea": "P.IVA 03976390249 — REA VI-369285 — PEC: algoset@legalmail.it",
+      "companyDescription": "Creiamo soluzioni digitali innovative con tecnologie all'avanguardia."
+    },
     "Metadata": {
       "title": "Documinds",
       "description": "Un motore di ricerca documentale privato basato su RAG"
@@ -174,7 +188,7 @@
       "verifiedBrand": "Brand Verificato",
       "company": "Azienda",
       "brandCode": "Codice Brand",
-      "description": "Descrizione",
+      "companyDescription": "Descrizione",
       "securityNote": "Le chiavi API sono crittografate • Gli ID dei flussi sono memorizzati in chiaro",
       "settings": {
         "openaiApiKey": {
@@ -219,6 +233,84 @@
         "chatFlowId": "es. chat-flow-123",
         "embeddingsFlowId": "es. embeddings-flow-456",
         "default": "Inserisci valore..."
+      }
+    },
+    "PrivacyPolicy": {
+      "title": "Privacy Policy – ALGOSET SRL",
+      "lastUpdated": "Ultimo aggiornamento: 31 maggio 2025",
+      "introduction": "La presente informativa è resa ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679 (GDPR) agli utenti che accedono alla piattaforma SaaS fornita da ALGOSET SRL, accessibile esclusivamente tramite autenticazione.",
+      "sections": {
+        "controller": {
+          "title": "1. Titolare del trattamento",
+          "content": "Il titolare del trattamento è:\nALGOSET SRL\nVia Lago d'Iseo 53, 36100 Vicenza (VI)\nP.IVA 03976390249 - REA VI-369285\nEmail: info@algoset.it"
+        },
+        "purposes": {
+          "title": "2. Finalità del trattamento",
+          "content": "I dati personali degli utenti vengono trattati esclusivamente per consentire l'accesso e l'utilizzo del servizio SaaS, che permette la consultazione e ricerca di documentazione tecnica aziendale. Non viene effettuata alcuna attività di marketing, profilazione o analisi comportamentale."
+        },
+        "dataTypes": {
+          "title": "3. Tipologia di dati raccolti",
+          "content": "Durante l'utilizzo della piattaforma vengono trattati i seguenti dati personali:\n- Nome e cognome (se forniti tramite Identity Provider)\n- Indirizzo email aziendale\n- Username o ID utente\n- Cookie di sessione (necessari al funzionamento del login)"
+        },
+        "legalBasis": {
+          "title": "4. Base giuridica",
+          "content": "Il trattamento dei dati si basa sull'esecuzione del contratto (art. 6, par. 1, lett. b del GDPR), in quanto necessario per consentire l'accesso autenticato alla piattaforma da parte degli utenti delle aziende clienti."
+        },
+        "security": {
+          "title": "5. Modalità di trattamento e sicurezza",
+          "content": "I dati sono trattati con strumenti informatici nel rispetto dei principi di liceità, correttezza e trasparenza.\nL'infrastruttura è ospitata su Amazon Web Services (AWS) – regione UE (Francoforte). I dati non vengono trasferiti al di fuori dello Spazio Economico Europeo (SEE).\nTutte le comunicazioni avvengono tramite connessioni cifrate (HTTPS). I dati di autenticazione sono gestiti tramite Keycloak, con policy di sicurezza aggiornate."
+        },
+        "recipients": {
+          "title": "6. Destinatari dei dati",
+          "content": "I dati non vengono comunicati a soggetti terzi, salvo ai fornitori di servizi strettamente necessari al funzionamento della piattaforma:\n- Amazon Web Services (AWS) – hosting cloud\n- Keycloak – sistema di gestione identità\nQuesti soggetti agiscono in qualità di responsabili del trattamento (Art. 28 GDPR), secondo accordi contrattuali conformi al GDPR."
+        },
+        "retention": {
+          "title": "7. Durata della conservazione",
+          "content": "I dati personali vengono conservati per tutta la durata del rapporto contrattuale con l'azienda cliente, e per un massimo di 12 mesi dopo la disattivazione dell'account, salvo obblighi legali differenti."
+        },
+        "rights": {
+          "title": "8. Diritti dell'interessato",
+          "content": "Ai sensi del GDPR, l'utente ha diritto di:\n- accedere ai propri dati personali\n- chiedere la rettifica o la cancellazione\n- limitare o opporsi al trattamento\n- richiedere la portabilità dei dati\nLe richieste possono essere inviate a: info@algoset.it"
+        },
+        "cookies": {
+          "title": "9. Cookie",
+          "content": "La piattaforma utilizza esclusivamente cookie tecnici di sessione, necessari per garantire la sicurezza e la continuità dell'autenticazione.\nNon sono presenti cookie di profilazione né cookie di terze parti.\nDi conseguenza, non è richiesto il consenso dell'utente, né è necessario il banner cookie."
+        },
+        "changes": {
+          "title": "10. Modifiche alla presente informativa",
+          "content": "ALGOSET SRL si riserva il diritto di aggiornare la presente informativa. In caso di modifiche rilevanti, gli utenti verranno informati tramite i canali appropriati (es. email o notifica in piattaforma)."
+        }
+      }
+    },
+    "CookiePolicy": {
+      "title": "Cookie Policy – ALGOSET SRL",
+      "lastUpdated": "Ultimo aggiornamento: 31 maggio 2025",
+      "introduction": "Questa Cookie Policy spiega come ALGOSET SRL utilizza i cookie e tecnologie simili sul sito web e applicazioni.",
+      "sections": {
+        "whatAreCookies": {
+          "title": "1. Cosa sono i cookie?",
+          "content": "I cookie sono piccoli file di testo che vengono archiviati sul tuo dispositivo quando visiti un sito web. I cookie vengono ampiamente utilizzati per far funzionare i siti web o per farli funzionare in modo più efficiente, nonché per fornire informazioni ai proprietari del sito."
+        },
+        "cookiesWeUse": {
+          "title": "2. Cookie utilizzati",
+          "content": "Utilizziamo esclusivamente cookie tecnici essenziali (o \"strettamente necessari\"), che consentono le funzionalità di base come l'autenticazione e il mantenimento della sessione. Questi cookie sono necessari per il corretto funzionamento della piattaforma e non possono essere disattivati.\n\nNon utilizziamo cookie analitici, pubblicitari o di profilazione, né condividiamo dati con terze parti per tali scopi."
+        },
+        "legalBasis": {
+          "title": "3. Base giuridica",
+          "content": "Secondo il Regolamento UE 2016/679 (GDPR) e la Direttiva 2002/58/CE (e-Privacy), modificata dalla Direttiva 2009/136/CE, i cookie tecnici essenziali non richiedono il consenso preventivo dell'utente, in quanto strettamente necessari a fornire il servizio.\n\nLa base giuridica per l'uso di tali cookie è l'art. 6(1)(b) del GDPR (esecuzione di un contratto o misure precontrattuali) e l'art. 6(1)(f) (interesse legittimo)."
+        },
+        "howToManage": {
+          "title": "4. Gestione dei cookie",
+          "content": "Poiché utilizziamo esclusivamente cookie tecnici essenziali, non è prevista la possibilità di disattivarli, in quanto ciò comprometterebbe il funzionamento della piattaforma.\n\nTuttavia, puoi configurare il tuo browser per bloccare o avvisarti della presenza di cookie. Ti informiamo che il blocco di tutti i cookie avrà un impatto negativo sulla funzionalità della nostra piattaforma, inclusa l'impossibilità di accedere alle aree protette."
+        },
+        "changes": {
+          "title": "5. Modifiche alla Cookie Policy",
+          "content": "Ci riserviamo il diritto di modificare questa Cookie Policy in qualsiasi momento. Eventuali modifiche saranno pubblicate su questa pagina con la data di aggiornamento.\n\nTi invitiamo a consultare periodicamente questa pagina per essere sempre informato sulle nostre pratiche relative ai cookie."
+        },
+        "contactUs": {
+          "title": "6. Contattaci",
+          "content": "Per qualsiasi domanda o chiarimento su questa Cookie Policy, puoi contattarci all'indirizzo email: info@algoset.it"
+        }
       }
     }
 }

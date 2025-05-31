@@ -267,7 +267,7 @@ export function BrandConfigurationSection() {
             {brandValidation.company.description && (
               <div className="md:col-span-2">
                 <h4 className="text-sm font-medium text-muted-foreground">
-                  {t("description")}
+                  {t("companyDescription")}
                 </h4>
                 <p className="text-sm">{brandValidation.company.description}</p>
               </div>

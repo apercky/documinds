@@ -1,11 +1,135 @@
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 export function Footer() {
+  const t = useTranslations("Footer");
+  const privacyT = useTranslations("PrivacyPolicy");
+  const cookieT = useTranslations("CookiePolicy");
+  const currentYear = new Date().getFullYear();
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [cookieOpen, setCookieOpen] = useState(false);
+
   return (
-    <footer className="sticky bottom-0 z-50 w-full border-t border-border/40 bg-background">
-      <div className="w-full flex justify-center py-2">
-        <p className="text-xs text-muted-foreground">
-          © 2025 OTB SPA - ALL RIGHTS RESERVED
-        </p>
-      </div>
-    </footer>
+    <>
+      <footer className="w-full border-t border-border/40 bg-background/95 backdrop-blur-sm">
+        <div className="container max-w-7xl mx-auto px-4 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Company info */}
+            <div className="flex flex-col space-y-3">
+              <h3 className="text-lg font-semibold text-primary">
+                ALGOSET SRL
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t("companyDescription")}
+              </p>
+              <div className="text-xs text-muted-foreground pt-3">
+                <span className="block">{t("companyAddress")}</span>
+                <span className="block">{t("companyVatRea")}</span>
+              </div>
+            </div>
+
+            {/* Legal section */}
+            <div className="flex flex-col space-y-3">
+              <h3 className="text-lg font-semibold text-primary">
+                {t("legals")}
+              </h3>
+              <div className="flex flex-col space-y-2">
+                <Button
+                  onClick={() => setPrivacyOpen(true)}
+                  variant="link"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors justify-start p-0 h-auto"
+                >
+                  {t("privacyPolicy")}
+                </Button>
+                <Button
+                  onClick={() => setCookieOpen(true)}
+                  variant="link"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors justify-start p-0 h-auto"
+                >
+                  {t("cookiePolicy")}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="mt-8 pt-6 border-t border-border/20">
+            <p className="text-xs text-muted-foreground/70 text-center">
+              © {currentYear} ALGOSET SRL — {t("allRightsReserved")}
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Privacy Policy Modal */}
+      <Dialog open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{privacyT("title")}</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              {privacyT("lastUpdated")}
+            </p>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4 text-sm">
+            <p>{privacyT("introduction")}</p>
+
+            {Object.entries(privacyT.raw("sections")).map(
+              ([key, section]: [string, any]) => (
+                <div key={key} className="mt-4">
+                  <h3 className="font-medium">{section.title}</h3>
+                  <p className="whitespace-pre-line mt-1">{section.content}</p>
+                </div>
+              )
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button onClick={() => setPrivacyOpen(false)}>
+              {t("closePrivacyPolicy")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cookie Policy Modal */}
+      <Dialog open={cookieOpen} onOpenChange={setCookieOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{cookieT("title")}</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              {cookieT("lastUpdated")}
+            </p>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4 text-sm">
+            <p>{cookieT("introduction")}</p>
+
+            {Object.entries(cookieT.raw("sections")).map(
+              ([key, section]: [string, any]) => (
+                <div key={key} className="mt-4">
+                  <h3 className="font-medium">{section.title}</h3>
+                  <p className="whitespace-pre-line mt-1">{section.content}</p>
+                </div>
+              )
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button onClick={() => setCookieOpen(false)}>
+              {t("closeCookiePolicy")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

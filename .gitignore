@@ -45,3 +45,4 @@ next-env.d.ts
 scripts/chromadb/config/*
 temp/*
 prisma/seed.js
+docs/tmp/*
