@@ -32,6 +32,24 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
+    viewport: {
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 5,
+      userScalable: true,
+    },
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+      { media: "(prefers-color-scheme: dark)", color: "#020817" },
+    ],
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: t("title"),
+    },
+    formatDetection: {
+      telephone: false,
+    },
   };
 }
 
@@ -50,9 +68,9 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased overflow-x-hidden`}
       >
         <ThemeProvider
           attribute="class"
@@ -62,7 +80,11 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider messages={messages}>
             <SessionProviderWrapper>
-              <Providers>{children}</Providers>
+              <Providers>
+                <div className="flex flex-col min-h-screen">
+                  <main className="flex-1">{children}</main>
+                </div>
+              </Providers>
             </SessionProviderWrapper>
           </NextIntlClientProvider>
         </ThemeProvider>

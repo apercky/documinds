@@ -4,14 +4,9 @@ import { ROLES } from "@/consts/consts";
 import { usePermissions } from "@/hooks/auth/use-permissions";
 
 import { Collection } from "@prisma/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useCallback, useEffect, useState } from "react";
 import { useErrorHandler } from "./use-error-handler";
-
-// Query key for collections
-const COLLECTIONS_QUERY_KEY = "collections";
-const STALE_TIME = 5 * 60 * 1000; // 5 minutes
-const GC_TIME = 1 * 60 * 1000; // 1 minute
 
 /**
  * Hook to retrieve and manage collections for a user
@@ -23,7 +18,8 @@ export function useCollection({
 }: { useAdminMode?: boolean } = {}) {
   const { data: session, status } = useSession();
   const userBrand = session?.user?.brand;
-  const queryClient = useQueryClient();
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Using the centralized error handling hook
   const { handleError } = useErrorHandler();
@@ -45,11 +41,14 @@ export function useCollection({
   const useAdminEndpoint = useAdminMode && isAdmin;
 
   // Function to fetch collections
-  const fetchCollections = async () => {
+  const fetchCollections = useCallback(async () => {
     if (status !== "authenticated") {
-      return [];
+      setCollections([]);
+      setIsLoading(false);
+      return;
     }
 
+    setIsLoading(true);
     try {
       // Choose endpoint based on access level
       const url = useAdminEndpoint
@@ -80,68 +79,55 @@ export function useCollection({
       }
 
       const collectionsData: Collection[] = await response.json();
-      return collectionsData;
+      setCollections(collectionsData);
     } catch (err) {
       console.error("Error fetching collections:", err);
       // Only handle this error, not permission errors
       handleError(err);
-      return [];
+      setCollections([]);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [status, useAdminEndpoint, userBrand, handleError]);
 
-  // Using useQuery to manage cache and automatic invalidation
-  const { data: collections = [], isLoading: collectionsLoading } = useQuery({
-    queryKey: [COLLECTIONS_QUERY_KEY, userBrand, useAdminEndpoint],
-    queryFn: fetchCollections,
-    // Only enable if authenticated AND (not in admin mode OR permissions are loaded OR there was an error loading permissions)
-    enabled:
+  // Fetch collections on mount and when dependencies change
+  useEffect(() => {
+    // Only fetch if authenticated AND (not in admin mode OR permissions are loaded OR there was an error loading permissions)
+    if (
       status === "authenticated" &&
-      (!useAdminMode || !permissionsLoading || !!permissionsError),
-    staleTime: STALE_TIME,
-    gcTime: GC_TIME,
-  });
+      (!useAdminMode || !permissionsLoading || !!permissionsError)
+    ) {
+      fetchCollections();
+    }
+  }, [
+    status,
+    useAdminEndpoint,
+    userBrand,
+    permissionsLoading,
+    permissionsError,
+    useAdminMode,
+    fetchCollections,
+  ]);
 
-  // Combined loading state
-  const isLoading = collectionsLoading || (useAdminMode && permissionsLoading);
-
-  // Function to invalidate the cache and force a refresh of collections
-  const refreshCollections = () => {
-    queryClient.invalidateQueries({
-      queryKey: [COLLECTIONS_QUERY_KEY, userBrand, useAdminEndpoint],
-    });
-  };
-
-  // Function to update a specific collection in the cache immediately
-  // Useful for instant UI updates without waiting for a full refresh
+  // Function to update a specific collection in the state
   const updateCollectionInCache = (
     collectionName: string,
     updates: Partial<Collection>
   ) => {
-    const currentData = queryClient.getQueryData<Collection[]>([
-      COLLECTIONS_QUERY_KEY,
-      userBrand,
-      useAdminEndpoint,
-    ]);
-
-    if (currentData) {
-      const updatedData = currentData.map((collection) =>
+    setCollections((currentCollections) =>
+      currentCollections.map((collection) =>
         collection.name === collectionName
           ? { ...collection, ...updates }
           : collection
-      );
-
-      queryClient.setQueryData(
-        [COLLECTIONS_QUERY_KEY, userBrand, useAdminEndpoint],
-        updatedData
-      );
-    }
+      )
+    );
   };
 
   // Return data and functions along with role information
   return {
     collections,
-    isLoading,
-    refreshCollections,
+    isLoading: isLoading || (useAdminMode && permissionsLoading),
+    refreshCollections: fetchCollections,
     updateCollectionInCache,
     isAdmin,
     isEditor,

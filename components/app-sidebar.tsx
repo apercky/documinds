@@ -162,6 +162,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const locale = useLocale();
   const messages = useMessages();
   const t = useTranslations("Navigation");
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  // Track previous pathname to detect route changes
+  const [prevPathname, setPrevPathname] = useState(pathname);
+
+  // Close sidebar on route change (only on mobile)
+  useEffect(() => {
+    if (isMobile && prevPathname !== pathname) {
+      setOpenMobile(false);
+    }
+    setPrevPathname(pathname);
+  }, [isMobile, setOpenMobile, pathname, prevPathname]);
 
   // Utilizziamo il nuovo hook useCollection per gestire le collezioni
   const { collections, isLoading: collectionsLoading } = useCollection();

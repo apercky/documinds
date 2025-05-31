@@ -15,6 +15,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Trash2, type LucideIcon } from "lucide-react";
@@ -45,6 +46,7 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
   const locale = useLocale();
   const t = useTranslations("Navigation");
   const [openSections, setOpenSections] = useState<string[]>([]);
+  const { isMobile, setOpenMobile } = useSidebar();
 
   // Update open sections when items change or when an item becomes active
   useEffect(() => {
@@ -66,6 +68,13 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
     e.stopPropagation();
     if (onClearChat) {
       onClearChat(collectionName);
+    }
+  };
+
+  // Function to handle link clicks
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
     }
   };
 
@@ -94,6 +103,12 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
                   className={cn(
                     item.isActive && "text-primary underline underline-offset-4"
                   )}
+                  onClick={() => {
+                    // If the item has a URL and it's not a placeholder, close the sidebar on mobile
+                    if (item.url && item.url !== "#" && isMobile) {
+                      setOpenMobile(false);
+                    }
+                  }}
                 >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
@@ -127,7 +142,11 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
                             </span>
                           ) : (
                             <div className="flex w-full items-center justify-between">
-                              <Link href={subItem.url} className="flex-grow">
+                              <Link
+                                href={subItem.url}
+                                className="flex-grow"
+                                onClick={handleLinkClick}
+                              >
                                 <span>{subItem.title}</span>
                               </Link>
                               {isClearable && subItem.collectionName && (
