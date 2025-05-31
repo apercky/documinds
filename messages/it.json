@@ -312,5 +312,13 @@
           "content": "Per qualsiasi domanda o chiarimento su questa Cookie Policy, puoi contattarci all'indirizzo email: info@algoset.it"
         }
       }
+    },
+    "AdminDashboard": {
+      "title": "Pannello di Amministrazione",
+      "tabs": {
+        "collections": "Collezioni",
+        "upload": "Carica Documenti",
+        "settings": "Impostazioni"
+      }
     }
 }

@@ -312,5 +312,13 @@
           "content": "For any questions or clarifications about this Cookie Policy, you can contact us at: info@algoset.it"
         }
       }
+    },
+    "AdminDashboard": {
+      "title": "Admin Dashboard",
+      "tabs": {
+        "collections": "Collections",
+        "upload": "Upload Documents",
+        "settings": "Settings"
+      }
     }
 }
