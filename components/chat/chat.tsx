@@ -103,7 +103,88 @@ export default function Chat() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
+    <>
+      <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
+        {/* Chat messages list */}
+        <div className="flex-1 overflow-hidden">
+          <ChatMessageList className="h-full scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {messages.map((message) => (
+              <MemoizedChatBubble key={message.id} message={message} />
+            ))}
+
+            {status === "streaming" && (
+              <>
+                <MemoizedChatBubble
+                  message={{ role: "assistant", content: "", id: "loading" }}
+                  isLoading
+                />
+                <div className="flex justify-center mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => stop()}
+                  >
+                    <StopCircle className="h-4 w-4" />
+                    {tCommon("stopGenerating", {
+                      defaultValue: "Stop generating",
+                    })}
+                  </Button>
+                </div>
+              </>
+            )}
+          </ChatMessageList>
+        </div>
+
+        {/* Chat bar with input and send button */}
+        <div className="p-4 pb-8 sm:pb-4 sticky bottom-0 bg-transparent dark:bg-transparent">
+          <form
+            onSubmit={onSubmit}
+            className="border rounded-lg bg-background dark:bg-background focus-within:ring-1 focus-within:ring-ring p-1"
+          >
+            <ChatInput
+              value={input}
+              onChange={handleInputChange}
+              placeholder={tCommon("typeMessage", {
+                defaultValue: "Type your message...",
+              })}
+              className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim()) {
+                    onSubmit(e);
+                    // Nascondi la tastiera mobile
+                    if (document.activeElement instanceof HTMLElement) {
+                      document.activeElement.blur();
+                    }
+                  }
+                }
+              }}
+            />
+            <div className="sticky bottom-0 flex items-center p-3 pt-0 justify-between">
+              <p className="text-xs text-muted-foreground">
+                {tCommon("pressShiftEnter", {
+                  defaultValue: "Press Shift + ↵ for new line",
+                })}{" "}
+                <kbd className="px-1 py-0.5 text-[10px] font-mono border rounded-md">
+                  Shift + ↵
+                </kbd>
+              </p>
+              <Button
+                type="submit"
+                size="sm"
+                className="ml-auto gap-1.5"
+                disabled={!input.trim()}
+              >
+                {tCommon("sendMessage", { defaultValue: "Send Message" })}
+                <CornerDownLeft className="size-3.5" />
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       {/* Session Expired Dialog */}
       <SessionExpiredDialog
         isOpen={sessionExpired}
@@ -112,83 +193,6 @@ export default function Chat() {
 
       {/* Error Dialog gestito dal nostro hook centralizzato */}
       <ErrorDialogComponent />
-
-      <div className="flex-1 overflow-hidden">
-        <ChatMessageList className="h-full scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {messages.map((message) => (
-            <MemoizedChatBubble key={message.id} message={message} />
-          ))}
-
-          {status === "streaming" && (
-            <>
-              <MemoizedChatBubble
-                message={{ role: "assistant", content: "", id: "loading" }}
-                isLoading
-              />
-              <div className="flex justify-center mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => stop()}
-                >
-                  <StopCircle className="h-4 w-4" />
-                  {tCommon("stopGenerating", {
-                    defaultValue: "Stop generating",
-                  })}
-                </Button>
-              </div>
-            </>
-          )}
-        </ChatMessageList>
-      </div>
-
-      <div className="p-4 pb-8 sm:pb-4 sticky bottom-0 bg-transparent dark:bg-transparent">
-        <form
-          onSubmit={onSubmit}
-          className="relative rounded-lg border  bg-background dark:bg-background focus-within:ring-1 focus-within:ring-ring p-1"
-        >
-          <ChatInput
-            value={input}
-            onChange={handleInputChange}
-            placeholder={tCommon("typeMessage", {
-              defaultValue: "Type your message...",
-            })}
-            className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                if (input.trim()) {
-                  onSubmit(e);
-                  // Nascondi la tastiera mobile
-                  if (document.activeElement instanceof HTMLElement) {
-                    document.activeElement.blur();
-                  }
-                }
-              }
-            }}
-          />
-          <div className="sticky bottom-0 flex items-center p-3 pt-0 justify-between">
-            <p className="text-xs text-muted-foreground">
-              {tCommon("pressShiftEnter", {
-                defaultValue: "Press Shift + ↵ for new line",
-              })}{" "}
-              <kbd className="px-1 py-0.5 text-[10px] font-mono border rounded-md">
-                Shift + ↵
-              </kbd>
-            </p>
-            <Button
-              type="submit"
-              size="sm"
-              className="ml-auto gap-1.5"
-              disabled={!input.trim()}
-            >
-              {tCommon("sendMessage", { defaultValue: "Send Message" })}
-              <CornerDownLeft className="size-3.5" />
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+    </>
   );
 }
