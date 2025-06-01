@@ -82,7 +82,7 @@ export default async function RootLayout({
           <NextIntlClientProvider messages={messages}>
             <SessionProviderWrapper>
               <Providers>
-                <div className="flex flex-col min-h-screen max-h-screen overflow-hidden">
+                <div className="flex flex-col min-h-screen max-h-screen">
                   <main className="flex-1">{children}</main>
                 </div>
               </Providers>

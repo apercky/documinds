@@ -92,7 +92,7 @@ export default function Chat() {
 
   if (!collection) {
     return (
-      <div className="h-full flex flex-col bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg overflow-hidden">
+      <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
           {tCommon("selectCollection", {
             defaultValue: "Please select a collection from the sidebar",
@@ -103,7 +103,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-950 rounded-lg overflow-hidden">
+    <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
       {/* Session Expired Dialog */}
       <SessionExpiredDialog
         isOpen={sessionExpired}
@@ -143,10 +143,10 @@ export default function Chat() {
         </ChatMessageList>
       </div>
 
-      <div className="p-4 sticky bottom-0 bg-gradient-to-b from-transparent to-slate-50 dark:to-slate-950 pt-6">
+      <div className="p-4 pb-8 sm:pb-4 sticky bottom-0 bg-transparent dark:bg-transparent">
         <form
           onSubmit={onSubmit}
-          className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1"
+          className="relative rounded-lg border  bg-background dark:bg-background focus-within:ring-1 focus-within:ring-ring p-1"
         >
           <ChatInput
             value={input}
