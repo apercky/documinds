@@ -137,7 +137,7 @@ export default function Chat() {
         </div>
 
         {/* Chat bar with input and send button */}
-        <div className="p-4 pb-8 sm:pb-4 sticky bottom-0 bg-transparent dark:bg-transparent">
+        <div className="pl-4 pr-4 pb-8 sm:pb-4 sticky bottom-0 bg-transparent dark:bg-transparent">
           <form
             onSubmit={onSubmit}
             className="border rounded-lg bg-background dark:bg-background focus-within:ring-1 focus-within:ring-ring p-1"
