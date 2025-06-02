@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthUtils } from "@/hooks/auth/use-auth-utils";
-import { getInitials } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
@@ -21,6 +21,7 @@ export function UserNav() {
   const t = useTranslations("UserNav");
   const { data: session } = useSession();
   const { logout } = useAuthUtils();
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const handleLogout = async () => {
     await logout();
@@ -38,37 +39,67 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+        <Button
+          variant="ghost"
+          className={cn(
+            "relative rounded-full",
+            isMobile ? "h-10 w-10" : "h-8 w-8"
+          )}
+        >
+          <Avatar className={cn(isMobile ? "h-10 w-10" : "h-8 w-8")}>
             <AvatarImage src={userAvatar} alt={userName} />
             <AvatarFallback>{getInitials(userName)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
+        <DropdownMenuLabel className={cn("font-normal", isMobile && "py-2.5")}>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{userName}</p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <p
+              className={cn(
+                "text-sm font-medium leading-none",
+                isMobile && "text-base"
+              )}
+            >
+              {userName}
+            </p>
+            <p
+              className={cn(
+                "text-xs leading-none text-muted-foreground",
+                isMobile && "text-sm"
+              )}
+            >
               {userEmail}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem
+            asChild
+            className={isMobile ? "mobile-touch-target mobile-text" : ""}
+          >
             <Link href="/profile">{t("profile")}</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem
+            asChild
+            className={isMobile ? "mobile-touch-target mobile-text" : ""}
+          >
             <Link href="/billing">{t("billing")}</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem
+            asChild
+            className={isMobile ? "mobile-touch-target mobile-text" : ""}
+          >
             <Link href="/settings">{t("settings")}</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="cursor-pointer text-red-600 focus:text-red-600"
+          className={cn(
+            "cursor-pointer text-red-600 focus:text-red-600",
+            isMobile && "mobile-touch-target mobile-text"
+          )}
           onClick={handleLogout}
         >
           {t("logout")}

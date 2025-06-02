@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { locales } from "@/config/locales";
+import { cn } from "@/lib/utils";
 import { Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -17,6 +18,7 @@ export function LanguageSelector() {
   const pathname = usePathname();
   const currentLocale = useLocale();
   const t = useTranslations("Languages");
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const handleLanguageChange = (locale: string) => {
     if (locale === currentLocale) return;
@@ -43,11 +45,19 @@ export function LanguageSelector() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative cursor-pointer pr-4"
+          className={cn(
+            "relative cursor-pointer pr-4",
+            isMobile && "h-10 w-10"
+          )}
         >
-          <Languages className="h-4 w-4" />
+          <Languages className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
           <span className="sr-only">{t("switchLanguage")}</span>
-          <span className="absolute top-0 right-2 text-[10px] font-bold">
+          <span
+            className={cn(
+              "absolute top-0 right-2 text-[10px] font-bold",
+              isMobile && "text-xs right-1"
+            )}
+          >
             {currentLocale.toUpperCase()}
           </span>
         </Button>
@@ -57,9 +67,11 @@ export function LanguageSelector() {
           <DropdownMenuItem
             key={locale}
             onClick={() => handleLanguageChange(locale)}
-            className={`cursor-pointer ${
-              locale === currentLocale ? "font-bold" : ""
-            }`}
+            className={cn(
+              "cursor-pointer",
+              locale === currentLocale ? "font-bold" : "",
+              isMobile && "mobile-touch-target mobile-text"
+            )}
           >
             {t(locale)}
           </DropdownMenuItem>
