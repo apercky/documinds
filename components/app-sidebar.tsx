@@ -162,7 +162,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const locale = useLocale();
   const messages = useMessages();
   const t = useTranslations("Navigation");
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpenMobile, state } = useSidebar();
 
   // Track previous pathname to detect route changes
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -297,15 +297,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarLogo />
         </SidebarHeader>
         <SidebarContent>
-          <div className="flex justify-end items-center px-4 mb-2 mt-4">
+          <div
+            className={cn(
+              "mb-2 mt-4",
+              state === "collapsed"
+                ? "flex justify-center items-center"
+                : "flex justify-end items-center px-4"
+            )}
+          >
             <Button
               onClick={handleNewChat}
               disabled={!currentCollection || status !== "authenticated"}
-              className="max-w-[80%] gap-2 bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm"
-              size="sm"
+              className={cn(
+                "bg-gradient-to-r from-primary/90 to-primary hover:from-primary hover:to-primary/90 shadow-sm",
+                state === "collapsed"
+                  ? "w-6 h-6 p-0 min-w-0"
+                  : "max-w-[80%] gap-2"
+              )}
+              size={state === "collapsed" ? "icon" : "sm"}
             >
-              <PlusCircle className="h-4 w-4" />
-              <span className="font-medium">{t("newChat")}</span>
+              <PlusCircle
+                className={cn(
+                  "h-4 w-4",
+                  state === "collapsed" && "h-[18px] w-[18px]"
+                )}
+              />
+              {state !== "collapsed" && (
+                <span className="font-medium">{t("newChat")}</span>
+              )}
             </Button>
           </div>
           <NavMain items={navData.navMain} onClearChat={handleClearChat} />
