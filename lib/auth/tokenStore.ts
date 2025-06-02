@@ -1,4 +1,5 @@
 import { getRedisClient } from "@/lib/redis";
+import { debugLog, debugStderr } from "@/lib/utils/debug-logger";
 
 export async function storeUserTokens(
   sub: string,
@@ -11,7 +12,7 @@ export async function storeUserTokens(
     roles?: string[];
   }
 ) {
-  process.stderr.write(`[Redis Debug] Storing tokens for user: ${sub}\n`);
+  debugStderr(`Storing tokens for user: ${sub}`);
   const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
 
@@ -36,32 +37,27 @@ export async function storeUserTokens(
   const ttl = tokens.expiresAt - Math.floor(Date.now() / 1000) + 7200;
   await redis.expire(key, Math.max(ttl, 0));
 
-  process.stderr.write(
-    `[Redis Debug] Tokens stored successfully for user: ${sub}\n`
-  );
+  debugStderr(`Tokens stored successfully for user: ${sub}`);
 }
 
 export async function getUserTokens(sub: string) {
-  console.log(`[Redis Debug] Getting tokens for user: ${sub}`);
+  debugLog(`Getting tokens for user: ${sub}`);
   const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
-  console.log(`[Redis Debug] Using key: ${key}`);
+  debugLog(`Using key: ${key}`);
 
   // Check if key exists and its TTL
   const keyExists = await redis.exists(key);
   const ttl = await redis.ttl(key);
-  console.log(`[Redis Debug] Key exists: ${keyExists}, TTL: ${ttl} seconds`);
+  debugLog(`Key exists: ${keyExists}, TTL: ${ttl} seconds`);
 
   const data = await redis.hgetall(key);
-  console.log(`[Redis Debug] Raw data from Redis:`, data);
-  console.log(`[Redis Debug] Data keys:`, Object.keys(data));
-  console.log(
-    `[Redis Debug] Data is empty:`,
-    !data || Object.keys(data).length === 0
-  );
+  debugLog(`Raw data from Redis:`, data);
+  debugLog(`Data keys:`, Object.keys(data));
+  debugLog(`Data is empty:`, !data || Object.keys(data).length === 0);
 
   if (!data || Object.keys(data).length === 0) {
-    console.log(`[Redis Debug] No data found, returning null`);
+    debugLog(`No data found, returning null`);
     return null;
   }
 
@@ -74,7 +70,7 @@ export async function getUserTokens(sub: string) {
     roles: JSON.parse(data.roles ?? "[]"),
   };
 
-  console.log(`[Redis Debug] Parsed result:`, {
+  debugLog(`Parsed result:`, {
     hasAccessToken: !!result.accessToken,
     hasRefreshToken: !!result.refreshToken,
     hasIdToken: !!result.idToken,
@@ -88,7 +84,9 @@ export async function getUserTokens(sub: string) {
 }
 
 export async function deleteUserTokens(sub: string) {
+  debugLog(`Deleting tokens for user: ${sub}`);
   const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
   await redis.del(key);
+  debugLog(`Tokens deleted for user: ${sub}`);
 }
