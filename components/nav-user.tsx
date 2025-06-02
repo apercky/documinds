@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuthUtils } from "@/hooks/auth/use-auth-utils";
-import { getInitials } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import {
   BadgeCheck,
   Bell,
@@ -72,17 +72,29 @@ export function NavUser({ user, isLoading }: NavUserProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className={cn(
+                "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                isMobile && "mobile-touch-target"
+              )}
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className={cn("h-8 w-8", isMobile && "h-9 w-9")}>
                 <AvatarImage src={userAvatar} alt={userName} />
                 <AvatarFallback>{getInitials(userName)}</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div
+                className={cn(
+                  "grid flex-1 text-left text-sm leading-tight",
+                  isMobile && "text-base"
+                )}
+              >
                 <span className="truncate font-semibold">{userName}</span>
-                <span className="truncate text-xs">{userEmail}</span>
+                <span className={cn("truncate text-xs", isMobile && "text-sm")}>
+                  {userEmail}
+                </span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown
+                className={cn("ml-auto size-4", isMobile && "size-5")}
+              />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -92,42 +104,68 @@ export function NavUser({ user, isLoading }: NavUserProps) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8">
+              <div
+                className={cn(
+                  "flex items-center gap-2 px-1 py-1.5 text-left text-sm",
+                  isMobile && "py-2.5 text-base"
+                )}
+              >
+                <Avatar className={cn("h-8 w-8", isMobile && "h-9 w-9")}>
                   <AvatarImage src={userAvatar} alt={userName} />
                   <AvatarFallback>{getInitials(userName)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{userName}</span>
-                  <span className="truncate text-xs">{userEmail}</span>
+                  <span
+                    className={cn("truncate text-xs", isMobile && "text-sm")}
+                  >
+                    {userEmail}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles className="mr-2 h-4 w-4" />
+              <DropdownMenuItem
+                className={isMobile ? "mobile-touch-target mobile-text" : ""}
+              >
+                <Sparkles
+                  className={cn("mr-2 h-4 w-4", isMobile && "h-5 w-5")}
+                />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck className="mr-2 h-4 w-4" />
+              <DropdownMenuItem
+                className={isMobile ? "mobile-touch-target mobile-text" : ""}
+              >
+                <BadgeCheck
+                  className={cn("mr-2 h-4 w-4", isMobile && "h-5 w-5")}
+                />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard className="mr-2 h-4 w-4" />
+              <DropdownMenuItem
+                className={isMobile ? "mobile-touch-target mobile-text" : ""}
+              >
+                <CreditCard
+                  className={cn("mr-2 h-4 w-4", isMobile && "h-5 w-5")}
+                />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell className="mr-2 h-4 w-4" />
+              <DropdownMenuItem
+                className={isMobile ? "mobile-touch-target mobile-text" : ""}
+              >
+                <Bell className={cn("mr-2 h-4 w-4", isMobile && "h-5 w-5")} />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className={isMobile ? "mobile-touch-target mobile-text" : ""}
+            >
+              <LogOut className={cn("mr-2 h-4 w-4", isMobile && "h-5 w-5")} />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

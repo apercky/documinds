@@ -5,17 +5,19 @@ import { ThemeProvider } from "@/components/ui/providers/theme-provider";
 import { Providers } from "@/lib/providers/providers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto, Roboto_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const robotoSans = Roboto({
+  variable: "--font-roboto-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 interface RootLayoutProps {
@@ -71,7 +73,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased overflow-x-hidden overscroll-none`}
+        className={`${robotoSans.variable} ${robotoMono.variable} min-h-screen bg-background text-foreground antialiased overflow-x-hidden overscroll-none`}
       >
         <ThemeProvider
           attribute="class"

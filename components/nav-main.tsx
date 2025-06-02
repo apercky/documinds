@@ -80,7 +80,9 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{t("platform")}</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-base md:text-sm">
+        {t("platform")}
+      </SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -101,7 +103,9 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
                 <SidebarMenuButton
                   tooltip={item.title}
                   className={cn(
-                    item.isActive && "text-primary underline underline-offset-4"
+                    item.isActive &&
+                      "text-primary underline underline-offset-4",
+                    isMobile && "mobile-touch-target mobile-text font-medium"
                   )}
                   onClick={() => {
                     // If the item has a URL and it's not a placeholder, close the sidebar on mobile
@@ -110,9 +114,16 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
                     }
                   }}
                 >
-                  {item.icon && <item.icon />}
+                  {item.icon && (
+                    <item.icon className={cn(isMobile && "h-5 w-5")} />
+                  )}
                   <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  <ChevronRight
+                    className={cn(
+                      "ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90",
+                      isMobile && "h-5 w-5"
+                    )}
+                  />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
               <CollapsibleContent>
@@ -133,7 +144,9 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
                               "bg-accent/50 text-accent-foreground underline underline-offset-4",
                             isDisabled &&
                               "opacity-50 cursor-not-allowed pointer-events-none",
-                            "group/nav-item flex items-center justify-between"
+                            "group/nav-item flex items-center justify-between",
+                            isMobile &&
+                              "mobile-menu-item mobile-text font-medium"
                           )}
                         >
                           {isDisabled ? (
@@ -154,10 +167,18 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
                                   onClick={(e) =>
                                     handleClearClick(e, subItem.collectionName!)
                                   }
-                                  className="ml-2 opacity-0 group-hover/nav-item:opacity-100 transition-opacity p-1 hover:text-red-500"
+                                  className={cn(
+                                    "ml-2 opacity-0 group-hover/nav-item:opacity-100 transition-opacity p-1 hover:text-red-500",
+                                    isMobile && "opacity-70"
+                                  )}
                                   title={t("clearChat")}
                                 >
-                                  <Trash2 className="h-3.5 w-3.5" />
+                                  <Trash2
+                                    className={cn(
+                                      "h-3.5 w-3.5",
+                                      isMobile && "h-4.5 w-4.5"
+                                    )}
+                                  />
                                 </button>
                               )}
                             </div>
