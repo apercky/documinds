@@ -25,6 +25,19 @@ interface RootLayoutProps {
   params: Promise<{ locale: string }>;
 }
 
+// Viewport configuration in a separate export
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#020817" },
+  ],
+};
+
 export async function generateMetadata({
   params,
 }: Omit<RootLayoutProps, "children">) {
@@ -34,17 +47,6 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
-    viewport: {
-      width: "device-width",
-      initialScale: 1,
-      maximumScale: 1,
-      userScalable: false,
-      viewportFit: "cover",
-    },
-    themeColor: [
-      { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-      { media: "(prefers-color-scheme: dark)", color: "#020817" },
-    ],
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",

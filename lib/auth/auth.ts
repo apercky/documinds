@@ -1,4 +1,9 @@
 // lib/auth.ts
+import {
+  debugLog,
+  debugStderr,
+  isDebugEnabled,
+} from "@/lib/utils/debug-logger";
 import { jwtDecode } from "jwt-decode";
 import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
@@ -88,14 +93,12 @@ const config: NextAuthConfig = {
 
   callbacks: {
     async jwt({ token, account, profile }) {
-      process.stderr.write(
-        `[NextAuth Debug] JWT callback - account present: ${!!account}, profile present: ${!!profile}\n`
+      debugStderr(
+        `JWT callback - account present: ${!!account}, profile present: ${!!profile}`
       );
 
       if (account && profile) {
-        process.stderr.write(
-          `[NextAuth Debug] New login - storing tokens for user: ${profile.sub}\n`
-        );
+        debugStderr(`New login - storing tokens for user: ${profile.sub}`);
         // Save tokens in Redis
         await storeUserTokens(profile.sub as string, {
           accessToken: account.access_token as string,
@@ -115,16 +118,12 @@ const config: NextAuthConfig = {
       }
 
       if (token.sub) {
-        process.stderr.write(
-          `[NextAuth Debug] Checking tokens for user: ${token.sub}\n`
-        );
+        debugStderr(`Checking tokens for user: ${token.sub}`);
         const tokens = await getUserTokens(token.sub);
         if (tokens) {
           const now = Math.floor(Date.now() / 1000);
           if (tokens.expiresAt < now + 60) {
-            process.stderr.write(
-              `[NextAuth Debug] Token refresh needed for user: ${token.sub}\n`
-            );
+            debugStderr(`Token refresh needed for user: ${token.sub}`);
             // Refresh token logic
             try {
               const res = await fetch(
@@ -144,7 +143,7 @@ const config: NextAuthConfig = {
               );
 
               if (!res.ok) {
-                console.error("Token refresh failed with status:", res.status);
+                debugLog("Token refresh failed with status:", res.status);
                 // Clear invalid tokens from Redis
                 await deleteUserTokens(token.sub);
                 return token; // Return without updated tokens
@@ -164,18 +163,16 @@ const config: NextAuthConfig = {
                   roles: tokens.roles as string[],
                 });
               } else {
-                console.error("Refresh token error", refreshed);
+                debugLog("Refresh token error", refreshed);
               }
             } catch (err) {
-              console.error("Refresh token error", err);
+              debugLog("Refresh token error", err);
               // Clear invalid tokens from Redis
               await deleteUserTokens(token.sub);
             }
           }
         } else {
-          process.stderr.write(
-            `[NextAuth Debug] No tokens found in Redis for user: ${token.sub}\n`
-          );
+          debugStderr(`No tokens found in Redis for user: ${token.sub}`);
         }
       }
 
@@ -247,7 +244,7 @@ const config: NextAuthConfig = {
 
   trustHost: true,
 
-  debug: process.env.NODE_ENV === "development",
+  debug: process.env.NODE_ENV === "development" && isDebugEnabled(),
 };
 
 // export const { handlers, signIn, signOut, auth } = NextAuth(config);
@@ -259,18 +256,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   // events: {
   //   async signIn(message) {
   //     if (process.env.NODE_ENV === "development") {
-  //       console.log("[SignIn Event]", JSON.stringify(message, null, 2));
-  //       process.stderr.write(
-  //         `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
-  //       );
+  //       debugLog("[SignIn Event]", JSON.stringify(message, null, 2));
+  //       debugStderr(`[SignIn Event]: ${JSON.stringify(message)}`);
   //     }
   //   },
   //   async signOut(message) {
   //     if (process.env.NODE_ENV === "development") {
-  //       console.log("[SignOut Event]", JSON.stringify(message, null, 2));
-  //       process.stderr.write(
-  //         `[NextAuth Error Event]: ${JSON.stringify(message)}\n`
-  //       );
+  //       debugLog("[SignOut Event]", JSON.stringify(message, null, 2));
+  //       debugStderr(`[SignOut Event]: ${JSON.stringify(message)}`);
   //     }
   //   },
   // },
@@ -293,8 +286,8 @@ export async function getUserPermissions(
     }
     return {};
   } catch (error) {
-    console.error("Errore nell'ottenere i permessi:", error);
-    process.stderr.write(`[NextAuth Error Event]: ${error}\n`);
+    debugLog("Errore nell'ottenere i permessi:", error);
+    debugStderr(`Error getting permissions: ${error}`);
     return {};
   }
 }

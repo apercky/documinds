@@ -2,6 +2,7 @@ import "server-only";
 
 import { auth } from "@/lib/auth/auth";
 import { getUserTokens } from "@/lib/auth/tokenStore";
+import { debugLog } from "@/lib/utils/debug-logger";
 import type { Session } from "next-auth";
 import { getToken, JWT } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
@@ -85,11 +86,8 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
 ): (req: R, context?: C) => Promise<Response | NextResponse> {
   return async (req: R, context?: C) => {
     // DEBUG TEMPORANEO - aggiungi questo all'inizio
-    console.log(`[DEBUG] withAuth called for URL: ${req.url}`);
-    console.log(
-      `[DEBUG] Request headers:`,
-      Object.fromEntries(req.headers.entries())
-    );
+    debugLog(`withAuth called for URL: ${req.url}`);
+    debugLog(`Request headers:`, Object.fromEntries(req.headers.entries()));
 
     // Verifica autenticazione con NextAuth
     const session: Session | null = await auth();
@@ -99,12 +97,12 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
       secureCookie: isProd,
     });
 
-    console.log(`[DEBUG] Session found:`, !!session);
-    console.log(`[DEBUG] Token found:`, !!token);
-    console.log(`[DEBUG] Token sub:`, token?.sub);
+    debugLog(`Session found:`, !!session);
+    debugLog(`Token found:`, !!token);
+    debugLog(`Token sub:`, token?.sub);
 
     if (!token?.sub || !session) {
-      console.log(`[DEBUG] Returning 401 - no session or token`);
+      debugLog(`Returning 401 - no session or token`);
       // Per richieste JSON (default)
       if (req.headers.get("Accept")?.includes("application/json")) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -130,20 +128,20 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     }
 
     // Recupera token e privilegi da Redis usando il sub
-    console.log(`[Auth Debug] Attempting to get tokens for user: ${token.sub}`);
-    console.log(`[Auth Debug] Token object:`, JSON.stringify(token, null, 2));
+    debugLog(`Attempting to get tokens for user: ${token.sub}`);
+    debugLog(`Token object:`, JSON.stringify(token, null, 2));
 
     const tokens = await getUserTokens(token.sub);
 
-    console.log(`[Auth Debug] getUserTokens result:`, tokens);
-    console.log(
-      `[Auth Debug] Tokens is null/undefined:`,
+    debugLog(`getUserTokens result:`, tokens);
+    debugLog(
+      `Tokens is null/undefined:`,
       tokens === null || tokens === undefined
     );
-    console.log(`[Auth Debug] Tokens has accessToken:`, !!tokens?.accessToken);
+    debugLog(`Tokens has accessToken:`, !!tokens?.accessToken);
 
     if (tokens) {
-      console.log(`[Auth Debug] Token details:`, {
+      debugLog(`Token details:`, {
         hasAccessToken: !!tokens.accessToken,
         hasRefreshToken: !!tokens.refreshToken,
         hasIdToken: !!tokens.idToken,
@@ -194,20 +192,20 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     const response = await handler(req, extendedContext);
 
     // Debug per verificare il tipo di risposta
-    if (process.env.NODE_ENV === "development") {
-      console.log("Auth interceptor response type:", response.constructor.name);
-      console.log(
+    if (
+      process.env.NODE_ENV === "development" &&
+      process.env.AUTH_DEBUG === "true"
+    ) {
+      debugLog("Auth interceptor response type:", response.constructor.name);
+      debugLog(
         "Auth interceptor response headers:",
         Object.fromEntries(response.headers.entries())
       );
-      console.log("Auth interceptor response has body:", !!response.body);
+      debugLog("Auth interceptor response has body:", !!response.body);
 
       if (response.body) {
-        console.log(
-          "Auth interceptor response body type:",
-          typeof response.body
-        );
-        console.log(
+        debugLog("Auth interceptor response body type:", typeof response.body);
+        debugLog(
           "Auth interceptor response body is ReadableStream:",
           response.body instanceof ReadableStream
         );

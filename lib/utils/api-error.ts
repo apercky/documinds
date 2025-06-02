@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { debugLog } from "./debug-logger";
 
 /**
  * Standard error handler for API routes
@@ -6,7 +7,7 @@ import { NextResponse } from "next/server";
  * @returns NextResponse with appropriate error message and status code
  */
 export function handleApiError(error: any) {
-  console.error("API Error:", error);
+  debugLog("API Error:", error);
 
   // Error message mapping to HTTP status codes
   const statusCodeMap: Record<string, number> = {
