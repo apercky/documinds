@@ -106,8 +106,8 @@ export default function Chat() {
     <>
       <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
         {/* Chat messages list */}
-        <div className="flex-1 overflow-hidden">
-          <ChatMessageList className="h-full scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex-1 overflow-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <ChatMessageList className="h-full">
             {messages.map((message) => (
               <MemoizedChatBubble key={message.id} message={message} />
             ))}

@@ -48,7 +48,7 @@ export default async function AdminLayout({
             </div>
           </header>
 
-          <main className="flex flex-1 flex-col h-[calc(100vh-4rem-48px)] overflow-auto">
+          <main className="flex flex-1 flex-col h-[calc(100vh-4rem-48px)] overflow-hidden">
             {children}
           </main>
         </SidebarInset>

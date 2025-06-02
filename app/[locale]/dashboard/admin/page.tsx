@@ -8,7 +8,7 @@ export default function AdminPage() {
   const t = useTranslations("AdminDashboard");
 
   return (
-    <div className="container mx-auto py-8 flex flex-col gap-4 px-8">
+    <div className="container mx-auto py-8 flex flex-col gap-4 px-8 overflow-auto">
       <h1 className="text-3xl font-bold mb-8">{t("title")}</h1>
 
       <Tabs defaultValue="collections" className="w-full">
