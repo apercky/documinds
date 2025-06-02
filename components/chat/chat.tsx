@@ -6,11 +6,13 @@ import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { SessionExpiredDialog } from "@/components/ui/session-expired-dialog";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useChat } from "@ai-sdk/react";
+import { Message } from "ai";
 import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { MemoizedChatBubble } from "./chat-bubble-message";
+import { CollectionList } from "./collection-list";
 
 export default function Chat() {
   const searchParams = useSearchParams();
@@ -20,6 +22,7 @@ export default function Chat() {
   const t = useTranslations("Languages");
   const tCommon = useTranslations("Common");
   const [sessionExpired, setSessionExpired] = useState(false);
+  const router = useRouter();
 
   // Hook per la gestione centralizzata degli errori
   const { handleError, ErrorDialogComponent } = useErrorHandler();
@@ -90,25 +93,22 @@ export default function Chat() {
     [handleSubmit]
   );
 
+  const handleSelectCollection = (collectionName: string) => {
+    const newChatId = Date.now().toString();
+    router.push(`/dashboard?collection=${collectionName}&chatId=${newChatId}`);
+  };
+
   if (!collection) {
-    return (
-      <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
-        <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          {tCommon("selectCollection", {
-            defaultValue: "Please select a collection from the sidebar",
-          })}
-        </div>
-      </div>
-    );
+    return <CollectionList onSelectCollection={handleSelectCollection} />;
   }
 
   return (
     <>
       <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
         {/* Chat messages list */}
-        <div className="flex-1 overflow-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex-1 overflow-hidden">
           <ChatMessageList className="h-full">
-            {messages.map((message) => (
+            {messages.map((message: Message) => (
               <MemoizedChatBubble key={message.id} message={message} />
             ))}
 
@@ -126,9 +126,7 @@ export default function Chat() {
                     onClick={() => stop()}
                   >
                     <StopCircle className="h-4 w-4" />
-                    {tCommon("stopGenerating", {
-                      defaultValue: "Stop generating",
-                    })}
+                    {tCommon("stopGenerating")}
                   </Button>
                 </div>
               </>
@@ -145,9 +143,7 @@ export default function Chat() {
             <ChatInput
               value={input}
               onChange={handleInputChange}
-              placeholder={tCommon("typeMessage", {
-                defaultValue: "Type your message...",
-              })}
+              placeholder={tCommon("typeMessage")}
               className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -164,9 +160,7 @@ export default function Chat() {
             />
             <div className="sticky bottom-0 flex items-center px-3 pt-2 pb-1.5 justify-between">
               <p className="text-xs text-muted-foreground hidden sm:inline-flex items-center gap-1">
-                {tCommon("pressShiftEnter", {
-                  defaultValue: "Press Shift + ↵ for new line",
-                })}{" "}
+                {tCommon("pressShiftEnter")}{" "}
                 <kbd className="px-1 py-0.5 text-[10px] font-mono border rounded-md">
                   Shift + ↵
                 </kbd>
@@ -177,7 +171,7 @@ export default function Chat() {
                 className="ml-auto gap-1.5"
                 disabled={!input.trim()}
               >
-                {tCommon("sendMessage", { defaultValue: "Send Message" })}
+                {tCommon("sendMessage")}
                 <CornerDownLeft className="size-3.5" />
               </Button>
             </div>

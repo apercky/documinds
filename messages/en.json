@@ -156,6 +156,10 @@
     },
     "Common": {
       "selectCollection": "Please select a collection from the sidebar",
+      "selectCollectionTitle": "Select a collection",
+      "noCollectionsAvailable": "No collections available",
+      "noDescription": "No description",
+      "documentsCount": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
       "stopGenerating": "Stop generating",
       "typeMessage": "Type your message...",
       "pressShiftEnter": "Press Shift + ↵ for new line",

@@ -156,6 +156,10 @@
     },
     "Common": {
       "selectCollection": "Seleziona una collezione dalla barra laterale",
+      "selectCollectionTitle": "Seleziona una collezione",
+      "noCollectionsAvailable": "Nessuna collezione disponibile",
+      "noDescription": "Nessuna descrizione",
+      "documentsCount": "{count, plural, =0 {Nessun documento} one {# documento} other {# documenti}}",
       "stopGenerating": "Interrompi generazione",
       "typeMessage": "Scrivi il tuo messaggio...",
       "pressShiftEnter": "Premi Shift + ↵ per una nuova riga",

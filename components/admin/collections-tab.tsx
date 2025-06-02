@@ -1,14 +1,12 @@
 "use client";
 
 import { CollectionDetailsDialog } from "@/components/admin/collection-details-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CollectionCard } from "@/components/ui/collection-card";
 import { DeleteAlertDialog } from "@/components/ui/delete-alert-dialog";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useCollection } from "@/hooks/use-collection";
 
 import { Collection } from "@prisma/client";
-import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { CreateCollectionDialog } from "./create-collection-dialog";
@@ -91,36 +89,22 @@ export function CollectionsTab() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {collections.map((collection) => (
-          <Card
+          <CollectionCard
             key={collection.name}
-            className="cursor-pointer transition-colors hover:bg-muted/50"
+            collection={collection}
             onClick={() => openDetailsDialog(collection)}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {collection.name}
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-red-500"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDeleteDialog({
-                    isOpen: true,
-                    collection: collection.name,
-                  });
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {t("collections.documents")}: {collection.documentCount}
-              </p>
-            </CardContent>
-          </Card>
+            onDelete={() =>
+              setDeleteDialog({
+                isOpen: true,
+                collection: collection.name,
+              })
+            }
+            showDeleteButton={true}
+            documentCountLabel={`${t("collections.documents")}: ${
+              collection.documentCount
+            }`}
+            noDescriptionLabel={t("collections.empty")}
+          />
         ))}
         {collections.length === 0 && (
           <div className="col-span-full text-center py-8 text-muted-foreground">
