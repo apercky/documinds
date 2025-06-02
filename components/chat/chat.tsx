@@ -162,8 +162,8 @@ export default function Chat() {
                 }
               }}
             />
-            <div className="sticky bottom-0 flex items-center p-3 pt-0 justify-between">
-              <p className="text-xs text-muted-foreground">
+            <div className="sticky bottom-0 flex items-center px-3 pt-2 pb-1.5 justify-between">
+              <p className="text-xs text-muted-foreground hidden sm:inline-flex items-center gap-1">
                 {tCommon("pressShiftEnter", {
                   defaultValue: "Press Shift + ↵ for new line",
                 })}{" "}
