@@ -70,6 +70,7 @@
         "title": "Settings",
         "name": "Collection Name",
         "description": "Description",
+        "descriptionPlaceholder": "Add a description...",
         "attributes": "Attributes",
         "metadata": "Metadata",
         "addField": "Add Field",

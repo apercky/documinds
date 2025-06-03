@@ -316,3 +316,27 @@ export async function connectToExistingCollection(input: any) {
     };
   });
 }
+
+/**
+ * Update a collection's description
+ */
+export async function updateCollectionDescription(
+  collectionId: string,
+  description: string
+) {
+  // Check if collection exists
+  const collection = await prisma.collection.findUnique({
+    where: { id: collectionId },
+  });
+
+  if (!collection) {
+    throw new Error("Collection not found");
+  }
+
+  // Update the collection description
+  return prisma.collection.update({
+    where: { id: collectionId },
+    data: { description },
+    include: { attributes: true },
+  });
+}

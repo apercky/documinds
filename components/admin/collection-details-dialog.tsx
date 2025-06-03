@@ -48,6 +48,7 @@ export function CollectionDetailsDialog({
   const [editedAttributes, setEditedAttributes] = useState<
     Record<AttributeType, string>
   >({} as Record<AttributeType, string>);
+  const [editedDescription, setEditedDescription] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -98,6 +99,7 @@ export function CollectionDetailsDialog({
     }, {} as Record<AttributeType, string>);
 
     setEditedAttributes(initialAttributes);
+    setEditedDescription(collection.description || "");
     setIsEditing(true);
   };
 
@@ -113,7 +115,8 @@ export function CollectionDetailsDialog({
         })
       );
 
-      const response = await fetch(
+      // First update the attributes
+      const attributesResponse = await fetch(
         `/api/store/collections/${collection.id}/attributes`,
         {
           method: "PUT",
@@ -126,7 +129,25 @@ export function CollectionDetailsDialog({
         }
       );
 
-      if (!response.ok) {
+      if (!attributesResponse.ok) {
+        throw new Error(tDetails("error.update"));
+      }
+
+      // Then update the description
+      const descriptionResponse = await fetch(
+        `/api/store/collections/${collection.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            description: editedDescription.trim(),
+          }),
+        }
+      );
+
+      if (!descriptionResponse.ok) {
         throw new Error(tDetails("error.update"));
       }
 
@@ -248,16 +269,25 @@ export function CollectionDetailsDialog({
                     <span className="font-medium">{collection?.name}</span>
                   </div>
 
-                  {collection.description && (
-                    <div className="flex justify-between py-1">
-                      <span className="text-muted-foreground">
-                        {tDetails("settings.description")}
-                      </span>
+                  <div className="flex justify-between py-1">
+                    <span className="text-muted-foreground">
+                      {tDetails("settings.description")}
+                    </span>
+                    {isEditing ? (
+                      <Input
+                        className="max-w-[200px]"
+                        value={editedDescription}
+                        onChange={(e) => setEditedDescription(e.target.value)}
+                        placeholder={tDetails(
+                          "settings.descriptionPlaceholder"
+                        )}
+                      />
+                    ) : (
                       <span className="font-medium">
-                        {collection.description}
+                        {collection.description || "-"}
                       </span>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium text-muted-foreground">

@@ -3,6 +3,7 @@ import { withAuth } from "@/lib/auth/auth-interceptor";
 import {
   getCollectionById,
   updateCollectionAttributes,
+  updateCollectionDescription,
 } from "@/lib/services/collection.service";
 import { handleApiError } from "@/lib/utils/api-error";
 import { vectorStore } from "@/lib/vs/qdrant/vector-store";
@@ -119,3 +120,42 @@ export const DELETE = withAuth<
     return handleApiError(error);
   }
 });
+
+/**
+ * Update the description of a collection
+ */
+export const PATCH = withAuth<NextRequest, { params: Promise<{ id: string }> }>(
+  [ROLES.EDITOR, ROLES.ADMIN],
+  async (req, context) => {
+    try {
+      const body = await req.json();
+      const { description } = body;
+
+      if (!context || !context.params) {
+        return NextResponse.json(
+          { error: "Missing route parameters" },
+          { status: 400 }
+        );
+      }
+
+      const { id } = await context.params;
+
+      if (!id) {
+        throw new Error("Collection ID is required");
+      }
+
+      if (description === undefined) {
+        throw new Error("Description is required");
+      }
+
+      const updatedCollection = await updateCollectionDescription(
+        id,
+        description
+      );
+
+      return NextResponse.json(updatedCollection);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+);

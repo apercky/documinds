@@ -70,6 +70,7 @@
         "title": "Impostazioni",
         "name": "Nome Collezione",
         "description": "Descrizione",
+        "descriptionPlaceholder": "Aggiungi una descrizione...",
         "attributes": "Attributi",
         "metadata": "Metadati",
         "addField": "Aggiungi Campo",
