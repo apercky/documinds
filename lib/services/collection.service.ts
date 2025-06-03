@@ -13,6 +13,7 @@ import {
   type Schemas,
 } from "@/lib/vs/qdrant";
 import { Collection, type AttributeType } from "@prisma/client";
+import { collectionExists } from "../vs/qdrant/client";
 
 export async function createCollection(input: any) {
   // Validate input with schema
@@ -29,7 +30,8 @@ export async function createCollection(input: any) {
   }
 
   // Check if collection exists in Qdrant
-  const qdrantExists = await qdrantClient.collectionExists(data.name);
+  const qdrantExists = await collectionExists(data.name);
+  console.log(`Collection ${data.name} exists in Qdrant:`, qdrantExists);
 
   // Map distance to Qdrant distance type
   let distanceValue: Schemas["Distance"] = "Cosine";

@@ -2,6 +2,8 @@ import "server-only";
 
 import qdrantClient, { Schemas } from "./client";
 
+export const VECTOR_SIZE = 3072;
+
 export interface ProcessProgress {
   currentDocument: number;
   totalDocuments: number;
