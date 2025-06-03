@@ -175,11 +175,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setPrevPathname(pathname);
   }, [isMobile, setOpenMobile, pathname, prevPathname]);
 
-  // Utilizziamo il nuovo hook useCollection per gestire le collezioni
-  const { collections, isLoading: collectionsLoading } = useCollection();
+  // Use the collection hook with SWR revalidation capability
+  const {
+    collections,
+    isLoading: collectionsLoading,
+    refreshCollections,
+  } = useCollection();
 
   // Utilizziamo l'hook centralizzato per la gestione degli errori
   const { handleError, ErrorDialogComponent } = useErrorHandler();
+
+  // Add an effect to handle collections loading errors
+  useEffect(() => {
+    if (!collectionsLoading && collections.length === 0) {
+      console.log("No collections found or failed to load collections");
+    }
+  }, [collections, collectionsLoading]);
 
   // Stato locale per tenere traccia del mapping tra collezioni e chatId
   const [collectionChatMap, setCollectionChatMap] = useState<{

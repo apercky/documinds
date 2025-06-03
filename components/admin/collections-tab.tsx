@@ -13,7 +13,12 @@ import { CreateCollectionDialog } from "./create-collection-dialog";
 
 export function CollectionsTab() {
   // Utilizziamo il nostro hook personalizzato useCollection
-  const { collections, isLoading, refreshCollections } = useCollection({
+  const {
+    collections,
+    isLoading,
+    refreshCollections,
+    deleteCollection: deleteCollectionFromStore,
+  } = useCollection({
     useAdminMode: true,
   });
   const [error, setError] = useState<string | null>(null);
@@ -48,8 +53,8 @@ export function CollectionsTab() {
         throw new Error(t("collections.error.delete"));
       }
 
-      // Refresh collections list e aggiorna anche la sidebar
-      refreshCollections();
+      // Remove from store and refresh collections
+      deleteCollectionFromStore(collectionName);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : t("collections.error.delete")

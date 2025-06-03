@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useCollection } from "@/hooks/use-collection";
 import {
   CreateCollectionRequest,
   CreateCollectionSchema,
@@ -53,6 +54,9 @@ export function CreateCollectionDialog({
 
   const t = useTranslations();
   const tCreate = useTranslations("createCollection");
+
+  // Use the collection hook to access store functions
+  const { addCollection, refreshCollections } = useCollection();
 
   const form = useForm<CreateCollectionRequest>({
     resolver: zodResolver(CreateCollectionSchema),
@@ -114,6 +118,14 @@ export function CreateCollectionDialog({
       const collection = await response.json();
       form.reset();
       setOpen(false);
+
+      // Add the new collection to the store
+      addCollection(collection);
+
+      // Refresh collections to ensure data consistency
+      refreshCollections();
+
+      // Call the callback function
       onCollectionCreated(collection);
     } catch (err) {
       setApiError(
