@@ -1,9 +1,5 @@
 // lib/auth.ts
-import {
-  debugLog,
-  debugStderr,
-  isDebugEnabled,
-} from "@/lib/utils/debug-logger";
+import { debugLog, isDebugEnabled } from "@/lib/utils/debug-logger";
 import { jwtDecode } from "jwt-decode";
 import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
@@ -92,22 +88,43 @@ const config: NextAuthConfig = {
   secret: process.env.AUTH_SECRET,
 
   callbacks: {
-    async jwt({ token, account, profile }) {
-      debugStderr(
-        `JWT callback - account present: ${!!account}, profile present: ${!!profile}`
-      );
+    async jwt({ token, account, profile, trigger }) {
+      const now = Math.floor(Date.now() / 1000);
+      const callbackId = `jwt-${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 5)}`;
+
+      debugLog(`🔄 [${callbackId}] JWT CALLBACK START`);
+      debugLog(`   ├── Trigger: ${trigger || "undefined"}`);
+      debugLog(`   ├── Account present: ${!!account}`);
+      debugLog(`   ├── Profile present: ${!!profile}`);
+      debugLog(`   ├── Token sub: ${token?.sub || "undefined"}`);
+      debugLog(`   └── Timestamp: ${now}`);
 
       if (account && profile) {
-        debugStderr(`New login - storing tokens for user: ${profile.sub}`);
-        // Save tokens in Redis
-        await storeUserTokens(profile.sub as string, {
-          accessToken: account.access_token as string,
-          refreshToken: account.refresh_token as string,
-          idToken: account.id_token,
-          expiresAt: account.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
-          brand: profile.brand as string | undefined,
-          roles: profile.roles as string[] | undefined,
-        });
+        debugLog(
+          `🆕 [${callbackId}] NEW LOGIN detected for user: ${profile.sub}`
+        );
+
+        try {
+          await storeUserTokens(profile.sub as string, {
+            accessToken: account.access_token as string,
+            refreshToken: account.refresh_token as string,
+            idToken: account.id_token,
+            expiresAt:
+              account.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
+            brand: profile.brand as string | undefined,
+            roles: profile.roles as string[] | undefined,
+          });
+
+          debugLog(
+            `✅ [${callbackId}] Tokens stored successfully for new login`
+          );
+        } catch (error) {
+          debugLog(
+            `❌ [${callbackId}] Failed to store tokens for new login: ${error}`
+          );
+        }
 
         token.sub = profile.sub ?? undefined;
         token.idToken = account.id_token;
@@ -118,14 +135,106 @@ const config: NextAuthConfig = {
       }
 
       if (token.sub) {
-        debugStderr(`Checking tokens for user: ${token.sub}`);
+        debugLog(
+          `🔍 [${callbackId}] Checking existing tokens for user: ${token.sub}`
+        );
+
         const tokens = await getUserTokens(token.sub);
+
         if (tokens) {
-          const now = Math.floor(Date.now() / 1000);
-          if (tokens.expiresAt < now + 60) {
-            debugStderr(`Token refresh needed for user: ${token.sub}`);
-            // Refresh token logic
+          const timeToExpiry = tokens.expiresAt - now;
+          debugLog(`📊 [${callbackId}] Token status:`);
+          debugLog(
+            `   ├── Expires at: ${tokens.expiresAt} (${new Date(
+              tokens.expiresAt * 1000
+            ).toISOString()})`
+          );
+          debugLog(
+            `   ├── Current time: ${now} (${new Date(
+              now * 1000
+            ).toISOString()})`
+          );
+          debugLog(`   ├── Time to expiry: ${timeToExpiry}s`);
+          debugLog(
+            `   ├── Refresh needed: ${timeToExpiry < 120 ? "YES" : "NO"}`
+          );
+          debugLog(`   └── Has refresh token: ${!!tokens.refreshToken}`);
+
+          if (tokens.expiresAt < now + 120) {
+            debugLog(
+              `🔄 [${callbackId}] TOKEN REFRESH NEEDED (expires in ${timeToExpiry}s)`
+            );
+
+            // Implement Redis lock to prevent parallel refresh attempts
+            const lockKey = `refresh_lock:${token.sub}`;
+            const lockValue = callbackId;
+            const lockTTL = 30; // 30 seconds lock timeout
+
             try {
+              // Try to acquire lock (SET if not exists with expiry)
+              const {
+                getUserTokens: _getUserTokens,
+                storeUserTokens: _storeUserTokens,
+                deleteUserTokens: _deleteUserTokens,
+                getRedisClient,
+              } = await import("./tokenStore");
+              const redis = getRedisClient();
+
+              const lockAcquired = await redis.set(
+                lockKey,
+                lockValue,
+                "EX",
+                lockTTL,
+                "NX"
+              );
+
+              if (!lockAcquired) {
+                debugLog(
+                  `🔒 [${callbackId}] REFRESH ALREADY IN PROGRESS - waiting for completion`
+                );
+
+                // Wait for the other refresh to complete (max 25 seconds)
+                let waitCount = 0;
+                while (waitCount < 25) {
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                  waitCount++;
+
+                  // Check if tokens were updated by the other process
+                  const updatedTokens = await getUserTokens(token.sub);
+                  if (updatedTokens && updatedTokens.expiresAt > now + 120) {
+                    debugLog(
+                      `✅ [${callbackId}] Token was refreshed by another process - using updated tokens`
+                    );
+                    debugLog(
+                      `   └── New expiry: ${
+                        updatedTokens.expiresAt
+                      } (${new Date(
+                        updatedTokens.expiresAt * 1000
+                      ).toISOString()})`
+                    );
+                    return token;
+                  }
+                }
+
+                debugLog(
+                  `⚠️ [${callbackId}] Timeout waiting for other refresh - proceeding anyway`
+                );
+                return token;
+              }
+
+              debugLog(
+                `🔓 [${callbackId}] Lock acquired - proceeding with refresh`
+              );
+              debugLog(
+                `📤 [${callbackId}] Sending refresh request to Keycloak...`
+              );
+              debugLog(
+                `   └── Refresh token (first 20 chars): ${tokens.refreshToken?.substring(
+                  0,
+                  20
+                )}...`
+              );
+
               const res = await fetch(
                 `${process.env.OIDC_ISSUER}/protocol/openid-connect/token`,
                 {
@@ -142,15 +251,27 @@ const config: NextAuthConfig = {
                 }
               );
 
-              if (!res.ok) {
-                debugLog("Token refresh failed with status:", res.status);
-                // Clear invalid tokens from Redis
-                await deleteUserTokens(token.sub);
-                return token; // Return without updated tokens
-              }
+              debugLog(
+                `📥 [${callbackId}] Keycloak response status: ${res.status}`
+              );
 
               const refreshed = await res.json();
               if (res.ok) {
+                debugLog(`✅ [${callbackId}] REFRESH SUCCESS - got new tokens`);
+                debugLog(
+                  `   ├── New access token (first 20 chars): ${refreshed.access_token?.substring(
+                    0,
+                    20
+                  )}...`
+                );
+                debugLog(
+                  `   ├── New refresh token (first 20 chars): ${refreshed.refresh_token?.substring(
+                    0,
+                    20
+                  )}...`
+                );
+                debugLog(`   └── Expires in: ${refreshed.expires_in}s`);
+
                 await storeUserTokens(token.sub, {
                   accessToken: refreshed.access_token,
                   refreshToken:
@@ -162,20 +283,71 @@ const config: NextAuthConfig = {
                   brand: tokens.brand as string,
                   roles: tokens.roles as string[],
                 });
+
+                debugLog(`💾 [${callbackId}] Updated tokens stored in Redis`);
+                debugLog(
+                  `   └── New expiry: ${
+                    Math.floor(Date.now() / 1000) +
+                    (refreshed.expires_in ?? 3600)
+                  } (${new Date(
+                    (Math.floor(Date.now() / 1000) +
+                      (refreshed.expires_in ?? 3600)) *
+                      1000
+                  ).toISOString()})`
+                );
               } else {
-                debugLog("Refresh token error", refreshed);
+                debugLog(`❌ [${callbackId}] REFRESH FAILED:`);
+                debugLog(`   ├── Status: ${res.status} ${res.statusText}`);
+                debugLog(`   ├── Error body: ${JSON.stringify(refreshed)}`);
+                debugLog(`   └── Deleting invalid tokens from Redis...`);
+
+                await deleteUserTokens(token.sub);
+                debugLog(
+                  `🗑️ [${callbackId}] Tokens deleted from Redis due to refresh failure`
+                );
               }
+
+              // Always release the lock
+              await redis.del(lockKey);
+              debugLog(`🔓 [${callbackId}] Lock released`);
             } catch (err) {
-              debugLog("Refresh token error", err);
-              // Clear invalid tokens from Redis
+              debugLog(`💥 [${callbackId}] REFRESH EXCEPTION:`);
+              debugLog(`   ├── Error: ${err}`);
+              debugLog(`   └── Deleting tokens from Redis...`);
+
               await deleteUserTokens(token.sub);
+              debugLog(
+                `🗑️ [${callbackId}] Tokens deleted from Redis due to exception`
+              );
+
+              // Release lock on error
+              try {
+                const { getRedisClient } = await import("./tokenStore");
+                const redis = getRedisClient();
+                await redis.del(lockKey);
+                debugLog(`🔓 [${callbackId}] Lock released after error`);
+              } catch (lockErr) {
+                debugLog(
+                  `⚠️ [${callbackId}] Failed to release lock: ${lockErr}`
+                );
+              }
             }
+          } else {
+            debugLog(
+              `⏭️ [${callbackId}] No refresh needed - token valid for ${timeToExpiry}s`
+            );
           }
         } else {
-          debugStderr(`No tokens found in Redis for user: ${token.sub}`);
+          debugLog(
+            `⚠️ [${callbackId}] NO TOKENS FOUND IN REDIS for user: ${token.sub}`
+          );
+          debugLog(
+            `   └── This indicates Redis tokens expired or were deleted`
+          );
         }
       }
 
+      debugLog(`🏁 [${callbackId}] JWT CALLBACK END - returning token`);
       return token;
     },
 
@@ -257,13 +429,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   //   async signIn(message) {
   //     if (process.env.NODE_ENV === "development") {
   //       debugLog("[SignIn Event]", JSON.stringify(message, null, 2));
-  //       debugStderr(`[SignIn Event]: ${JSON.stringify(message)}`);
   //     }
   //   },
   //   async signOut(message) {
   //     if (process.env.NODE_ENV === "development") {
   //       debugLog("[SignOut Event]", JSON.stringify(message, null, 2));
-  //       debugStderr(`[SignOut Event]: ${JSON.stringify(message)}`);
   //     }
   //   },
   // },
@@ -287,7 +457,6 @@ export async function getUserPermissions(
     return {};
   } catch (error) {
     debugLog("Errore nell'ottenere i permessi:", error);
-    debugStderr(`Error getting permissions: ${error}`);
     return {};
   }
 }

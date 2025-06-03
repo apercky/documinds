@@ -1,6 +1,7 @@
 import "@/app/globals.css";
 import { routing } from "@/app/i18n/routing";
 import SessionProviderWrapper from "@/components/auth/session-provider-wrapper";
+import { TokenRefreshHandler } from "@/components/TokenRefreshHandler";
 import { ThemeProvider } from "@/components/ui/providers/theme-provider";
 import { Providers } from "@/lib/providers/providers";
 import { NextIntlClientProvider } from "next-intl";
@@ -85,6 +86,7 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider messages={messages}>
             <SessionProviderWrapper>
+              <TokenRefreshHandler />
               <Providers>
                 <div className="flex flex-col min-h-screen max-h-screen">
                   <main className="flex-1">{children}</main>

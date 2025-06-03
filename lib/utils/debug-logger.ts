@@ -16,13 +16,15 @@ export const debugLog = (message: string, ...args: any[]) => {
 };
 
 /**
- * Log to stderr only if AUTH_DEBUG is enabled
- * Useful for NextAuth's logging which uses stderr
+ * Log critical messages to stderr that should always appear regardless of debug setting
+ * Use for important errors, security events, or system status changes
  * @param message The message to log
+ * @param args Additional arguments to log
  */
-export const debugStderr = (message: string) => {
-  if (process.env.AUTH_DEBUG === "true") {
-    process.stderr.write(`[AUTH_DEBUG] ${message}\n`);
+export const debugStderr = (message: string, ...args: any[]) => {
+  // Always log critical messages in development
+  if (process.env.NODE_ENV === "development") {
+    console.error(`[AUTH_CRITICAL] ${message}`, ...args);
   }
 };
 

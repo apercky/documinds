@@ -1,5 +1,8 @@
 import { getRedisClient } from "@/lib/redis";
-import { debugLog, debugStderr } from "@/lib/utils/debug-logger";
+import { debugLog } from "@/lib/utils/debug-logger";
+
+// Export the Redis client for use in other modules (like auth.ts for locking)
+export { getRedisClient };
 
 export async function storeUserTokens(
   sub: string,
@@ -12,7 +15,7 @@ export async function storeUserTokens(
     roles?: string[];
   }
 ) {
-  debugStderr(`Storing tokens for user: ${sub}`);
+  debugLog(`Storing tokens for user: ${sub}`);
   const redis = getRedisClient();
   const key = `user:${sub}:tokens`;
 
@@ -37,7 +40,7 @@ export async function storeUserTokens(
   const ttl = tokens.expiresAt - Math.floor(Date.now() / 1000) + 7200;
   await redis.expire(key, Math.max(ttl, 0));
 
-  debugStderr(`Tokens stored successfully for user: ${sub}`);
+  debugLog(`Tokens stored successfully for user: ${sub}`);
 }
 
 export async function getUserTokens(sub: string) {
