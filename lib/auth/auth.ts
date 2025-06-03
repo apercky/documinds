@@ -3,6 +3,7 @@ import { debugLog, isDebugEnabled } from "@/lib/utils/debug-logger";
 import { jwtDecode } from "jwt-decode";
 import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
+import { AUTH_CONFIG } from "./config";
 import { groupPermissions } from "./helper";
 import { deleteUserTokens, getUserTokens, storeUserTokens } from "./tokenStore";
 
@@ -82,7 +83,7 @@ const config: NextAuthConfig = {
 
   session: {
     strategy: "jwt",
-    maxAge: 1800, // 30 minutes, the same of the refresh token
+    maxAge: AUTH_CONFIG.session.maxAgeSeconds,
   },
 
   secret: process.env.AUTH_SECRET,
@@ -112,7 +113,9 @@ const config: NextAuthConfig = {
             refreshToken: account.refresh_token as string,
             idToken: account.id_token,
             expiresAt:
-              account.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
+              account.expires_at ??
+              Math.floor(Date.now() / 1000) +
+                AUTH_CONFIG.tokens.defaultExpirySeconds,
             brand: profile.brand as string | undefined,
             roles: profile.roles as string[] | undefined,
           });
@@ -156,11 +159,18 @@ const config: NextAuthConfig = {
           );
           debugLog(`   ├── Time to expiry: ${timeToExpiry}s`);
           debugLog(
-            `   ├── Refresh needed: ${timeToExpiry < 120 ? "YES" : "NO"}`
+            `   ├── Refresh needed: ${
+              timeToExpiry < AUTH_CONFIG.tokens.refreshThresholdSeconds
+                ? "YES"
+                : "NO"
+            }`
           );
           debugLog(`   └── Has refresh token: ${!!tokens.refreshToken}`);
 
-          if (tokens.expiresAt < now + 120) {
+          if (
+            tokens.expiresAt <
+            now + AUTH_CONFIG.tokens.refreshThresholdSeconds
+          ) {
             debugLog(
               `🔄 [${callbackId}] TOKEN REFRESH NEEDED (expires in ${timeToExpiry}s)`
             );
@@ -168,7 +178,7 @@ const config: NextAuthConfig = {
             // Implement Redis lock to prevent parallel refresh attempts
             const lockKey = `refresh_lock:${token.sub}`;
             const lockValue = callbackId;
-            const lockTTL = 30; // 30 seconds lock timeout
+            const lockTTL = AUTH_CONFIG.lock.timeoutSeconds;
 
             try {
               // Try to acquire lock (SET if not exists with expiry)
@@ -193,15 +203,21 @@ const config: NextAuthConfig = {
                   `🔒 [${callbackId}] REFRESH ALREADY IN PROGRESS - waiting for completion`
                 );
 
-                // Wait for the other refresh to complete (max 25 seconds)
+                // Wait for the other refresh to complete (configurable max wait time)
                 let waitCount = 0;
-                while (waitCount < 25) {
-                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                while (waitCount < AUTH_CONFIG.lock.maxWaitSeconds) {
+                  await new Promise((resolve) =>
+                    setTimeout(resolve, AUTH_CONFIG.lock.waitIntervalMs)
+                  );
                   waitCount++;
 
                   // Check if tokens were updated by the other process
                   const updatedTokens = await getUserTokens(token.sub);
-                  if (updatedTokens && updatedTokens.expiresAt > now + 120) {
+                  if (
+                    updatedTokens &&
+                    updatedTokens.expiresAt >
+                      now + AUTH_CONFIG.tokens.refreshThresholdSeconds
+                  ) {
                     debugLog(
                       `✅ [${callbackId}] Token was refreshed by another process - using updated tokens`
                     );
@@ -229,9 +245,11 @@ const config: NextAuthConfig = {
                 `📤 [${callbackId}] Sending refresh request to Keycloak...`
               );
               debugLog(
-                `   └── Refresh token (first 20 chars): ${tokens.refreshToken?.substring(
+                `   └── Refresh token (first ${
+                  AUTH_CONFIG.debug.tokenLogLength
+                } chars): ${tokens.refreshToken?.substring(
                   0,
-                  20
+                  AUTH_CONFIG.debug.tokenLogLength
                 )}...`
               );
 
@@ -259,15 +277,19 @@ const config: NextAuthConfig = {
               if (res.ok) {
                 debugLog(`✅ [${callbackId}] REFRESH SUCCESS - got new tokens`);
                 debugLog(
-                  `   ├── New access token (first 20 chars): ${refreshed.access_token?.substring(
+                  `   ├── New access token (first ${
+                    AUTH_CONFIG.debug.tokenLogLength
+                  } chars): ${refreshed.access_token?.substring(
                     0,
-                    20
+                    AUTH_CONFIG.debug.tokenLogLength
                   )}...`
                 );
                 debugLog(
-                  `   ├── New refresh token (first 20 chars): ${refreshed.refresh_token?.substring(
+                  `   ├── New refresh token (first ${
+                    AUTH_CONFIG.debug.tokenLogLength
+                  } chars): ${refreshed.refresh_token?.substring(
                     0,
-                    20
+                    AUTH_CONFIG.debug.tokenLogLength
                   )}...`
                 );
                 debugLog(`   └── Expires in: ${refreshed.expires_in}s`);
@@ -279,7 +301,8 @@ const config: NextAuthConfig = {
                   idToken: tokens.idToken as string,
                   expiresAt:
                     Math.floor(Date.now() / 1000) +
-                    (refreshed.expires_in ?? 3600),
+                    (refreshed.expires_in ??
+                      AUTH_CONFIG.tokens.defaultExpirySeconds),
                   brand: tokens.brand as string,
                   roles: tokens.roles as string[],
                 });
@@ -288,10 +311,12 @@ const config: NextAuthConfig = {
                 debugLog(
                   `   └── New expiry: ${
                     Math.floor(Date.now() / 1000) +
-                    (refreshed.expires_in ?? 3600)
+                    (refreshed.expires_in ??
+                      AUTH_CONFIG.tokens.defaultExpirySeconds)
                   } (${new Date(
                     (Math.floor(Date.now() / 1000) +
-                      (refreshed.expires_in ?? 3600)) *
+                      (refreshed.expires_in ??
+                        AUTH_CONFIG.tokens.defaultExpirySeconds)) *
                       1000
                   ).toISOString()})`
                 );

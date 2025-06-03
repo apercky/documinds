@@ -1,14 +1,11 @@
 import { useErrorHandler } from "@/hooks/use-error-handler";
+import { AUTH_COMPUTED, AUTH_CONFIG } from "@/lib/auth/config";
 import { hasPermission } from "@/lib/auth/helper";
 import { debugLog, debugStderr } from "@/lib/utils/debug-logger";
 import type { StructuredPermissions } from "@/types/permission";
 import { useQuery } from "@tanstack/react-query";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect } from "react";
-
-// Ridotti per gestire meglio i refresh ogni 5 minuti di Keycloak
-const STALE_TIME = 1 * 60 * 1000; // 1 minuto
-const GC_TIME = 3 * 60 * 1000; // 3 minuti
 
 interface UserWithPermissions {
   permissions: StructuredPermissions;
@@ -65,9 +62,9 @@ export function usePermissions() {
     queryFn: fetchUserData,
     // La query viene eseguita solo se l'utente è autenticato
     enabled: !!session?.user && status === "authenticated",
-    // Opzioni specifiche per questa query
-    staleTime: STALE_TIME,
-    gcTime: GC_TIME,
+    // Opzioni specifiche per questa query - now from config
+    staleTime: AUTH_COMPUTED.staleTimeMs,
+    gcTime: AUTH_COMPUTED.gcTimeMs,
     // IMPORTANTE: Ferma il loop infinito su 401
     retry: (failureCount, error) => {
       const err = error as any;
@@ -81,11 +78,11 @@ export function usePermissions() {
         debugLog("❌ [usePermissions] 401 error - no retry");
         return false;
       }
-      // Retry fino a 2 volte per altri errori
-      return failureCount < 2;
+      // Retry configuration from AUTH_CONFIG
+      return failureCount < AUTH_CONFIG.query.maxRetries;
     },
-    // Retry delay incrementale
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    // Retry delay from AUTH_COMPUTED
+    retryDelay: (attemptIndex) => AUTH_COMPUTED.getRetryDelay(attemptIndex),
   });
 
   // Gestione degli errori con logout automatico per 401

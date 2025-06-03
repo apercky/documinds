@@ -1,5 +1,6 @@
 "use client";
 
+import { AUTH_COMPUTED, AUTH_CONFIG } from "@/lib/auth/config";
 import { debugLog } from "@/lib/utils/debug-logger";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef } from "react";
@@ -9,7 +10,6 @@ export function TokenRefreshHandler() {
   const lastVisibilityChange = useRef<number>(Date.now());
   const refreshInProgress = useRef<boolean>(false);
   const retryCount = useRef<number>(0);
-  const maxRetries = 3;
 
   const performRefresh = useCallback(
     async (reason: string) => {
@@ -29,13 +29,13 @@ export function TokenRefreshHandler() {
       } catch (error) {
         retryCount.current++;
         debugLog(
-          `❌ Refresh failed (attempt ${retryCount.current}/${maxRetries}): ${reason}`,
+          `❌ Refresh failed (attempt ${retryCount.current}/${AUTH_CONFIG.refresh.maxRetries}): ${reason}`,
           error
         );
 
         // Exponential backoff retry for critical errors
-        if (retryCount.current < maxRetries) {
-          const delay = Math.pow(2, retryCount.current) * 1000; // 2s, 4s, 8s
+        if (retryCount.current < AUTH_CONFIG.refresh.maxRetries) {
+          const delay = AUTH_COMPUTED.getRetryDelay(retryCount.current);
           debugLog(`⏰ Retrying in ${delay}ms...`);
           setTimeout(
             () => performRefresh(`${reason} (retry ${retryCount.current})`),
@@ -64,20 +64,17 @@ export function TokenRefreshHandler() {
         let shouldRefresh = false;
         let reason = "";
 
-        if (timeSinceLastVisible > 10 * 60 * 1000) {
-          // 10+ minutes
+        if (timeSinceLastVisible > AUTH_COMPUTED.longAbsenceMs) {
           shouldRefresh = true;
           reason = `Long absence (${Math.round(
             timeSinceLastVisible / 60000
           )} minutes)`;
-        } else if (timeSinceLastVisible > 4 * 60 * 1000) {
-          // 4+ minutes
+        } else if (timeSinceLastVisible > AUTH_COMPUTED.mediumAbsenceMs) {
           shouldRefresh = true;
           reason = `Medium absence (${Math.round(
             timeSinceLastVisible / 60000
           )} minutes)`;
-        } else if (timeSinceLastVisible > 2 * 60 * 1000) {
-          // 2+ minutes
+        } else if (timeSinceLastVisible > AUTH_COMPUTED.shortAbsenceMs) {
           shouldRefresh = true;
           reason = `Short absence (${Math.round(
             timeSinceLastVisible / 60000
@@ -108,10 +105,8 @@ export function TokenRefreshHandler() {
   useEffect(() => {
     if (!session) return;
 
-    // Slightly randomized interval (3.5-4.5 minutes) to prevent thundering herd
-    const baseInterval = 4 * 60 * 1000; // 4 minutes
-    const randomOffset = (Math.random() - 0.5) * 60 * 1000; // ±30 seconds
-    const interval = baseInterval + randomOffset;
+    // Get randomized interval from config
+    const interval = AUTH_COMPUTED.getRandomizedInterval();
 
     debugLog(
       `⏰ Setting up preventive refresh every ${Math.round(interval / 1000)}s`
@@ -119,7 +114,9 @@ export function TokenRefreshHandler() {
 
     const timer = setInterval(async () => {
       if (document.visibilityState === "visible") {
-        await performRefresh("Preventive refresh (4min interval)");
+        await performRefresh(
+          `Preventive refresh (${AUTH_CONFIG.refresh.baseIntervalMinutes}min interval)`
+        );
       } else {
         debugLog(`⏸️ Skipping preventive refresh - page not visible`);
       }

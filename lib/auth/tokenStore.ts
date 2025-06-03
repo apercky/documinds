@@ -1,5 +1,6 @@
 import { getRedisClient } from "@/lib/redis";
 import { debugLog } from "@/lib/utils/debug-logger";
+import { AUTH_CONFIG } from "./config";
 
 // Export the Redis client for use in other modules (like auth.ts for locking)
 export { getRedisClient };
@@ -36,8 +37,11 @@ export async function storeUserTokens(
     JSON.stringify(tokens.roles ?? [])
   );
 
-  // TTL: tempo in secondi
-  const ttl = tokens.expiresAt - Math.floor(Date.now() / 1000) + 7200;
+  // TTL: tempo in secondi - now using AUTH_CONFIG
+  const ttl =
+    tokens.expiresAt -
+    Math.floor(Date.now() / 1000) +
+    AUTH_CONFIG.tokens.redisTtlExtraSeconds;
   await redis.expire(key, Math.max(ttl, 0));
 
   debugLog(`Tokens stored successfully for user: ${sub}`);
