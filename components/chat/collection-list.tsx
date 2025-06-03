@@ -1,9 +1,12 @@
 "use client";
 
 import { CollectionCard } from "@/components/ui/collection-card";
+import { ACTIONS, RESOURCES } from "@/consts/consts";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { useCollection } from "@/hooks/use-collection";
 import { FolderArchive } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { CreateCollectionDialog } from "../admin/create-collection-dialog";
 
 interface CollectionListProps {
@@ -17,6 +20,17 @@ export function CollectionList({ onSelectCollection }: CollectionListProps) {
     isLoading: collectionsLoading,
     refreshCollections,
   } = useCollection();
+
+  // Get current pathname to check if we're in admin route
+  const pathname = usePathname();
+  const isAdminRoute = pathname.includes("/admin");
+
+  // Check if user has permission to create collections
+  const { checkPermission } = usePermissions();
+  const canCreateCollections = checkPermission(
+    RESOURCES.COLLECTION,
+    ACTIONS.CREATE
+  );
 
   // This function will be called when a new collection is created
   const handleCollectionCreated = (collection: {
@@ -36,7 +50,11 @@ export function CollectionList({ onSelectCollection }: CollectionListProps) {
         <h2 className="text-2xl font-bold">
           {tCommon("selectCollectionTitle")}
         </h2>
-        <CreateCollectionDialog onCollectionCreated={handleCollectionCreated} />
+        {isAdminRoute && canCreateCollections && (
+          <CreateCollectionDialog
+            onCollectionCreated={handleCollectionCreated}
+          />
+        )}
       </div>
 
       {collectionsLoading ? (
