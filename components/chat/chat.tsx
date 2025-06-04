@@ -90,10 +90,10 @@ export default function Chat() {
 
   return (
     <>
-      <div className="h-full flex flex-col bg-zinc-50/50 dark:bg-zinc-900/50">
+      <div className="h-full flex flex-col">
         {/* Chat messages list */}
-        <div className="flex-1 overflow-hidden">
-          <ChatMessageList className="h-full">
+        <div className="flex flex-1 h-[calc(100dvh-7.5rem)] overflow-hidden">
+          <ChatMessageList>
             {messages.map((message: Message) => (
               <MemoizedChatBubble key={message.id} message={message} />
             ))}
@@ -121,7 +121,7 @@ export default function Chat() {
         </div>
 
         {/* Chat bar with input and send button */}
-        <div className="pl-4 pr-4 pb-8 sm:pb-4 sticky bottom-0 bg-transparent dark:bg-transparent">
+        <div className="pl-4 pr-4 pb-4 sticky bottom-0 bg-transparent dark:bg-transparent">
           <form
             onSubmit={onSubmit}
             className="border rounded-lg bg-background dark:bg-background focus-within:ring-1 focus-within:ring-ring p-1"
