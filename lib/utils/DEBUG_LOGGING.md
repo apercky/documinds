@@ -87,7 +87,7 @@ lib/auth/
 └── ...
 
 components/
-└── TokenRefreshHandler.tsx   # Proactive refresh using AUTH_CONFIG
+└── token-refresh-handler.tsx   # Proactive refresh using AUTH_CONFIG
 
 hooks/auth/
 └── use-permissions.ts        # React Query using AUTH_CONFIG
@@ -140,7 +140,7 @@ debugStderr('🚨 Redis connection lost during token operation');
 
 ### Authentication System
 
-- **`TokenRefreshHandler.tsx`**: Proactive refresh, visibility detection, retry logic
+- **`token-refresh-handler.tsx`**: Proactive refresh, visibility detection, retry logic
 - **`auth.ts`**: JWT callback flow, token refresh, Redis operations
 - **`use-permissions.ts`**: Permission fetching, API errors, retry logic
 - **`tokenStore.ts`**: Redis operations, token storage/retrieval

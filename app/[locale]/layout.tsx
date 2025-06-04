@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 import { routing } from "@/app/i18n/routing";
 import SessionProviderWrapper from "@/components/auth/session-provider-wrapper";
-import { TokenRefreshHandler } from "@/components/TokenRefreshHandler";
+import { TokenRefreshHandler } from "@/components/token-refresh-handler";
 import { ThemeProvider } from "@/components/ui/providers/theme-provider";
 import { Providers } from "@/lib/providers/providers";
 import { NextIntlClientProvider } from "next-intl";
