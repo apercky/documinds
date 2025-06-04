@@ -73,6 +73,10 @@ AUTH_MEDIUM_ABSENCE_THRESHOLD=4           # Refresh after 4min absence
 AUTH_TOKEN_REFRESH_THRESHOLD=300          # Refresh 5 minutes before expiry
 AUTH_REFRESH_INTERVAL=10                  # Check every 10 minutes
 AUTH_LONG_ABSENCE_THRESHOLD=20            # Only refresh after 20min absence
+
+# To simulate the sessione expiration, for test
+# AUTH_SESSION_MAX_AGE=120          # 2 minuti
+# AUTH_TOKEN_REFRESH_THRESHOLD=60   # 1 minuto
 ```
 
 ## Configuration Architecture
