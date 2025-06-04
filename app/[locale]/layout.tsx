@@ -86,8 +86,8 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider messages={messages}>
             <SessionProviderWrapper>
-              <TokenRefreshHandler />
               <Providers>
+                <TokenRefreshHandler />
                 <div className="flex flex-col min-h-screen max-h-screen">
                   <main className="flex-1">{children}</main>
                 </div>

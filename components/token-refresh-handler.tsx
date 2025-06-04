@@ -1,12 +1,28 @@
 "use client";
 
+import { useAuthUtils } from "@/hooks/auth/use-auth-utils";
 import { AUTH_COMPUTED, AUTH_CONFIG } from "@/lib/auth/config";
-import { debugLog } from "@/lib/utils/debug-logger";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
+import { SessionExpiryDialog } from "./session-expiry-dialog";
 
-export function TokenRefreshHandler() {
-  const { data: session, update } = useSession();
+// Routes that require authentication
+const PROTECTED_ROUTES = ["/dashboard", "/admin", "/profile", "/settings"];
+
+// Check if a path is protected (including localized paths)
+function isProtectedPath(pathname: string): boolean {
+  // Remove locale prefix (e.g., /it/dashboard -> /dashboard)
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}\//, "/");
+
+  return PROTECTED_ROUTES.some(
+    (route) => pathname.startsWith(route) || pathWithoutLocale.startsWith(route)
+  );
+}
+
+function TokenRefreshHandlerCore() {
+  const { data: session, update, status } = useSession();
+  const { logout } = useAuthUtils();
   const lastVisibilityChange = useRef<number>(Date.now());
   const refreshInProgress = useRef<boolean>(false);
   const retryCount = useRef<number>(0);
@@ -14,35 +30,26 @@ export function TokenRefreshHandler() {
   const performRefresh = useCallback(
     async (reason: string) => {
       if (refreshInProgress.current) {
-        debugLog(`🔒 Refresh already in progress, skipping ${reason}`);
         return false;
       }
 
       refreshInProgress.current = true;
-      debugLog(`🔄 Starting refresh: ${reason}`);
 
       try {
         await update();
-        debugLog(`✅ Refresh successful: ${reason}`);
         retryCount.current = 0; // Reset retry count on success
         return true;
       } catch (error) {
         retryCount.current++;
-        debugLog(
-          `❌ Refresh failed (attempt ${retryCount.current}/${AUTH_CONFIG.refresh.maxRetries}): ${reason}`,
-          error
-        );
 
-        // Exponential backoff retry for critical errors
+        // Exponential backoff retry for errors
         if (retryCount.current < AUTH_CONFIG.refresh.maxRetries) {
           const delay = AUTH_COMPUTED.getRetryDelay(retryCount.current);
-          debugLog(`⏰ Retrying in ${delay}ms...`);
           setTimeout(
             () => performRefresh(`${reason} (retry ${retryCount.current})`),
             delay
           );
         } else {
-          debugLog(`💥 Max retries exceeded for: ${reason}`);
           retryCount.current = 0; // Reset for next refresh cycle
         }
         return false;
@@ -88,7 +95,6 @@ export function TokenRefreshHandler() {
         lastVisibilityChange.current = now;
       } else {
         // User is leaving - log for debugging
-        debugLog(`👋 User left at ${new Date().toISOString()}`);
       }
     };
 
@@ -108,40 +114,59 @@ export function TokenRefreshHandler() {
     // Get randomized interval from config
     const interval = AUTH_COMPUTED.getRandomizedInterval();
 
-    debugLog(
-      `⏰ Setting up preventive refresh every ${Math.round(interval / 1000)}s`
-    );
-
     const timer = setInterval(async () => {
       if (document.visibilityState === "visible") {
         await performRefresh(
           `Preventive refresh (${AUTH_CONFIG.refresh.baseIntervalMinutes}min interval)`
         );
       } else {
-        debugLog(`⏸️ Skipping preventive refresh - page not visible`);
       }
     }, interval);
 
     return () => clearInterval(timer);
   }, [session, performRefresh]);
 
-  // Emergency refresh trigger on critical API failures (hook for other components)
-  useEffect(() => {
-    const handleEmergencyRefresh = async () => {
-      debugLog(`🚨 Emergency refresh triggered by API failure`);
-      await performRefresh("Emergency refresh (API 401)");
-    };
-
-    // Listen for custom event from API interceptors
-    window.addEventListener("token-emergency-refresh", handleEmergencyRefresh);
-
-    return () => {
-      window.removeEventListener(
-        "token-emergency-refresh",
-        handleEmergencyRefresh
-      );
-    };
-  }, [performRefresh]);
-
   return null; // Invisible component
+}
+
+export function TokenRefreshHandler() {
+  const { data: session, status } = useSession();
+  const pathname = usePathname();
+
+  // Check if we're on a protected route
+  const isProtectedRoute = isProtectedPath(pathname);
+
+  // Show session expiry dialog if on protected route without session
+  const showExpiryDialog = isProtectedRoute && status === "unauthenticated";
+
+  // Debug log to see current state
+  console.log(
+    "🔍 [TokenRefreshHandler] Pathname:",
+    pathname,
+    "Status:",
+    status,
+    "Session:",
+    !!session,
+    "Protected:",
+    isProtectedRoute,
+    "ShowDialog:",
+    showExpiryDialog
+  );
+
+  // Only render on protected routes
+  if (!isProtectedRoute) {
+    return null;
+  }
+
+  // Don't render during initial loading
+  if (status === "loading") {
+    return null;
+  }
+
+  return (
+    <>
+      <TokenRefreshHandlerCore />
+      <SessionExpiryDialog open={showExpiryDialog} />
+    </>
+  );
 }

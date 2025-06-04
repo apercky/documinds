@@ -151,7 +151,8 @@
     "Auth": {
       "sessionExpired": {
         "title": "Session Expired",
-        "description": "Your session has expired. Please login again to continue.",
+        "description": "Your session has expired. To continue using the application you need to log in again.",
+        "backToLogin": "Back to Login",
         "okButton": "OK"
       }
     },

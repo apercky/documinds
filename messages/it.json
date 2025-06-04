@@ -151,7 +151,8 @@
     "Auth": {
       "sessionExpired": {
         "title": "Sessione Scaduta",
-        "description": "La tua sessione è scaduta. Effettua nuovamente il login per continuare.",
+        "description": "La tua sessione è scaduta. Per continuare a utilizzare l'applicazione è necessario effettuare nuovamente l'accesso.",
+        "backToLogin": "Torna al Login",
         "okButton": "OK"
       }
     },

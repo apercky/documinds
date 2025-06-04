@@ -20,15 +20,25 @@ export function useAuthUtils() {
     console.log(`[NextAuth session]: ${JSON.stringify(session, null, 2)}`);
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    // Create logout url to logout from the OIDC provider
-    const idToken = (session as any).idToken;
-    const oidcIssuer = (session as any).oidcIssuer;
-    const logoutEndpoint = `${oidcIssuer}/protocol/openid-connect/logout`;
-    const logoutUrl = `${logoutEndpoint}?id_token_hint=${idToken}&post_logout_redirect_uri=${encodeURIComponent(
-      origin
-    )}`;
 
-    console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);
+    let logoutUrl = null;
+
+    // Only try to get OIDC logout URL if session exists
+    if (session) {
+      // Create logout url to logout from the OIDC provider
+      const idToken = (session as any).idToken;
+      const oidcIssuer = (session as any).oidcIssuer;
+
+      if (idToken && oidcIssuer) {
+        const logoutEndpoint = `${oidcIssuer}/protocol/openid-connect/logout`;
+        logoutUrl = `${logoutEndpoint}?id_token_hint=${idToken}&post_logout_redirect_uri=${encodeURIComponent(
+          origin
+        )}`;
+        console.log(`[NextAuth logoutUrl]: ${logoutUrl}\n`);
+      }
+    } else {
+      console.log("[NextAuth] Session is null - performing local logout only");
+    }
 
     // Clears the session and invalidates all queries with userData or those protected by auth
     await clearSession();
@@ -38,8 +48,8 @@ export function useAuthUtils() {
       redirect: false,
     });
 
-    if (idToken) {
-      // Redirect to the logout url
+    if (logoutUrl) {
+      // Redirect to the OIDC logout url
       window.location.replace(logoutUrl);
     } else {
       // Redirect to home page or login page
