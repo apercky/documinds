@@ -1,8 +1,11 @@
 "use client";
 
+import { useLogoutStore } from "@/store/logout";
 import { useQueryClient } from "@tanstack/react-query";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 /**
  * Hook that provides utilities for managing authentication
  * and user-related caches
@@ -10,13 +13,24 @@ import { useRouter } from "next/navigation";
 export function useAuthUtils() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const { isLoggedOut, setLoggedOut, resetLogoutState } = useLogoutStore();
+
+  // Reset isLoggedOut when session status changes (e.g., user logs back in)
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      resetLogoutState();
+    }
+  }, [status, session, resetLogoutState]);
 
   /**
    * Performs logout and cleans all user caches
    * @param redirectTo Optional URL for redirect after logout
    */
   const logout = async () => {
+    // Set logged out status to prevent session expiry dialog immediately
+    setLoggedOut(true);
+
     console.log(`[NextAuth session]: ${JSON.stringify(session, null, 2)}`);
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -83,5 +97,6 @@ export function useAuthUtils() {
   return {
     logout,
     refreshUserData,
+    isLoggedOut,
   };
 }

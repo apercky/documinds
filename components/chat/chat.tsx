@@ -3,14 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
-import { SessionExpiredDialog } from "@/components/ui/session-expired-dialog";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useChat } from "@ai-sdk/react";
 import { Message } from "ai";
 import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { MemoizedChatBubble } from "./chat-bubble-message";
 import { CollectionList } from "./collection-list";
 
@@ -21,7 +20,6 @@ export default function Chat() {
   const language = useLocale();
   const t = useTranslations("Languages");
   const tCommon = useTranslations("Common");
-  const [sessionExpired, setSessionExpired] = useState(false);
   const router = useRouter();
 
   // Hook per la gestione centralizzata degli errori
@@ -51,20 +49,8 @@ export default function Chat() {
     // The key property forces a complete reset of the hook state when it changes
     key: chatKey,
     onError: (error) => {
-      // Check if the error is related to authentication (401)
-      if (
-        error.message &&
-        (error.message.includes("401") ||
-          error.message.includes("Unauthorized") ||
-          error.message.includes("Not authenticated") ||
-          error.message.includes("Authentication required"))
-      ) {
-        // Silently handle authentication errors by showing the dialog
-        setSessionExpired(true);
-        return; // Prevent the error from propagating to the default handler
-      }
-
-      // Per altri errori, utilizziamo il nostro handler centralizzato
+      // Per tutti gli errori, utilizziamo il nostro handler centralizzato
+      // La gestione degli errori 401/sessione scaduta è ora centralizzata nel TokenRefreshHandler
       handleError(error);
     },
   });
@@ -178,12 +164,6 @@ export default function Chat() {
           </form>
         </div>
       </div>
-
-      {/* Session Expired Dialog */}
-      <SessionExpiredDialog
-        isOpen={sessionExpired}
-        onOpenChange={setSessionExpired}
-      />
 
       {/* Error Dialog gestito dal nostro hook centralizzato */}
       <ErrorDialogComponent />

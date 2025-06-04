@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuthUtils } from "@/hooks/auth/use-auth-utils";
 import { AUTH_COMPUTED, AUTH_CONFIG } from "@/lib/auth/config";
+import { useLogoutStore } from "@/store/logout";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
@@ -9,6 +9,9 @@ import { SessionExpiryDialog } from "./session-expiry-dialog";
 
 // Routes that require authentication
 const PROTECTED_ROUTES = ["/dashboard", "/admin", "/profile", "/settings"];
+
+// Routes where the session expiry dialog should never be shown
+const EXCLUDED_ROUTES = ["/", "/login", "/auth"];
 
 // Check if a path is protected (including localized paths)
 function isProtectedPath(pathname: string): boolean {
@@ -20,9 +23,22 @@ function isProtectedPath(pathname: string): boolean {
   );
 }
 
+// Check if a path should never show the session expiry dialog
+function isExcludedPath(pathname: string): boolean {
+  // Remove locale prefix (e.g., /it/login -> /login)
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}\//, "/");
+
+  return EXCLUDED_ROUTES.some(
+    (route) =>
+      pathname === route ||
+      pathWithoutLocale === route ||
+      pathname.startsWith(route + "/") ||
+      pathWithoutLocale.startsWith(route + "/")
+  );
+}
+
 function TokenRefreshHandlerCore() {
   const { data: session, update, status } = useSession();
-  const { logout } = useAuthUtils();
   const lastVisibilityChange = useRef<number>(Date.now());
   const refreshInProgress = useRef<boolean>(false);
   const retryCount = useRef<number>(0);
@@ -131,13 +147,35 @@ function TokenRefreshHandlerCore() {
 
 export function TokenRefreshHandler() {
   const { data: session, status } = useSession();
+  const { isLoggedOut, resetLogoutState } = useLogoutStore();
   const pathname = usePathname();
 
   // Check if we're on a protected route
   const isProtectedRoute = isProtectedPath(pathname);
 
-  // Show session expiry dialog if on protected route without session
-  const showExpiryDialog = isProtectedRoute && status === "unauthenticated";
+  // Check if we're on an excluded route (home, login, etc.)
+  const isExcluded = isExcludedPath(pathname);
+
+  // Clear logout state when on non-protected pages to ensure clean state
+  useEffect(() => {
+    if (!isProtectedRoute) {
+      resetLogoutState();
+      console.log(
+        "🧹 [TokenRefreshHandler] Cleared logout state on non-protected page"
+      );
+    }
+  }, [isProtectedRoute, pathname, resetLogoutState]);
+
+  // Show session expiry dialog only if:
+  // 1. On a protected route
+  // 2. Not on an excluded route
+  // 3. Status is unauthenticated
+  // 4. Not during a logout operation
+  const showExpiryDialog =
+    isProtectedRoute &&
+    !isExcluded &&
+    status === "unauthenticated" &&
+    !isLoggedOut;
 
   // Debug log to see current state
   console.log(
@@ -149,12 +187,16 @@ export function TokenRefreshHandler() {
     !!session,
     "Protected:",
     isProtectedRoute,
+    "Excluded:",
+    isExcluded,
+    "IsLoggedOut:",
+    isLoggedOut,
     "ShowDialog:",
     showExpiryDialog
   );
 
-  // Only render on protected routes
-  if (!isProtectedRoute) {
+  // Only render on protected routes that are not excluded
+  if (!isProtectedRoute || isExcluded) {
     return null;
   }
 

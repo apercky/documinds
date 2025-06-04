@@ -67,11 +67,6 @@ const createNavData = (
   // Get the current chatId from URL parameters
   const currentChatId = searchParams.get("chatId");
 
-  if (process.env.NODE_ENV === "development") {
-    console.log(`currentChatId: ${currentChatId}`);
-    console.log(`currentCollection: ${currentCollection}`);
-  }
-
   return {
     navMain: [
       {

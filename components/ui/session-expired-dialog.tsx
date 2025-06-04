@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useLogoutStore } from "@/store/logout";
 import { useTranslations } from "next-intl";
 
 interface SessionExpiredDialogProps {
@@ -23,6 +24,7 @@ export function SessionExpiredDialog({
 }: SessionExpiredDialogProps) {
   const router = useRouter();
   const t = useTranslations("Auth");
+  const { isLoggedOut } = useLogoutStore();
 
   const handleOkClick = () => {
     onOpenChange(false);
@@ -30,8 +32,11 @@ export function SessionExpiredDialog({
     //router.refresh();
   };
 
+  // Don't show the dialog if a logout operation is already in progress
+  const shouldShowDialog = isOpen && !isLoggedOut;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={shouldShowDialog} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>

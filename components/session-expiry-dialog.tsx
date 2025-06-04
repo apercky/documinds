@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuthUtils } from "@/hooks/auth/use-auth-utils";
+import { useLogoutStore } from "@/store/logout";
 import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -19,14 +20,18 @@ interface SessionExpiryDialogProps {
 
 export function SessionExpiryDialog({ open }: SessionExpiryDialogProps) {
   const { logout } = useAuthUtils();
+  const { isLoggedOut } = useLogoutStore();
   const t = useTranslations("Auth.sessionExpired");
 
   const handleBackToLogin = async () => {
     await logout();
   };
 
+  // Don't show the dialog if a logout operation is already in progress
+  const shouldShowDialog = open && !isLoggedOut;
+
   return (
-    <Dialog open={open} modal>
+    <Dialog open={shouldShowDialog} modal>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20">
