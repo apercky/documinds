@@ -1,3 +1,10 @@
+# [1.0.0-develop.3](https://github.com/apercky/documinds/compare/v1.0.0-develop.2...v1.0.0-develop.3) (2025-06-05)
+
+
+### Bug Fixes
+
+* ci per release argocd ([71c7689](https://github.com/apercky/documinds/commit/71c7689233ea7b8dd3a69d242829fcec5460382a))
+
 # [1.0.0-develop.2](https://github.com/apercky/documinds/compare/v1.0.0-develop.1...v1.0.0-develop.2) (2025-06-05)
 
 
