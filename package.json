@@ -86,6 +86,10 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.4",
     "@types/pdfjs-dist": "^2.10.378",
@@ -96,6 +100,7 @@
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
     "prisma": "^6.8.2",
+    "semantic-release": "^24.2.5",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.4",
