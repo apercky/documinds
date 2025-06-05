@@ -1,45 +1,56 @@
-name: Release
-
-on:
-  push:
-    branches:
-      - main
-      - develop
-
-jobs:
-  release:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout con credenziali disabilitate
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false  # impedisce l'uso del GITHUB_TOKEN di default
-
-      - name: Setup Git + forzatura remote
-        run: |
-          git config --global user.name "ci-bot"
-          git config --global user.email "ci-bot@apercky.dev"
-          git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/apercky/documinds.git
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Semantic Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
-        run: npx semantic-release
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3  # necessario per supportare build multiarch su GitHub Actions
-
-      - name: Build and Push Docker Image
-        env:
-          GHCR_TOKEN: ${{ secrets.PAT_GITHUB }}  # 👈 usa GHCR_TOKEN come nel Makefile
-        run: make dist
+---
+    name: Release
+    
+    on:
+      push:
+        branches:
+          - main
+          - develop
+    
+    jobs:
+      release:
+        runs-on: ubuntu-latest
+    
+        steps:
+          - name: Checkout con credenziali disabilitate
+            uses: actions/checkout@v4
+            with:
+              persist-credentials: false  # impedisce l'uso del GITHUB_TOKEN di default
+    
+          - name: Setup Git + forzatura remote
+            run: |
+              git config --global user.name "ci-bot"
+              git config --global user.email "ci-bot@apercky.dev"
+              git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/apercky/documinds.git
+    
+          - name: Setup Node
+            uses: actions/setup-node@v4
+            with:
+              node-version: '20'
+              cache: 'npm'
+    
+          - name: Install dependencies
+            run: npm ci
+    
+          - name: Semantic Release
+            env:
+              GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
+            run: npx semantic-release
+    
+          # ─────────── Nuovi passi per abilitare QEMU + Buildx multi-arch ───────────
+          - name: Setup QEMU
+            uses: docker/setup-qemu-action@v3
+    
+          - name: Setup Docker Buildx
+            uses: docker/setup-buildx-action@v3
+            with:
+              driver: docker-container
+    
+          # ─────────── Fine nuovi passi ───────────
+    
+          - name: Build and Push Docker Image
+            env:
+              GHCR_TOKEN: ${{ secrets.PAT_GITHUB }}  # 👈 usa GHCR_TOKEN come nel Makefile
+              DOCUMINDS_DATABASE_URL: "postgresql://fake:fake@localhost:5432/fakedb"  # 👈 valore dummy solo per prisma generate
+            run: make dist
+    
