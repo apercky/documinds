@@ -1,3 +1,10 @@
+## [0.1.1-beta.3](https://github.com/apercky/documinds/compare/v0.1.1-beta.2...v0.1.1-beta.3) (2025-06-05)
+
+
+### Bug Fixes
+
+* Add new company in seed file ([0f3c16c](https://github.com/apercky/documinds/commit/0f3c16cc91ba509b420916851e1d89e34aa96798))
+
 ## [0.1.1-beta.2](https://github.com/apercky/documinds/compare/v0.1.1-beta.1...v0.1.1-beta.2) (2025-06-05)
 
 
