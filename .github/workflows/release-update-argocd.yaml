@@ -9,9 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout codice (repo current)
-        uses: actions/checkout@v4
-
+      # Determine the version and the target branch
       - name: Imposta versione e branch target
         run: |
           VERSION="${{ github.event.release.tag_name }}"
@@ -23,6 +21,13 @@ jobs:
             echo "TARGET_BRANCH=main" >> "$GITHUB_ENV"
           fi
 
+      # Checkout the current repository
+      - name: Checkout codice (repo current)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # 👈 questo è fondamentale! GitHub Actions per default fa il checkout shallow, con --depth=1, e questo tronca la cronologia.
+
+      # Clone the ArgoCD repository
       - name: Clona repo ArgoCD
         env:
           TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
@@ -32,6 +37,7 @@ jobs:
           cd documinds-argocd
           git checkout "$TARGET_BRANCH"
 
+      # Update the deployment.yaml file
       - name: Aggiorna deployment.yaml
         env:
           VERSION: ${{ env.VERSION }}
@@ -39,6 +45,7 @@ jobs:
           cd documinds-argocd
           sed -i "s|ghcr.io/apercky/documinds:.*|ghcr.io/apercky/documinds:${VERSION}|" components/documinds/base/deployment.yaml
 
+      # Commit and push the changes
       - name: Commit e push modifiche
         env:
           TARGET_BRANCH: ${{ env.TARGET_BRANCH }}

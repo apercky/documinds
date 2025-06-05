@@ -2,7 +2,7 @@
 CR_PATH = ghcr.io
 CR_USER = apercky
 REPO_NAME = documinds
-VERSION = $(shell jq -r .version package.json)
+VERSION ?= $(shell jq -r .version package.json)
 
 # Next Public Vars
 BUILD_ARGS = $(shell grep '^NEXT_PUBLIC_' .env | sed 's/^/--build-arg /' | xargs)
