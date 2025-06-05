@@ -16,6 +16,7 @@
             uses: actions/checkout@v4
             with:
               persist-credentials: false  # impedisce l'uso del GITHUB_TOKEN di default
+              fetch-depth: 0  # 👈 questo è fondamentale! GitHub Actions per default fa il checkout shallow, con --depth=1, e questo tronca la cronologia.
     
           - name: Setup Git + forzatura remote
             run: |
