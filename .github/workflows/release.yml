@@ -25,8 +25,10 @@ jobs:
 
       - name: Semantic Release
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
-        run: npx semantic-release
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}  # semantic-release usa sempre questa variabile
+        run: |
+          echo "✔️  Using PAT to authenticate semantic-release"
+          npx semantic-release
 
       - name: Build and Push Docker Image (make dist)
         env:
