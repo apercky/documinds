@@ -30,7 +30,6 @@ jobs:
       # Clone the ArgoCD repository
       - name: Clona repo ArgoCD
         env:
-          TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
           PAT_GITHUB: ${{ secrets.PAT_GITHUB }}
         run: |
           git clone https://x-access-token:${PAT_GITHUB}@github.com/apercky/documinds-argocd.git
@@ -39,17 +38,12 @@ jobs:
 
       # Update the deployment.yaml file
       - name: Aggiorna deployment.yaml
-        env:
-          VERSION: ${{ env.VERSION }}
         run: |
           cd documinds-argocd
           sed -i "s|ghcr.io/apercky/documinds:.*|ghcr.io/apercky/documinds:${VERSION}|" components/documinds/base/deployment.yaml
 
       # Commit and push the changes
       - name: Commit e push modifiche
-        env:
-          TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
-          VERSION: ${{ env.VERSION }}
         run: |
           cd documinds-argocd
           git config user.name "CI Bot"
