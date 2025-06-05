@@ -11,8 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout WITHOUT credentials
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # ⚠️ Importante: disabilita credenziali predefinite (github-actions[bot])
+
+      - name: Setup Git with Personal Access Token
+        run: |
+          git config --global user.name "ci-bot"
+          git config --global user.email "ci-bot@apercky.dev"
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/apercky/documinds.git
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -25,7 +33,7 @@ jobs:
 
       - name: Semantic Release
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}  # semantic-release usa sempre questa variabile
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}  # semantic-release usa questa variabile internamente
         run: |
           echo "✔️  Using PAT to authenticate semantic-release"
           npx semantic-release
