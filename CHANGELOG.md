@@ -1,3 +1,10 @@
+# [1.0.0-develop.2](https://github.com/apercky/documinds/compare/v1.0.0-develop.1...v1.0.0-develop.2) (2025-06-05)
+
+
+### Bug Fixes
+
+* test flusso CI ([7790dda](https://github.com/apercky/documinds/commit/7790ddafcaccefa803cab72b26c79abc29f18a3a))
+
 # 1.0.0-develop.1 (2025-06-05)
 
 
