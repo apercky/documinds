@@ -1,3 +1,10 @@
+## [0.1.1-beta.2](https://github.com/apercky/documinds/compare/v0.1.1-beta.1...v0.1.1-beta.2) (2025-06-05)
+
+
+### Bug Fixes
+
+* update collection sorting ([f896462](https://github.com/apercky/documinds/commit/f8964626c3627b461b4bff8bf908003c2b84a004))
+
 ## [0.1.1-beta.1](https://github.com/apercky/documinds/compare/v0.1.0...v0.1.1-beta.1) (2025-06-05)
 
 
