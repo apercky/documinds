@@ -18,6 +18,8 @@
     "@ai-sdk/openai": "^1.1.11",
     "@datastax/langflow-client": "^0.2.0",
     "@dqbd/tiktoken": "^1.0.20",
+    "@fontsource/roboto": "^5.2.5",
+    "@fontsource/roboto-mono": "^5.2.6",
     "@hookform/resolvers": "^4.0.0",
     "@langchain/community": "^0.3.30",
     "@langchain/core": "^0.3.40",

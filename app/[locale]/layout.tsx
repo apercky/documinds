@@ -1,4 +1,12 @@
 import "@/app/globals.css";
+// Import local fonts
+import "@fontsource/roboto-mono/400.css";
+import "@fontsource/roboto-mono/500.css";
+import "@fontsource/roboto-mono/700.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
 import { routing } from "@/app/i18n/routing";
 import SessionProviderWrapper from "@/components/auth/session-provider-wrapper";
 import { TokenRefreshHandler } from "@/components/token-refresh-handler";
@@ -6,20 +14,7 @@ import { ThemeProvider } from "@/components/ui/providers/theme-provider";
 import { Providers } from "@/lib/providers/providers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
-import { Roboto, Roboto_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
-
-const robotoSans = Roboto({
-  variable: "--font-roboto-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
-
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
 
 interface RootLayoutProps {
   children: Readonly<React.ReactNode>;
@@ -75,9 +70,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className="h-full">
-      <body
-        className={`${robotoSans.variable} ${robotoMono.variable} min-h-screen bg-background text-foreground antialiased overflow-x-hidden overscroll-none`}
-      >
+      <body className="min-h-screen bg-background text-foreground antialiased overflow-x-hidden overscroll-none">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
