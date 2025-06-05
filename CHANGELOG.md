@@ -1,3 +1,10 @@
+## [0.1.1-beta.5](https://github.com/apercky/documinds/compare/v0.1.1-beta.4...v0.1.1-beta.5) (2025-06-05)
+
+
+### Bug Fixes
+
+* skip chore release ([0d8670c](https://github.com/apercky/documinds/commit/0d8670c05a603d51dee1ac2c2ffbff553f764b75))
+
 ## [0.1.1-beta.4](https://github.com/apercky/documinds/compare/v0.1.1-beta.3...v0.1.1-beta.4) (2025-06-05)
 
 
