@@ -7,16 +7,23 @@
         "channel": "beta"
       }
     ],
+    "repositoryUrl": "https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/apercky/documinds.git",
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
-      ["@semantic-release/changelog", {
-        "changelogFile": "CHANGELOG.md"
-      }],
-      ["@semantic-release/git", {
-        "assets": ["package.json", "CHANGELOG.md"],
-        "message": "chore(release): ${nextRelease.version}"
-      }]
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": ["package.json", "CHANGELOG.md"],
+          "message": "chore(release): ${nextRelease.version}"
+        }
+      ]
     ]
   }
   
