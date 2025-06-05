@@ -242,6 +242,9 @@ export async function getCollections(
     include: {
       attributes: true,
     },
+    orderBy: {
+      name: "asc",
+    },
   });
 
   // Enrich collections with document count from Qdrant when needed

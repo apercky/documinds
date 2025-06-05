@@ -157,10 +157,15 @@ export function NavMain({ items, onClearChat }: NavMainProps) {
                             <div className="flex w-full items-center justify-between">
                               <Link
                                 href={subItem.url}
-                                className="flex-grow"
+                                className="flex-grow min-w-0"
                                 onClick={handleLinkClick}
                               >
-                                <span>{subItem.title}</span>
+                                <span
+                                  className="block truncate"
+                                  title={subItem.title}
+                                >
+                                  {subItem.title}
+                                </span>
                               </Link>
                               {isClearable && subItem.collectionName && (
                                 <button

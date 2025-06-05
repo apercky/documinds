@@ -36,11 +36,20 @@ jobs:
           cd documinds-argocd
           git checkout "$TARGET_BRANCH"
 
-      # Update the deployment.yaml file
-      - name: Aggiorna deployment.yaml
+      # Update the version patch file
+      - name: Aggiorna version patch
         run: |
           cd documinds-argocd
-          sed -i "s|ghcr.io/apercky/documinds:.*|ghcr.io/apercky/documinds:${VERSION}|" components/documinds/base/deployment.yaml
+          
+          # Costruisce il percorso del file in base al branch
+          if [[ "$TARGET_BRANCH" == "develop" ]]; then
+            PATCH_FILE="clusters/dev/documinds/documinds-version-patch.yaml"
+          else
+            PATCH_FILE="clusters/prod/documinds/documinds-version-patch.yaml"
+          fi
+          
+          # Aggiorna il valore dell'annotation deployment.version
+          sed -i "s|deployment.version: \".*\"|deployment.version: \"${VERSION}\"|" "$PATCH_FILE"
 
       # Commit and push the changes
       - name: Commit e push modifiche
