@@ -36,6 +36,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
         run: npx semantic-release
 
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3  # necessario per supportare build multiarch su GitHub Actions
+
       - name: Build and Push Docker Image
         env:
           GHCR_TOKEN: ${{ secrets.PAT_GITHUB }}  # 👈 usa GHCR_TOKEN come nel Makefile
