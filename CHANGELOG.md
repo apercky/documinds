@@ -1,3 +1,10 @@
+## [0.1.1-beta.4](https://github.com/apercky/documinds/compare/v0.1.1-beta.3...v0.1.1-beta.4) (2025-06-05)
+
+
+### Bug Fixes
+
+* fix se commit is chore release ([7cca9a4](https://github.com/apercky/documinds/commit/7cca9a4d515d81e01277aa124d9487f043b62848))
+
 ## [0.1.1-beta.3](https://github.com/apercky/documinds/compare/v0.1.1-beta.2...v0.1.1-beta.3) (2025-06-05)
 
 
