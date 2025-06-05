@@ -4,7 +4,7 @@
     "main",
     {
       "name": "develop",
-      "prerelease": true,
+      "prerelease": "beta",
       "channel": "beta"
     }
   ],
@@ -15,6 +15,12 @@
       "@semantic-release/changelog",
       {
         "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false
       }
     ],
     [
