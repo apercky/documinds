@@ -1,3 +1,11 @@
+## [0.1.1-beta.1](https://github.com/apercky/documinds/compare/v0.1.0...v0.1.1-beta.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* Change fonts source, from next/font/google to @fontsource/roboto ([f4d0d10](https://github.com/apercky/documinds/commit/f4d0d106c4e038eb413b26448eff05a0749e133f))
+* removed unused file ([f965503](https://github.com/apercky/documinds/commit/f9655032aa4c55054e8ca73783e3cc6e8ab91ab1))
+
 # [1.0.0-develop.3](https://github.com/apercky/documinds/compare/v1.0.0-develop.2...v1.0.0-develop.3) (2025-06-05)
 
 
