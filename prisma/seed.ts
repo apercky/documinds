@@ -9,6 +9,12 @@ async function setupCompanies() {
     // Create sample companies
     const companies = [
       {
+        code: "001",
+        name: "Documinds",
+        description: "Documinds S.p.A.",
+        brandCode: "1_10",
+      },
+      {
         code: "056",
         name: "DIESEL",
         description: "DIESEL S.p.A.",
