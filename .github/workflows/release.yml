@@ -9,6 +9,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +23,12 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Release
+      - name: Semantic Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
         run: npx semantic-release
+
+      - name: Build and Push Docker Image (make dist)
+        env:
+          CR_PAT: ${{ secrets.PAT_GITHUB }}
+        run: make dist

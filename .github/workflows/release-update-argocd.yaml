@@ -1,0 +1,51 @@
+name: Update ArgoCD Deployment
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-deployment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codice (repo current)
+        uses: actions/checkout@v4
+
+      - name: Imposta versione e branch target
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+          if [[ "$VERSION" == *"-beta."* ]]; then
+            echo "TARGET_BRANCH=develop" >> "$GITHUB_ENV"
+          else
+            echo "TARGET_BRANCH=main" >> "$GITHUB_ENV"
+          fi
+
+      - name: Clona repo ArgoCD
+        env:
+          TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+          PAT_GITHUB: ${{ secrets.PAT_GITHUB }}
+        run: |
+          git clone https://x-access-token:${PAT_GITHUB}@github.com/apercky/documinds-argocd.git
+          cd documinds-argocd
+          git checkout "$TARGET_BRANCH"
+
+      - name: Aggiorna deployment.yaml
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: |
+          cd documinds-argocd
+          sed -i "s|ghcr.io/apercky/documinds:.*|ghcr.io/apercky/documinds:${VERSION}|" components/documinds/base/deployment.yaml
+
+      - name: Commit e push modifiche
+        env:
+          TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+          VERSION: ${{ env.VERSION }}
+        run: |
+          cd documinds-argocd
+          git config user.name "CI Bot"
+          git config user.email "ci@apercky.dev"
+          git commit -am "chore(deploy): aggiornata immagine a ${VERSION}"
+          git push origin "$TARGET_BRANCH"
