@@ -1,10 +1,12 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function LoginPage() {
+  const t = useTranslations("Login");
   const { locale } = useParams();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -30,11 +32,11 @@ export default function LoginPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold text-foreground">Authenticating</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("authenticating")}
+          </h1>
           <p className="text-muted-foreground">
-            {isRedirecting
-              ? "Redirecting to secure login..."
-              : "Preparing your secure connection..."}
+            {isRedirecting ? t("redirectingToLogin") : t("preparingConnection")}
           </p>
         </div>
 

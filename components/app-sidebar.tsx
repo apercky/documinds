@@ -338,7 +338,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarFooter>
           <NavUser user={session?.user} isLoading={status === "loading"} />
         </SidebarFooter>
-        <SidebarRail />
+        <SidebarRail
+          ariaLabel={t("toggleSidebar")}
+          title={t("toggleSidebar")}
+        />
       </Sidebar>
 
       {/* Utilizziamo il componente dialog fornito dall'hook */}

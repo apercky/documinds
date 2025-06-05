@@ -35,7 +35,8 @@
       "billing": "Billing",
       "limits": "Limits",
       "platform": "Platform",
-      "clearChat": "Clear chat history"
+      "clearChat": "Clear chat history",
+      "toggleSidebar": "Toggle Sidebar"
     },
     "UserNav": {
       "profile": "Profile",
@@ -177,7 +178,37 @@
       "permissionDenied": "Permission Denied",
       "authenticationFailed": "Authentication Failed",
       "networkError": "Network Error",
-      "serverError": "Server Error"
+      "serverError": "Server Error",
+      "applicationErrorTitle": "Application Error",
+      "genericError": "An error occurred",
+      "unknownError": "Unknown error",
+      "unexpectedError": "An unexpected error occurred"
+    },
+    "Login": {
+      "authenticating": "Authenticating",
+      "redirectingToLogin": "Redirecting to secure login...",
+      "preparingConnection": "Preparing your secure connection..."
+    },
+    "Upload": {
+      "title": "Upload Documents",
+      "collectionName": "Collection Name",
+      "selectCollection": "Select a collection",
+      "dropFilesHere": "Drop the files here...",
+      "dragDropFiles": "Drag 'n' drop some files here, or click to select files",
+      "supportedFormats": "Supported formats: PDF, DOC, DOCX, TXT",
+      "selectedFiles": "Selected files:",
+      "uploading": "Uploading...",
+      "uploadDocuments": "Upload Documents",
+      "failedToUpload": "Failed to upload documents",
+      "pleaseSelectFiles": "Please select files to upload",
+      "failedToInitialize": "Failed to initialize upload stream",
+      "docs": "docs"
+    },
+    "UI": {
+      "loading": "Loading...",
+      "toggleSidebar": "Toggle Sidebar",
+      "scrollToBottom": "Scroll to bottom",
+      "value": "Value"
     },
     "BrandConfiguration": {
       "title": "Brand Configuration",

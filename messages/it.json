@@ -27,15 +27,16 @@
     "Navigation": {
       "dashboard": "Dashboard",
       "users": "Utenti",
-      "settings": "Impostazioni",
       "newChat": "Nuova Chat",
       "documentation": "Documentazione",
+      "settings": "Impostazioni",
       "general": "Generale",
       "team": "Team",
       "billing": "Fatturazione",
       "limits": "Limiti",
       "platform": "Piattaforma",
-      "clearChat": "Cancella cronologia chat"
+      "clearChat": "Cancella cronologia chat",
+      "toggleSidebar": "Attiva/Disattiva Barra Laterale"
     },
     "UserNav": {
       "profile": "Profilo",
@@ -177,7 +178,37 @@
       "permissionDenied": "Permesso Negato",
       "authenticationFailed": "Autenticazione Fallita",
       "networkError": "Errore di Rete",
-      "serverError": "Errore del Server"
+      "serverError": "Errore del Server",
+      "applicationErrorTitle": "Errore Applicazione",
+      "genericError": "Si è verificato un errore",
+      "unknownError": "Errore sconosciuto",
+      "unexpectedError": "Si è verificato un errore imprevisto"
+    },
+    "Login": {
+      "authenticating": "Autenticazione in corso",
+      "redirectingToLogin": "Reindirizzamento al login sicuro...",
+      "preparingConnection": "Preparazione della connessione sicura..."
+    },
+    "Upload": {
+      "title": "Carica Documenti",
+      "collectionName": "Nome Collezione",
+      "selectCollection": "Seleziona una collezione",
+      "dropFilesHere": "Rilascia i file qui...",
+      "dragDropFiles": "Trascina i file qui, oppure clicca per selezionare i file",
+      "supportedFormats": "Formati supportati: PDF, DOC, DOCX, TXT",
+      "selectedFiles": "File selezionati:",
+      "uploading": "Caricamento...",
+      "uploadDocuments": "Carica Documenti",
+      "failedToUpload": "Impossibile caricare i documenti",
+      "pleaseSelectFiles": "Seleziona i file da caricare",
+      "failedToInitialize": "Impossibile inizializzare il flusso di caricamento",
+      "docs": "docs"
+    },
+    "UI": {
+      "loading": "Caricamento...",
+      "toggleSidebar": "Attiva/Disattiva Barra Laterale",
+      "scrollToBottom": "Scorri in basso",
+      "value": "Valore"
     },
     "BrandConfiguration": {
       "title": "Configurazione Brand",

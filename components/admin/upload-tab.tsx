@@ -20,26 +20,26 @@ import {
 } from "@/components/ui/select";
 import { useCollection } from "@/hooks/use-collection";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CreateCollectionDialog } from "./create-collection-dialog";
 
-const collectionNameSchema = z
-  .string()
-  .min(3, "Collection name must be at least 3 characters")
-  .max(63, "Collection name must be less than 63 characters")
-  .regex(
-    /^[a-z0-9-]+$/,
-    "Only lowercase letters, numbers, and hyphens are allowed"
-  );
+const getCollectionNameSchema = (t: any) =>
+  z
+    .string()
+    .min(3, t("name.min", { min: 3 }))
+    .max(63, t("name.max", { max: 63 }))
+    .regex(/^[a-z0-9-]+$/, t("name.format"));
 
-const uploadSchema = z.object({
-  collectionName: collectionNameSchema,
-});
+const getUploadSchema = (t: any) =>
+  z.object({
+    collectionName: getCollectionNameSchema(t),
+  });
 
-type UploadFormValues = z.infer<typeof uploadSchema>;
+type UploadFormValues = z.infer<ReturnType<typeof getUploadSchema>>;
 
 interface UploadProgress {
   type: "progress" | "status" | "complete" | "error";
@@ -51,6 +51,9 @@ interface UploadProgress {
 }
 
 export function UploadTab() {
+  const t = useTranslations("Upload");
+  const tValidation = useTranslations("validation.collection");
+
   // Use our custom hook for collections
   const {
     collections,
@@ -68,7 +71,7 @@ export function UploadTab() {
   );
 
   const form = useForm<UploadFormValues>({
-    resolver: zodResolver(uploadSchema),
+    resolver: zodResolver(getUploadSchema(tValidation)),
     defaultValues: {
       collectionName: "",
     },
@@ -109,7 +112,7 @@ export function UploadTab() {
 
   const handleUpload = async (values: UploadFormValues) => {
     if (files.length === 0) {
-      setError("Please select files to upload");
+      setError(t("pleaseSelectFiles"));
       return;
     }
 
@@ -136,7 +139,7 @@ export function UploadTab() {
         const decoder = new TextDecoder();
 
         if (!reader) {
-          throw new Error("Failed to initialize upload stream");
+          throw new Error(t("failedToInitialize"));
         }
 
         while (true) {
@@ -168,9 +171,7 @@ export function UploadTab() {
       // Refresh collections list after upload
       refreshCollections();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to upload documents"
-      );
+      setError(err instanceof Error ? err.message : t("failedToUpload"));
     } finally {
       setUploading(false);
       // Clear progress after a delay
@@ -202,7 +203,7 @@ export function UploadTab() {
             >
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold">Upload Documents</h2>
+                  <h2 className="text-lg font-semibold">{t("title")}</h2>
                   <CreateCollectionDialog
                     onCollectionCreated={handleCollectionCreated}
                   />
@@ -212,7 +213,7 @@ export function UploadTab() {
                   name="collectionName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Collection Name</FormLabel>
+                      <FormLabel>{t("collectionName")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -220,7 +221,7 @@ export function UploadTab() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a collection" />
+                            <SelectValue placeholder={t("selectCollection")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -230,7 +231,7 @@ export function UploadTab() {
                               value={collection.name}
                             >
                               {collection.name} ({collection.documentCount}{" "}
-                              docs)
+                              {t("docs")})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -252,21 +253,18 @@ export function UploadTab() {
               >
                 <input {...getInputProps()} />
                 {isDragActive ? (
-                  <p>Drop the files here ...</p>
+                  <p>{t("dropFilesHere")}</p>
                 ) : (
-                  <p>
-                    Drag &apos;n&apos; drop some files here, or click to select
-                    files
-                  </p>
+                  <p>{t("dragDropFiles")}</p>
                 )}
                 <p className="text-sm text-muted-foreground mt-2">
-                  Supported formats: PDF, DOC, DOCX, TXT
+                  {t("supportedFormats")}
                 </p>
               </div>
 
               {files.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="font-medium mb-2">Selected files:</h4>
+                  <h4 className="font-medium mb-2">{t("selectedFiles")}</h4>
                   <ul className="space-y-1">
                     {files.map((file) => (
                       <li key={file.name} className="text-sm">
@@ -304,7 +302,7 @@ export function UploadTab() {
                 className="w-full"
                 disabled={uploading || files.length === 0}
               >
-                {uploading ? "Uploading..." : "Upload Documents"}
+                {uploading ? t("uploading") : t("uploadDocuments")}
               </Button>
             </form>
           </Form>

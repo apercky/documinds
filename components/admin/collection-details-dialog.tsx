@@ -207,7 +207,7 @@ export function CollectionDetailsDialog({
   };
 
   if (isLoading) {
-    return <LoadingIndicator text="Loading..." className="py-8" />;
+    return <LoadingIndicator className="py-8" />;
   }
 
   return (

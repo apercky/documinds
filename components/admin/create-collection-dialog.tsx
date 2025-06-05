@@ -162,10 +162,7 @@ export function CreateCollectionDialog({
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={
-                        tCreate("name.placeholder") ||
-                        "Insert the collection name..."
-                      }
+                      placeholder={tCreate("name.placeholder")}
                       {...field}
                       aria-required="true"
                     />
@@ -183,10 +180,7 @@ export function CreateCollectionDialog({
                   <FormLabel>{tCreate("description.label")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={
-                        tCreate("description.placeholder") ||
-                        "Add a description for the collection..."
-                      }
+                      placeholder={tCreate("description.placeholder")}
                       {...field}
                     />
                   </FormControl>
@@ -265,10 +259,9 @@ export function CreateCollectionDialog({
                         <FormItem className="flex-1">
                           <FormControl>
                             <Input
-                              placeholder={
-                                tCreate("attributes.valuePlaceholder") ||
-                                "Value"
-                              }
+                              placeholder={tCreate(
+                                "attributes.valuePlaceholder"
+                              )}
                               {...field}
                             />
                           </FormControl>

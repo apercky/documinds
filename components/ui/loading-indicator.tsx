@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface LoadingIndicatorProps {
   text?: string;
@@ -8,10 +9,12 @@ interface LoadingIndicatorProps {
 }
 
 export function LoadingIndicator({
-  text = "Loading...",
+  text,
   className,
   iconClassName,
 }: LoadingIndicatorProps) {
+  const t = useTranslations("UI");
+  const displayText = text || t("loading");
   return (
     <div
       className={cn(
@@ -32,7 +35,7 @@ export function LoadingIndicator({
         </div>
       </div>
       <span className="text-sm font-medium bg-gradient-to-r from-primary/80 via-primary to-primary/80 bg-clip-text text-transparent animate-pulse">
-        {text}
+        {displayText}
       </span>
     </div>
   );

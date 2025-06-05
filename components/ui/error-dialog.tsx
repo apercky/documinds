@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 interface ErrorDialogProps {
@@ -20,28 +20,6 @@ interface ErrorDialogProps {
   details?: string | null;
 }
 
-// Inline translations to avoid dependency on message files
-const translations = {
-  en: {
-    defaultTitle: "Error Occurred",
-    defaultMessage:
-      "An unexpected error occurred while processing your request.",
-    technicalDetails: "Technical Details",
-    showDetails: "Show Details",
-    hideDetails: "Hide Details",
-    okButton: "OK",
-  },
-  it: {
-    defaultTitle: "Errore",
-    defaultMessage:
-      "Si è verificato un errore imprevisto durante l'elaborazione della richiesta.",
-    technicalDetails: "Dettagli Tecnici",
-    showDetails: "Mostra Dettagli",
-    hideDetails: "Nascondi Dettagli",
-    okButton: "OK",
-  },
-};
-
 export function ErrorDialog({
   isOpen,
   onOpenChange,
@@ -49,8 +27,7 @@ export function ErrorDialog({
   message,
   details = null,
 }: ErrorDialogProps) {
-  const locale = useLocale() as keyof typeof translations;
-  const t = translations[locale] || translations.en;
+  const t = useTranslations("Errors");
   const [showDetails, setShowDetails] = useState(false);
 
   const handleOkClick = () => {
@@ -65,16 +42,20 @@ export function ErrorDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{title || t.defaultTitle}</DialogTitle>
-          <DialogDescription>{message || t.defaultMessage}</DialogDescription>
+          <DialogTitle>{title || t("defaultTitle")}</DialogTitle>
+          <DialogDescription>
+            {message || t("defaultMessage")}
+          </DialogDescription>
         </DialogHeader>
 
         {details && (
           <div className="border rounded-md p-3 bg-muted/30">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">{t.technicalDetails}</span>
+              <span className="text-sm font-medium">
+                {t("technicalDetails")}
+              </span>
               <Button variant="ghost" size="sm" onClick={toggleDetails}>
-                {showDetails ? t.hideDetails : t.showDetails}
+                {showDetails ? t("hideDetails") : t("showDetails")}
               </Button>
             </div>
 
@@ -87,7 +68,7 @@ export function ErrorDialog({
         )}
 
         <DialogFooter>
-          <Button onClick={handleOkClick}>{t.okButton}</Button>
+          <Button onClick={handleOkClick}>{t("okButton")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
