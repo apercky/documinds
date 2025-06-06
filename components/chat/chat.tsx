@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat-input";
-import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useChat } from "@ai-sdk/react";
 import { Message } from "ai";
@@ -10,6 +9,7 @@ import { CornerDownLeft, StopCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
+import ScrollToBottomButton from "../ui/scroll-to-bottom-button";
 import { MemoizedChatBubble } from "./chat-bubble-message";
 import { CollectionList } from "./collection-list";
 
@@ -93,7 +93,7 @@ export default function Chat() {
       <div className="h-full flex flex-col">
         {/* Chat messages list */}
         <div className="flex flex-1 h-[calc(100dvh-7.5rem)] overflow-hidden">
-          <ChatMessageList>
+          <ScrollToBottomButton className="relative w-full h-full">
             {messages.map((message: Message) => (
               <MemoizedChatBubble key={message.id} message={message} />
             ))}
@@ -117,7 +117,7 @@ export default function Chat() {
                 </div>
               </>
             )}
-          </ChatMessageList>
+          </ScrollToBottomButton>
         </div>
 
         {/* Chat bar with input and send button */}
