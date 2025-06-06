@@ -8,6 +8,7 @@ on:
 
 jobs:
   release:
+    if: '!startsWith(github.event.head_commit.message, "chore(release):")'
     runs-on: ubuntu-latest
 
     steps:
@@ -17,15 +18,6 @@ jobs:
           persist-credentials: false  # impedisce l'uso del GITHUB_TOKEN di default
           fetch-depth: 0  # 👈 questo è fondamentale! GitHub Actions per default fa il checkout shallow, con --depth=1, e questo tronca la cronologia.
 
-      # Skip se commit è 'chore(release):'
-      - name: Skip se commit è 'chore(release):'
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          echo "Commit message: $COMMIT_MSG"
-          if echo "$COMMIT_MSG" | grep -q "^chore(release):"; then
-            echo "🔁 Commit di release automatico, salto job."
-            exit 78  # Neutral outcome = job skipped
-          fi
       - name: Setup Git + forzatura remote
         run: |
           git config --global user.name "ci-bot"
