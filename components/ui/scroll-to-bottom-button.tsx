@@ -13,6 +13,7 @@ interface Props {
 const ScrollToBottomButton: React.FC<Props> = ({ children, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showButton, setShowButton] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const t = useTranslations("UI");
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const ScrollToBottomButton: React.FC<Props> = ({ children, className }) => {
     const handleScroll = () => {
       const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 10;
       setShowButton(!isAtBottom);
+      setShouldAutoScroll(isAtBottom);
     };
 
     el.addEventListener("scroll", handleScroll);
@@ -29,6 +31,27 @@ const ScrollToBottomButton: React.FC<Props> = ({ children, className }) => {
 
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Auto-scroll quando il contenuto cambia se l'utente è al bottom
+  useEffect(() => {
+    if (shouldAutoScroll && containerRef.current) {
+      const scrollToBottom = () => {
+        if (containerRef.current) {
+          // Usa scrollTop diretto per essere più preciso
+          containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+      };
+
+      // Usa requestAnimationFrame per timing migliore
+      const frame = requestAnimationFrame(() => {
+        scrollToBottom();
+        // Doppio check per assicurarsi che sia veramente al bottom
+        setTimeout(scrollToBottom, 50);
+      });
+
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [children, shouldAutoScroll]);
 
   const scrollToBottom = () => {
     containerRef.current?.scrollTo({

@@ -93,7 +93,7 @@ export default function Chat() {
       <div className="h-full flex flex-col">
         {/* Chat messages list */}
         <div className="flex flex-1 h-[calc(100dvh-7.5rem)] overflow-hidden">
-          <ScrollToBottomButton className="relative w-full h-full">
+          <ScrollToBottomButton className="relative w-full h-full p-6">
             {messages.map((message: Message) => (
               <MemoizedChatBubble key={message.id} message={message} />
             ))}

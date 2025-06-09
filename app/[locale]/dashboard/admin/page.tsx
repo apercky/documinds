@@ -22,15 +22,15 @@ export default function AdminPage() {
           </TabsList>
 
           <div className="h-[calc(100vh-204px)] overflow-auto scrollbar-hide">
-            <TabsContent value="collections" className="h-full">
+            <TabsContent value="collections" className="pb-6">
               <CollectionsTab />
             </TabsContent>
 
-            <TabsContent value="upload" className="h-full">
+            <TabsContent value="upload" className="pb-6">
               <UploadTab />
             </TabsContent>
 
-            <TabsContent value="settings" className="h-full">
+            <TabsContent value="settings" className="pb-6">
               <SettingsTab />
             </TabsContent>
           </div>
