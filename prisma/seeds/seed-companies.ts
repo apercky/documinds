@@ -2,11 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function setupCompanies() {
-  console.log("Setting up companies...");
+export async function seedCompanies() {
+  console.log("🏢 Setting up companies...");
 
   try {
-    // Create sample companies
     const companies = [
       {
         code: "001",
@@ -37,33 +36,16 @@ async function setupCompanies() {
     for (const company of companies) {
       await prisma.company.upsert({
         where: { brandCode: company.brandCode },
-        update: {}, // no update, only create if not exists
+        update: {},
         create: company,
       });
 
-      console.log(
-        `✓ Ensured company exists: ${company.name} (${company.brandCode})`
-      );
+      console.log(`✓ Company: ${company.name} (${company.brandCode})`);
     }
 
-    console.log("Companies setup completed!");
+    console.log("✅ Companies setup completed!");
   } catch (error) {
-    console.error("Error setting up companies:", error);
+    console.error("❌ Error setting up companies:", error);
     throw error;
-  } finally {
-    await prisma.$disconnect();
   }
-}
-
-// Run the setup if this file is executed directly
-if (require.main === module) {
-  setupCompanies()
-    .then(() => {
-      console.log("Setup completed successfully!");
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error("Setup failed:", error);
-      process.exit(1);
-    });
 }

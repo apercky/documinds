@@ -448,7 +448,9 @@ async function generateSeedFile(
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seedTranslations() {
+  console.log("📄 Setting up translations...");
+  
   const translations = [
 ${allTranslations
   .map((t) => {
@@ -461,7 +463,7 @@ ${allTranslations
   .join("\n")}
   ];
 
-  console.log("Seeding translations...");
+  console.log("📄 Seeding translations...");
 
   for (const translation of translations) {
     await prisma.translation.upsert({
@@ -479,21 +481,13 @@ ${allTranslations
     });
   }
 
-  console.log("Translation seeding completed successfully!");
+  console.log("📄 Translation seeding completed successfully!");
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
 `;
 
   // Write the seed file
-  const seedFilePath = path.join("prisma", "seed.ts");
+  const seedFilePath = path.join("prisma", "seeds", "seed-translations.ts");
   await fs.writeFile(seedFilePath, seedContent, "utf-8");
 
   console.log(`✅ Generated seed file: ${seedFilePath}`);
