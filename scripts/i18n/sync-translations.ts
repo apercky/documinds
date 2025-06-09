@@ -417,6 +417,106 @@ async function initializeTranslations(): Promise<void> {
   console.log("\n✅ Initialization complete!");
 }
 
+async function generateSeedFile(
+  locales: string[] = SUPPORTED_LOCALES
+): Promise<void> {
+  console.log("🔄 Generating seed file from database translations...\n");
+
+  // Get all translations from database
+  const allTranslations = await prisma.translation.findMany({
+    where: {
+      locale: {
+        in: locales,
+      },
+    },
+    select: {
+      key: true,
+      locale: true,
+      value: true,
+      namespace: true,
+    },
+    orderBy: [{ namespace: "asc" }, { locale: "asc" }, { key: "asc" }],
+  });
+
+  if (allTranslations.length === 0) {
+    console.log("No translations found in database.");
+    return;
+  }
+
+  // Generate the seed file content
+  const seedContent = `import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+async function main() {
+  const translations = [
+${allTranslations
+  .map((t) => {
+    const escapedValue = t.value
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "\\n");
+    return `    { key: "${t.key}", locale: "${t.locale}", value: "${escapedValue}", namespace: "${t.namespace}" },`;
+  })
+  .join("\n")}
+  ];
+
+  console.log("Seeding translations...");
+
+  for (const translation of translations) {
+    await prisma.translation.upsert({
+      where: {
+        key_locale_namespace: {
+          key: translation.key,
+          locale: translation.locale,
+          namespace: translation.namespace,
+        },
+      },
+      update: {
+        value: translation.value,
+      },
+      create: translation,
+    });
+  }
+
+  console.log("Translation seeding completed successfully!");
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+`;
+
+  // Write the seed file
+  const seedFilePath = path.join("prisma", "seed.ts");
+  await fs.writeFile(seedFilePath, seedContent, "utf-8");
+
+  console.log(`✅ Generated seed file: ${seedFilePath}`);
+  console.log(`📊 Included ${allTranslations.length} translations`);
+
+  // Show summary by locale and namespace
+  const summary = allTranslations.reduce((acc, t) => {
+    const key = `${t.locale}:${t.namespace}`;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  console.log("\n📋 Summary:");
+  Object.entries(summary)
+    .sort()
+    .forEach(([key, count]) => {
+      const [locale, namespace] = key.split(":");
+      console.log(`  ${locale} (${namespace}): ${count} translations`);
+    });
+
+  console.log("\n✅ Seed generation complete!");
+}
+
 // CLI Setup
 program
   .name("sync-translations")
@@ -487,18 +587,33 @@ program
     await prisma.$disconnect();
   });
 
+program
+  .command("generate-seed")
+  .description("Generate a seed file from database translations")
+  .option(
+    "-l, --locales <locales>",
+    "Comma-separated list of locales",
+    SUPPORTED_LOCALES.join(",")
+  )
+  .action(async (options) => {
+    const locales = options.locales.split(",");
+    await generateSeedFile(locales);
+    await prisma.$disconnect();
+  });
+
 // Run the CLI
 if (require.main === module) {
   program.parse();
 }
 
 export {
+  buildJSON,
   compareTranslations,
   downloadFromDatabase,
+  flattenJSON,
+  generateSeedFile,
   syncTranslations,
   uploadToDatabase,
-  buildJSON,
-  flattenJSON,
 };
 
 // package.json scripts (add these to your existing package.json)
@@ -510,6 +625,7 @@ export {
     "sync:sync": "tsx scripts/sync-translations.ts sync",
     "sync:compare": "tsx scripts/sync-translations.ts compare",
     "sync:init": "tsx scripts/sync-translations.ts init",
+    "sync:generate-seed": "tsx scripts/sync-translations.ts generate-seed",
     "sync:help": "tsx scripts/sync-translations.ts --help"
   },
   "dependencies": {

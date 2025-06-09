@@ -19,6 +19,7 @@
     "sync:download": "tsx scripts/i18n/sync-translations.ts download",
     "sync:sync": "tsx scripts/i18n/sync-translations.ts sync",
     "sync:compare": "tsx scripts/i18n/sync-translations.ts compare",
+    "sync:generate-seed": "tsx scripts/i18n/sync-translations.ts generate-seed",
     "sync:help": "tsx scripts/i18n/sync-translations.ts --help"
   },
   "prisma": {

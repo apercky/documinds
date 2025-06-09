@@ -121,6 +121,7 @@ CREATE TABLE dm_translations (
     "sync:download": "tsx scripts/sync-translations.ts download",
     "sync:sync": "tsx scripts/sync-translations.ts sync",
     "sync:compare": "tsx scripts/sync-translations.ts compare",
+    "sync:generate-seed": "tsx scripts/sync-translations.ts generate-seed",
     "sync:help": "tsx scripts/sync-translations.ts --help"
   },
   "dependencies": {
@@ -331,6 +332,44 @@ npm run sync:sync
 npm run sync:compare
 ```
 
+**Generate seed file from database translations:**
+
+```bash
+npm run sync:generate-seed
+# or for specific locales
+npm run sync:generate-seed -- --locales en,es,it
+```
+
+## Seed File Generation
+
+### Generate Database Seed from Current Translations
+
+The `sync:generate-seed` command creates a `prisma/seed-translations.ts` file from all translations currently stored in the database. This is useful for:
+
+- **Backup**: Create a seed file from your current database state
+- **Migration**: Generate seed files for different environments  
+- **Version Control**: Create static seed files from dynamic database content
+- **Distribution**: Share translation seeds with other developers
+
+```bash
+# Generate seed file with all supported locales
+npm run sync:generate-seed
+
+# Generate seed file for specific locales only
+npm run sync:generate-seed -- --locales en,it
+
+# Run the generated seed file
+npm run db:seed-translations
+```
+
+The generated seed file will:
+
+- Include all translations from the database for specified locales
+- Be formatted exactly like the existing `seed-translations.ts` structure
+- Be saved to `prisma/seed-translations.ts`
+- Show a summary of included translations by locale and namespace
+- Properly escape special characters in translation values
+
 ## Development Workflow
 
 ### For developers adding translations in JSON files
@@ -507,6 +546,7 @@ To add more locales:
 ✅ **Conflict detection** - Shows differences between sources  
 ✅ **Selective sync** - Choose specific locales  
 ✅ **Backup safety** - Always preserves existing data  
+✅ **Seed generation** - Create seed files from database  
 ✅ **CLI interface** - Easy to use commands  
 ✅ **TypeScript** - Full type safety  
 
