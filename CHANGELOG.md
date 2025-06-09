@@ -1,3 +1,11 @@
+## [0.1.1-beta.6](https://github.com/apercky/documinds/compare/v0.1.1-beta.5...v0.1.1-beta.6) (2025-06-06)
+
+
+### Bug Fixes
+
+* chat scrolling component for iOS ([aebef39](https://github.com/apercky/documinds/commit/aebef3975c8321c1a4c95ed4bff3e0591bf96eed))
+* try to fix CI for chore(release) commit ([5e1113a](https://github.com/apercky/documinds/commit/5e1113a8d20fce613e95c77c383a53d6892927c2))
+
 ## [0.1.1-beta.5](https://github.com/apercky/documinds/compare/v0.1.1-beta.4...v0.1.1-beta.5) (2025-06-05)
 
 
