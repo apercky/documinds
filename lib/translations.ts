@@ -30,13 +30,19 @@ function transformTranslations(translations: Translation[]): Messages {
   const messages: Messages = {};
 
   translations.forEach(({ key, value, namespace }) => {
-    // Combine namespace and key
-    const fullKey = namespace === "common" ? key : `${namespace}.${key}`;
-
-    // Split by dots to create nested structure
-    const keys = fullKey.split(".");
+    // For namespace reconstruction: namespace becomes the top-level key, then the dot-separated key follows
     let current = messages;
 
+    if (namespace !== "common") {
+      // Create namespace object if it doesn't exist
+      if (!current[namespace]) {
+        current[namespace] = {};
+      }
+      current = current[namespace] as Messages;
+    }
+
+    // Now handle the key (which might be dot-separated)
+    const keys = key.split(".");
     for (let i = 0; i < keys.length - 1; i++) {
       if (!current[keys[i]]) {
         current[keys[i]] = {};

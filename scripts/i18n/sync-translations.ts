@@ -19,48 +19,67 @@ interface FlatTranslation {
 
 // Configuration
 const TRANSLATIONS_DIR = "messages";
-const SUPPORTED_LOCALES = locales; // Add your locales here
+const SUPPORTED_LOCALES = locales;
 
-// Utility function to flatten nested translation objects
-function flattenTranslations(
-  obj: TranslationFile,
-  prefix: string = "",
-  namespace: string = "common"
-): FlatTranslation[] {
+// Convert JSON structure to flat database format
+function flattenJSON(obj: TranslationFile): FlatTranslation[] {
   const result: FlatTranslation[] = [];
 
-  for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key;
-
-    if (typeof value === "string") {
+  // Each top-level key becomes a namespace
+  for (const [namespace, namespaceContent] of Object.entries(obj)) {
+    if (typeof namespaceContent === "string") {
+      // Top-level string (rare case)
       result.push({
-        key: fullKey,
-        value,
-        namespace,
+        namespace: "common",
+        key: namespace,
+        value: namespaceContent,
       });
-    } else if (typeof value === "object" && value !== null) {
-      // If it's the first level and looks like a namespace, use it as namespace
-      const isNamespace = !prefix && typeof value === "object";
-      const newNamespace = isNamespace ? key : namespace;
-      const newPrefix = isNamespace ? "" : fullKey;
-
-      result.push(...flattenTranslations(value, newPrefix, newNamespace));
+    } else {
+      // Flatten everything under this namespace
+      flattenObject(namespaceContent, "", namespace, result);
     }
   }
 
   return result;
 }
 
-// Utility function to create nested object from flat translations
-function createNestedObject(translations: FlatTranslation[]): TranslationFile {
+// Recursively flatten an object into dot-separated keys
+function flattenObject(
+  obj: TranslationFile,
+  prefix: string,
+  namespace: string,
+  result: FlatTranslation[]
+): void {
+  for (const [key, value] of Object.entries(obj)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+
+    if (typeof value === "string") {
+      result.push({
+        namespace,
+        key: fullKey,
+        value,
+      });
+    } else {
+      // Recurse for nested objects
+      flattenObject(value, fullKey, namespace, result);
+    }
+  }
+}
+
+// Convert flat database format back to JSON structure
+function buildJSON(translations: FlatTranslation[]): TranslationFile {
   const result: TranslationFile = {};
 
-  translations.forEach(({ key, value, namespace }) => {
-    // Combine namespace and key if namespace is not 'common'
-    const fullKey = namespace === "common" ? key : `${namespace}.${key}`;
-    const keys = fullKey.split(".");
+  for (const { namespace, key, value } of translations) {
+    // Create namespace if it doesn't exist
+    if (!result[namespace]) {
+      result[namespace] = {};
+    }
 
-    let current = result;
+    // Navigate/create the nested structure
+    const keys = key.split(".");
+    let current = result[namespace] as TranslationFile;
+
     for (let i = 0; i < keys.length - 1; i++) {
       if (!current[keys[i]]) {
         current[keys[i]] = {};
@@ -68,22 +87,21 @@ function createNestedObject(translations: FlatTranslation[]): TranslationFile {
       current = current[keys[i]] as TranslationFile;
     }
 
+    // Set the final value
     current[keys[keys.length - 1]] = value;
-  });
+  }
 
   return result;
 }
 
 // Load translations from JSON file
-async function loadTranslationsFromFile(
-  locale: string
-): Promise<FlatTranslation[]> {
+async function loadFromFile(locale: string): Promise<FlatTranslation[]> {
   const filePath = path.join(TRANSLATIONS_DIR, `${locale}.json`);
 
   try {
-    const fileContent = await fs.readFile(filePath, "utf-8");
-    const translations: TranslationFile = JSON.parse(fileContent);
-    return flattenTranslations(translations);
+    const content = await fs.readFile(filePath, "utf-8");
+    const json: TranslationFile = JSON.parse(content);
+    return flattenJSON(json);
   } catch (error) {
     if ((error as any).code === "ENOENT") {
       console.log(`File ${filePath} not found, skipping...`);
@@ -94,29 +112,20 @@ async function loadTranslationsFromFile(
 }
 
 // Save translations to JSON file
-async function saveTranslationsToFile(
+async function saveToFile(
   locale: string,
   translations: FlatTranslation[]
 ): Promise<void> {
   const filePath = path.join(TRANSLATIONS_DIR, `${locale}.json`);
-  const nestedTranslations = createNestedObject(translations);
+  const json = buildJSON(translations);
 
-  // Ensure directory exists
   await fs.mkdir(TRANSLATIONS_DIR, { recursive: true });
-
-  // Write file with pretty formatting
-  await fs.writeFile(
-    filePath,
-    JSON.stringify(nestedTranslations, null, 2),
-    "utf-8"
-  );
+  await fs.writeFile(filePath, JSON.stringify(json, null, 2), "utf-8");
   console.log(`✅ Saved ${translations.length} translations to ${filePath}`);
 }
 
 // Load translations from database
-async function loadTranslationsFromDB(
-  locale: string
-): Promise<FlatTranslation[]> {
+async function loadFromDB(locale: string): Promise<FlatTranslation[]> {
   const dbTranslations = await prisma.translation.findMany({
     where: { locale },
     select: { key: true, value: true, namespace: true },
@@ -130,7 +139,7 @@ async function loadTranslationsFromDB(
 }
 
 // Save translations to database
-async function saveTranslationsToDB(
+async function saveToDB(
   locale: string,
   translations: FlatTranslation[]
 ): Promise<void> {
@@ -138,7 +147,7 @@ async function saveTranslationsToDB(
   let updated = 0;
 
   for (const translation of translations) {
-    const result = await prisma.translation.upsert({
+    const existing = await prisma.translation.findUnique({
       where: {
         key_locale_namespace: {
           key: translation.key,
@@ -146,31 +155,28 @@ async function saveTranslationsToDB(
           namespace: translation.namespace,
         },
       },
-      update: {
-        value: translation.value,
-        updatedAt: new Date(),
-      },
-      create: {
-        key: translation.key,
-        locale,
-        value: translation.value,
-        namespace: translation.namespace,
-      },
-    });
-
-    // Check if it was created or updated (simplified check)
-    const existing = await prisma.translation.findFirst({
-      where: {
-        key: translation.key,
-        locale,
-        namespace: translation.namespace,
-        createdAt: { lt: new Date(Date.now() - 1000) }, // Created more than 1 second ago
-      },
     });
 
     if (existing) {
-      updated++;
+      if (existing.value !== translation.value) {
+        await prisma.translation.update({
+          where: { id: existing.id },
+          data: {
+            value: translation.value,
+            updatedAt: new Date(),
+          },
+        });
+        updated++;
+      }
     } else {
+      await prisma.translation.create({
+        data: {
+          key: translation.key,
+          locale,
+          value: translation.value,
+          namespace: translation.namespace,
+        },
+      });
       created++;
     }
   }
@@ -180,7 +186,8 @@ async function saveTranslationsToDB(
   );
 }
 
-// Upload: JSON files → Database
+// COMMAND FUNCTIONS
+
 async function uploadToDatabase(
   locales: string[] = SUPPORTED_LOCALES
 ): Promise<void> {
@@ -189,13 +196,13 @@ async function uploadToDatabase(
   for (const locale of locales) {
     console.log(`Processing locale: ${locale}`);
 
-    const fileTranslations = await loadTranslationsFromFile(locale);
+    const fileTranslations = await loadFromFile(locale);
     if (fileTranslations.length === 0) {
       console.log(`No translations found for ${locale}, skipping...\n`);
       continue;
     }
 
-    await saveTranslationsToDB(locale, fileTranslations);
+    await saveToDB(locale, fileTranslations);
     console.log(
       `Uploaded ${fileTranslations.length} translations for ${locale}\n`
     );
@@ -204,7 +211,6 @@ async function uploadToDatabase(
   console.log("✅ Upload complete!");
 }
 
-// Download: Database → JSON files
 async function downloadFromDatabase(
   locales: string[] = SUPPORTED_LOCALES
 ): Promise<void> {
@@ -213,7 +219,7 @@ async function downloadFromDatabase(
   for (const locale of locales) {
     console.log(`Processing locale: ${locale}`);
 
-    const dbTranslations = await loadTranslationsFromDB(locale);
+    const dbTranslations = await loadFromDB(locale);
     if (dbTranslations.length === 0) {
       console.log(
         `No translations found in database for ${locale}, skipping...\n`
@@ -221,7 +227,7 @@ async function downloadFromDatabase(
       continue;
     }
 
-    await saveTranslationsToFile(locale, dbTranslations);
+    await saveToFile(locale, dbTranslations);
     console.log(
       `Downloaded ${dbTranslations.length} translations for ${locale}\n`
     );
@@ -230,7 +236,6 @@ async function downloadFromDatabase(
   console.log("✅ Download complete!");
 }
 
-// Sync: Merge both directions
 async function syncTranslations(
   locales: string[] = SUPPORTED_LOCALES
 ): Promise<void> {
@@ -240,11 +245,11 @@ async function syncTranslations(
     console.log(`Processing locale: ${locale}`);
 
     const [fileTranslations, dbTranslations] = await Promise.all([
-      loadTranslationsFromFile(locale),
-      loadTranslationsFromDB(locale),
+      loadFromFile(locale),
+      loadFromDB(locale),
     ]);
 
-    // Create maps for easy comparison
+    // Create maps for comparison
     const fileMap = new Map(
       fileTranslations.map((t) => [`${t.namespace}:${t.key}`, t])
     );
@@ -252,15 +257,16 @@ async function syncTranslations(
       dbTranslations.map((t) => [`${t.namespace}:${t.key}`, t])
     );
 
-    // Find translations that exist in file but not in DB
+    // Find translations to upload (new or changed in file)
     const toUpload: FlatTranslation[] = [];
     for (const [id, translation] of fileMap) {
-      if (!dbMap.has(id) || dbMap.get(id)?.value !== translation.value) {
+      const dbTranslation = dbMap.get(id);
+      if (!dbTranslation || dbTranslation.value !== translation.value) {
         toUpload.push(translation);
       }
     }
 
-    // Find translations that exist in DB but not in file
+    // Find translations to download (new in DB)
     const toDownload: FlatTranslation[] = [];
     for (const [id, translation] of dbMap) {
       if (!fileMap.has(id)) {
@@ -268,19 +274,18 @@ async function syncTranslations(
       }
     }
 
-    // Upload new/changed translations to database
+    // Sync changes
     if (toUpload.length > 0) {
       console.log(`📤 Uploading ${toUpload.length} translations to database`);
-      await saveTranslationsToDB(locale, toUpload);
+      await saveToDB(locale, toUpload);
     }
 
-    // Download new translations from database
     if (toDownload.length > 0) {
       console.log(
         `📥 Downloading ${toDownload.length} new translations from database`
       );
       const allFileTranslations = [...fileTranslations, ...toDownload];
-      await saveTranslationsToFile(locale, allFileTranslations);
+      await saveToFile(locale, allFileTranslations);
     }
 
     if (toUpload.length === 0 && toDownload.length === 0) {
@@ -293,7 +298,6 @@ async function syncTranslations(
   console.log("✅ Sync complete!");
 }
 
-// Compare translations and show differences
 async function compareTranslations(
   locales: string[] = SUPPORTED_LOCALES
 ): Promise<void> {
@@ -303,8 +307,8 @@ async function compareTranslations(
     console.log(`=== ${locale.toUpperCase()} ===`);
 
     const [fileTranslations, dbTranslations] = await Promise.all([
-      loadTranslationsFromFile(locale),
-      loadTranslationsFromDB(locale),
+      loadFromFile(locale),
+      loadFromDB(locale),
     ]);
 
     const fileMap = new Map(
@@ -314,7 +318,6 @@ async function compareTranslations(
       dbTranslations.map((t) => [`${t.namespace}:${t.key}`, t.value])
     );
 
-    // Find differences
     const onlyInFile = [...fileMap.keys()].filter((key) => !dbMap.has(key));
     const onlyInDB = [...dbMap.keys()].filter((key) => !fileMap.has(key));
     const different = [...fileMap.keys()].filter(
@@ -326,23 +329,35 @@ async function compareTranslations(
 
     if (onlyInFile.length > 0) {
       console.log(`\n📄 Only in file (${onlyInFile.length}):`);
-      onlyInFile.forEach((key) =>
-        console.log(`  - ${key}: "${fileMap.get(key)}"`)
-      );
+      onlyInFile
+        .slice(0, 10)
+        .forEach((key) =>
+          console.log(`  - ${key}: "${fileMap.get(key)?.substring(0, 50)}..."`)
+        );
+      if (onlyInFile.length > 10)
+        console.log(`  ... and ${onlyInFile.length - 10} more`);
     }
 
     if (onlyInDB.length > 0) {
       console.log(`\n🗄️  Only in database (${onlyInDB.length}):`);
-      onlyInDB.forEach((key) => console.log(`  - ${key}: "${dbMap.get(key)}"`));
+      onlyInDB
+        .slice(0, 10)
+        .forEach((key) =>
+          console.log(`  - ${key}: "${dbMap.get(key)?.substring(0, 50)}..."`)
+        );
+      if (onlyInDB.length > 10)
+        console.log(`  ... and ${onlyInDB.length - 10} more`);
     }
 
     if (different.length > 0) {
       console.log(`\n⚠️  Different values (${different.length}):`);
-      different.forEach((key) => {
+      different.slice(0, 5).forEach((key) => {
         console.log(`  - ${key}:`);
-        console.log(`    File: "${fileMap.get(key)}"`);
-        console.log(`    DB:   "${dbMap.get(key)}"`);
+        console.log(`    File: "${fileMap.get(key)?.substring(0, 30)}..."`);
+        console.log(`    DB:   "${dbMap.get(key)?.substring(0, 30)}..."`);
       });
+      if (different.length > 5)
+        console.log(`  ... and ${different.length - 5} more`);
     }
 
     if (
@@ -355,6 +370,51 @@ async function compareTranslations(
 
     console.log("");
   }
+}
+
+async function initializeTranslations(): Promise<void> {
+  console.log("🔄 Initializing translation files...\n");
+
+  const sampleTranslations = {
+    en: {
+      common: {
+        welcome: "Welcome",
+        goodbye: "Goodbye",
+        hello: "Hello",
+      },
+      navigation: {
+        home: "Home",
+        about: "About",
+        contact: "Contact",
+      },
+    },
+    it: {
+      common: {
+        welcome: "Benvenuto",
+        goodbye: "Arrivederci",
+        hello: "Ciao",
+      },
+      navigation: {
+        home: "Home",
+        about: "Informazioni",
+        contact: "Contatti",
+      },
+    },
+  };
+
+  await fs.mkdir(TRANSLATIONS_DIR, { recursive: true });
+
+  for (const [locale, translations] of Object.entries(sampleTranslations)) {
+    const filePath = path.join(TRANSLATIONS_DIR, `${locale}.json`);
+    await fs.writeFile(
+      filePath,
+      JSON.stringify(translations, null, 2),
+      "utf-8"
+    );
+    console.log(`✅ Created ${filePath}`);
+  }
+
+  console.log("\n✅ Initialization complete!");
 }
 
 // CLI Setup
@@ -426,65 +486,6 @@ program
     await initializeTranslations();
     await prisma.$disconnect();
   });
-// Initialize sample translation files
-async function initializeTranslations(): Promise<void> {
-  console.log("🔄 Initializing translation files...\n");
-
-  const sampleTranslations = {
-    en: {
-      common: {
-        welcome: "Welcome",
-        goodbye: "Goodbye",
-        hello: "Hello",
-      },
-      navigation: {
-        home: "Home",
-        about: "About",
-        contact: "Contact",
-      },
-      buttons: {
-        save: "Save",
-        cancel: "Cancel",
-        submit: "Submit",
-      },
-    },
-    es: {
-      common: {
-        welcome: "Bienvenido",
-        goodbye: "Adiós",
-        hello: "Hola",
-      },
-      navigation: {
-        home: "Inicio",
-        about: "Acerca de",
-        contact: "Contacto",
-      },
-      buttons: {
-        save: "Guardar",
-        cancel: "Cancelar",
-        submit: "Enviar",
-      },
-    },
-  };
-
-  await fs.mkdir(TRANSLATIONS_DIR, { recursive: true });
-
-  for (const [locale, translations] of Object.entries(sampleTranslations)) {
-    const filePath = path.join(TRANSLATIONS_DIR, `${locale}.json`);
-    await fs.writeFile(
-      filePath,
-      JSON.stringify(translations, null, 2),
-      "utf-8"
-    );
-    console.log(`✅ Created ${filePath}`);
-  }
-
-  console.log("\n✅ Initialization complete!");
-  console.log("\n📝 Next steps:");
-  console.log("1. Edit the JSON files in the translations/ directory");
-  console.log("2. Run: npm run sync:upload to upload to database");
-  console.log("3. Use npm run sync:sync to keep everything in sync");
-}
 
 // Run the CLI
 if (require.main === module) {
@@ -493,11 +494,11 @@ if (require.main === module) {
 
 export {
   compareTranslations,
-  createNestedObject,
   downloadFromDatabase,
-  flattenTranslations,
   syncTranslations,
   uploadToDatabase,
+  buildJSON,
+  flattenJSON,
 };
 
 // package.json scripts (add these to your existing package.json)

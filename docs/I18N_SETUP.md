@@ -15,7 +15,7 @@ The i18n system uses:
 
 ## Project Directory Structure
 
-```
+```bash
 my-nextjs-i18n-app/
 ├── .env                              # Environment variables (add to .gitignore)
 ├── .env.local                        # Local environment variables (add to .gitignore)
@@ -147,6 +147,7 @@ CREATE TABLE dm_translations (
 ## Sample Translation Files
 
 **`translations/en.json`**
+
 ```json
 {
   "common": {
@@ -184,6 +185,7 @@ CREATE TABLE dm_translations (
 ```
 
 **`translations/es.json`**
+
 ```json
 {
   "common": {
@@ -221,6 +223,7 @@ CREATE TABLE dm_translations (
 ```
 
 **`translations/it.json`**
+
 ```json
 {
   "common": {
@@ -298,6 +301,7 @@ If you already have `it.json`, `en.json`, etc., place them in the `translations/
 ### 6. Sync Commands Usage
 
 **Upload translations from JSON files to database:**
+
 ```bash
 npm run sync:upload
 # or for specific locales
@@ -305,6 +309,7 @@ npm run sync:upload -- --locales en,es,it
 ```
 
 **Download translations from database to JSON files:**
+
 ```bash
 npm run sync:download
 # or for specific locales  
@@ -312,6 +317,7 @@ npm run sync:download -- --locales en,es,it
 ```
 
 **Bi-directional sync (recommended):**
+
 ```bash
 npm run sync:sync
 # This will:
@@ -320,27 +326,31 @@ npm run sync:sync
 ```
 
 **Compare differences without syncing:**
+
 ```bash
 npm run sync:compare
 ```
 
 ## Development Workflow
 
-### For developers adding translations in JSON files:
+### For developers adding translations in JSON files
+
 ```bash
 # 1. Edit translations/en.json, translations/es.json, etc.
 # 2. Upload to database
 npm run sync:upload
 ```
 
-### For developers adding translations in database:
+### For developers adding translations in database
+
 ```bash
 # 1. Add translations via database/admin interface
 # 2. Download to JSON files
 npm run sync:download
 ```
 
-### Regular sync (recommended):
+### Regular sync (recommended)
+
 ```bash
 # Keep everything in sync
 npm run sync:sync
@@ -503,24 +513,28 @@ To add more locales:
 ## Example Workflow
 
 1. **Initial setup:**
+
    ```bash
    npm run sync:init      # Create sample files
    npm run sync:upload    # Upload to database
    ```
 
 2. **Developer A adds translations in JSON:**
+
    ```bash
    # Edit translations/en.json
    npm run sync:upload    # Upload changes
    ```
 
 3. **Developer B adds translations in database:**
+
    ```bash
    # Add via admin interface or direct DB
    npm run sync:download  # Download changes
    ```
 
 4. **Keep everything in sync:**
+
    ```bash
    npm run sync:sync      # Bi-directional sync
    ```
