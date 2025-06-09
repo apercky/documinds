@@ -262,6 +262,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       `/dashboard?collection=${currentCollection}&chatId=${newChatId}`
     );
     router.refresh();
+
+    // Close sidebar on mobile after navigation
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   };
 
   // Gestore per svuotare/ripristinare una chat
