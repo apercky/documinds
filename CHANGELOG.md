@@ -1,3 +1,10 @@
+## [0.1.1-beta.7](https://github.com/apercky/documinds/compare/v0.1.1-beta.6...v0.1.1-beta.7) (2025-06-09)
+
+
+### Bug Fixes
+
+* chat scrolling and settings space area ([e0c22a3](https://github.com/apercky/documinds/commit/e0c22a3b595a5612bdb47acd6018c863c7a28007))
+
 ## [0.1.1-beta.6](https://github.com/apercky/documinds/compare/v0.1.1-beta.5...v0.1.1-beta.6) (2025-06-06)
 
 
