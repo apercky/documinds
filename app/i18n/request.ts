@@ -1,3 +1,4 @@
+import { getAvailableLocales, getTranslations } from "@/lib/translations";
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
 
@@ -5,14 +6,17 @@ export default getRequestConfig(async ({ requestLocale }) => {
   // This typically corresponds to the `[locale]` segment
   let locale = await requestLocale;
 
-  // Ensure that the incoming locale is valid
-  if (typeof locale !== "string" || !routing.locales.includes(locale)) {
+  // Validate that the incoming locale is valid
+  const validLocales = await getAvailableLocales();
+  if (typeof locale !== "string" || !validLocales.includes(locale)) {
     locale = routing.defaultLocale;
   }
 
+  const messages = await getTranslations(locale);
+
   return {
     locale,
-    messages: (await import(`@/messages/${locale}.json`)).default,
+    messages,
     timeZone: "Europe/Rome",
   };
 });

@@ -51,13 +51,15 @@ model Attribute {
 
 model Translation {
   id        String   @id @default(uuid())            @map("id")
-  locale    String                                   @map("locale")
-  namespace String                                   @map("namespace")
   key       String                                   @map("key")
+  locale    String                                   @map("locale")
   value     String                                   @map("value")
+  namespace String   @default("common")              @map("namespace")
+  createdAt DateTime @default(now())                 @map("created_at")
   updatedAt DateTime @updatedAt                      @map("updated_at")
 
-  @@unique([locale, namespace, key])
+  @@unique([key, locale, namespace])
+  @@index([locale, namespace])
   @@map("dm_translations")
 }
 
