@@ -90,11 +90,6 @@ export function processSourceCitations(text: string): {
     return `__CITATION_${citationNum}__`;
   });
 
-  // Debug logging
-  console.log("Original text:", text);
-  console.log("Processed text:", processedText);
-  console.log("Citations found:", citations);
-
   return {
     processedText,
     citations,

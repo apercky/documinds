@@ -166,7 +166,8 @@
     "stopGenerating": "Stop generating",
     "typeMessage": "Type your message...",
     "pressShiftEnter": "Press Shift + ↵ for new line",
-    "sendMessage": "Send Message"
+    "sendMessage": "Send Message",
+    "pageOfTotal": "Page {page} of {totalPages}"
   },
   "Errors": {
     "defaultTitle": "Error Occurred",

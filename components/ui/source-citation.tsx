@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SourceCitation } from "@/lib/utils/source-citations";
 import { FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface SourceCitationBadgeProps {
   citation: SourceCitation;
@@ -20,6 +21,8 @@ export function SourceCitationBadge({
   number,
   className,
 }: SourceCitationBadgeProps) {
+  const t = useTranslations("Common");
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -41,7 +44,10 @@ export function SourceCitationBadge({
           <div className="space-y-1">
             <p className="font-medium text-sm">{citation.filename}</p>
             <p className="text-xs text-muted-foreground">
-              Page {citation.page} of {citation.totalPages}
+              {t("pageOfTotal", {
+                page: citation.page,
+                totalPages: citation.totalPages,
+              })}
             </p>
           </div>
         </div>

@@ -166,7 +166,8 @@
     "stopGenerating": "Interrompi generazione",
     "typeMessage": "Scrivi il tuo messaggio...",
     "pressShiftEnter": "Premi Shift + ↵ per una nuova riga",
-    "sendMessage": "Invia Messaggio"
+    "sendMessage": "Invia Messaggio",
+    "pageOfTotal": "Pagina {page} di {totalPages}"
   },
   "Errors": {
     "defaultTitle": "Errore",
