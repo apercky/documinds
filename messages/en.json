@@ -1,361 +1,362 @@
 {
-    "HomePage": {
-      "appName": "DOCUMINDS",
-      "title": "Documents That Understand You!",
-      "subtitle": "Chat with your documents and unlock their hidden insights. Our secure, AI-powered search transforms complex information into natural conversations, letting you explore your private data through simple questions. Get precise answers, discover connections, and make your documents work smarter for you.",
-      "about": "About",
-      "gotoDashboard": "Go to Dashboard"
+  "HomePage": {
+    "appName": "DOCUMINDS",
+    "title": "Documents That Understand You!",
+    "subtitle": "Chat with your documents and unlock their hidden insights. Our secure, AI-powered search transforms complex information into natural conversations, letting you explore your private data through simple questions. Get precise answers, discover connections, and make your documents work smarter for you.",
+    "about": "About",
+    "gotoDashboard": "Go to Dashboard"
+  },
+  "Footer": {
+    "copyright": "© {year} ALGOSET SRL — VAT IT03976390249 — Registered office: Via Lago d'Iseo 53, 36100 Vicenza, Italy — Certified email (PEC): algoset@legalmail.it",
+    "privacyPolicy": "Privacy Policy",
+    "cookiePolicy": "Cookie Policy",
+    "viewPrivacyPolicy": "View Privacy Policy",
+    "viewCookiePolicy": "View Cookie Policy",
+    "closePrivacyPolicy": "Close",
+    "closeCookiePolicy": "Close",
+    "allRightsReserved": "All rights reserved",
+    "legals": "Legal Information",
+    "companyAddress": "Via Lago d'Iseo 53, 36100 Vicenza, Italy",
+    "companyVatRea": "VAT IT03976390249 — REA VI-369285 — PEC: algoset@legalmail.it",
+    "companyDescription": "We create innovative digital solutions with cutting-edge technologies."
+  },
+  "Metadata": {
+    "title": "Welcome to Documinds",
+    "description": "A Chat-Based Private Document Search with RAG"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "newChat": "New Chat",
+    "documentation": "Documentation",
+    "settings": "Settings",
+    "general": "General",
+    "team": "Team",
+    "billing": "Billing",
+    "limits": "Limits",
+    "platform": "Platform",
+    "clearChat": "Clear chat history",
+    "toggleSidebar": "Toggle Sidebar"
+  },
+  "UserNav": {
+    "profile": "Profile",
+    "billing": "Billing",
+    "settings": "Settings",
+    "logout": "Log out",
+    "upgradeToPro": "Upgrade to Pro",
+    "account": "Account",
+    "notifications": "Notifications"
+  },
+  "Languages": {
+    "en": "English",
+    "it": "Italian",
+    "switchLanguage": "Switch language"
+  },
+  "deleteAlert": {
+    "title": "Are you absolutely sure?",
+    "description": "This action cannot be undone. This will permanently delete the collection \"{name}\" and all its documents.",
+    "confirmText": "Please type {action} to confirm:",
+    "cancelButton": "Cancel",
+    "deleteButton": "Delete",
+    "confirmPlaceholder": "Type {action} to confirm"
+  },
+  "collectionDetails": {
+    "title": "Collection Details",
+    "description": "View and manage your collection information. The settings section allows you to update collection metadata properties.",
+    "stats": {
+      "title": "Statistics",
+      "documents": "Total Documents"
     },
-    "Footer": {
-      "copyright": "© {year} ALGOSET SRL — VAT IT03976390249 — Registered office: Via Lago d'Iseo 53, 36100 Vicenza, Italy — Certified email (PEC): algoset@legalmail.it",
-      "privacyPolicy": "Privacy Policy",
-      "cookiePolicy": "Cookie Policy",
-      "viewPrivacyPolicy": "View Privacy Policy",
-      "viewCookiePolicy": "View Cookie Policy",
-      "closePrivacyPolicy": "Close",
-      "closeCookiePolicy": "Close",
-      "allRightsReserved": "All rights reserved",
-      "legals": "Legal Information",
-      "companyAddress": "Via Lago d'Iseo 53, 36100 Vicenza, Italy",
-      "companyVatRea": "VAT IT03976390249 — REA VI-369285 — PEC: algoset@legalmail.it",
-      "companyDescription": "We create innovative digital solutions with cutting-edge technologies."
+    "settings": {
+      "title": "Settings",
+      "name": "Collection Name",
+      "description": "Description",
+      "descriptionPlaceholder": "Add a description...",
+      "attributes": "Attributes",
+      "metadata": "Metadata",
+      "addField": "Add Field",
+      "selectKey": "Select a key",
+      "valuePlaceholder": "Value (max 35 chars)",
+      "inUse": "in use",
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "edit": "Edit",
+      "deleteDocuments": "Delete All Documents",
+      "deletingDocuments": "Deleting Documents..."
     },
-    "Metadata": {
-      "title": "Welcome to Documinds",
-      "description": "A Chat-Based Private Document Search with RAG"
+    "error": {
+      "update": "Failed to update collection",
+      "deleteDocuments": "Failed to delete documents"
     },
-    "Navigation": {
-      "dashboard": "Dashboard",
-      "users": "Users",
-      "newChat": "New Chat",
-      "documentation": "Documentation",
-      "settings": "Settings",
-      "general": "General",
-      "team": "Team",
-      "billing": "Billing",
-      "limits": "Limits",
-      "platform": "Platform",
-      "clearChat": "Clear chat history",
-      "toggleSidebar": "Toggle Sidebar"
-    },
-    "UserNav": {
-      "profile": "Profile",
-      "billing": "Billing",
-      "settings": "Settings",
-      "logout": "Log out",
-      "upgradeToPro": "Upgrade to Pro",
-      "account": "Account",
-      "notifications": "Notifications"
-    },
-    "Languages": {
-      "en": "English",
-      "it": "Italian",
-      "switchLanguage": "Switch language"
-    },
-    "deleteAlert": {
-      "title": "Are you absolutely sure?",
-      "description": "This action cannot be undone. This will permanently delete the collection \"{name}\" and all its documents.",
-      "confirmText": "Please type {action} to confirm:",
-      "cancelButton": "Cancel",
-      "deleteButton": "Delete",
-      "confirmPlaceholder": "Type {action} to confirm"
-    },
-    "collectionDetails": {
-      "title": "Collection Details",
-      "description": "View and manage your collection information. The settings section allows you to update collection metadata properties.",
-      "stats": {
-        "title": "Statistics",
-        "documents": "Total Documents"
-      },
-      "settings": {
-        "title": "Settings",
-        "name": "Collection Name",
-        "description": "Description",
-        "descriptionPlaceholder": "Add a description...",
-        "attributes": "Attributes",
-        "metadata": "Metadata",
-        "addField": "Add Field",
-        "selectKey": "Select a key",
-        "valuePlaceholder": "Value (max 35 chars)",
-        "inUse": "in use",
-        "cancel": "Cancel",
-        "save": "Save Changes",
-        "edit": "Edit",
-        "deleteDocuments": "Delete All Documents",
-        "deletingDocuments": "Deleting Documents..."
-      },
-      "error": {
-        "update": "Failed to update collection",
-        "deleteDocuments": "Failed to delete documents"
-      },
-      "deleteDialog": {
-        "allDocumentsIn": "all documents in"
-      }
-    },
-    "validation": {
-      "collection": {
-        "name": {
-          "min": "Collection name must be at least {min} characters",
-          "max": "Collection name must be less than {max} characters",
-          "format": "Only lowercase letters, numbers, and hyphens are allowed"
-        },
-        "metadata": {
-          "key": {
-            "required": "Please select a key"
-          },
-          "value": {
-            "required": "Value is required",
-            "max": "Value must be less than {max} characters",
-            "empty": "Value cannot be empty"
-          }
-        }
-      }
-    },
-    "collections": {
-      "loading": "Loading collections...",
-      "empty": "No collections found",
-      "title": "Collections",
-      "documents": "Documents",
-      "error": {
-        "fetch": "Failed to fetch collections",
-        "update": "Failed to update collection",
-        "delete": "Failed to delete collection",
-        "create": "Failed to create collection"
-      }
-    },
-    "createCollection": {
-      "button": "Create Collection",
-      "dialogTitle": "Create New Collection",
-      "dialogDescription": "Create a new collection to organize your documents. Provide a unique name and optional attributes to categorize your content effectively.",
+    "deleteDialog": {
+      "allDocumentsIn": "all documents in"
+    }
+  },
+  "validation": {
+    "collection": {
       "name": {
-        "label": "Collection Name",
-        "placeholder": "Insert the collection name..."
+        "min": "Collection name must be at least {min} characters",
+        "max": "Collection name must be less than {max} characters",
+        "format": "Only lowercase letters, numbers, and hyphens are allowed"
       },
-      "description": {
-        "label": "Description",
-        "placeholder": "Add a description for the collection..."
-      },
-      "attributes": {
-        "label": "Attributes",
-        "addField": "Add Attribute",
-        "typePlaceholder": "Select attribute type",
-        "valuePlaceholder": "Value",
-        "inUse": "in use"
-      },
-      "cancel": "Cancel",
-      "submit": "Create"
-    },
-    "collectionDisplay": {
-      "onestore-user-guide": "OneStore Diesel",
-      "marni-user-guide": "OneStore Marni"
-    },
-    "Auth": {
-      "sessionExpired": {
-        "title": "Session Expired",
-        "description": "Your session has expired. To continue using the application you need to log in again.",
-        "backToLogin": "Back to Login",
-        "okButton": "OK"
-      }
-    },
-    "Common": {
-      "selectCollection": "Please select a collection from the sidebar",
-      "selectCollectionTitle": "Select a collection",
-      "noCollectionsAvailable": "No collections available",
-      "noDescription": "No description",
-      "documentsCount": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
-      "stopGenerating": "Stop generating",
-      "typeMessage": "Type your message...",
-      "pressShiftEnter": "Press Shift + ↵ for new line",
-      "sendMessage": "Send Message"
-    },
-    "Errors": {
-      "defaultTitle": "Error Occurred",
-      "defaultMessage": "An unexpected error occurred while processing your request.",
-      "technicalDetails": "Technical Details",
-      "showDetails": "Show Details",
-      "hideDetails": "Hide Details",
-      "okButton": "OK",
-      "permissionDenied": "Permission Denied",
-      "authenticationFailed": "Authentication Failed",
-      "networkError": "Network Error",
-      "serverError": "Server Error",
-      "applicationErrorTitle": "Application Error",
-      "genericError": "An error occurred",
-      "unknownError": "Unknown error",
-      "unexpectedError": "An unexpected error occurred"
-    },
-    "Login": {
-      "authenticating": "Authenticating",
-      "redirectingToLogin": "Redirecting to secure login...",
-      "preparingConnection": "Preparing your secure connection..."
-    },
-    "Upload": {
-      "title": "Upload Documents",
-      "collectionName": "Collection Name",
-      "selectCollection": "Select a collection",
-      "dropFilesHere": "Drop the files here...",
-      "dragDropFiles": "Drag 'n' drop some files here, or click to select files",
-      "supportedFormats": "Supported formats: PDF, DOC, DOCX, TXT",
-      "selectedFiles": "Selected files:",
-      "uploading": "Uploading...",
-      "uploadDocuments": "Upload Documents",
-      "failedToUpload": "Failed to upload documents",
-      "pleaseSelectFiles": "Please select files to upload",
-      "failedToInitialize": "Failed to initialize upload stream",
-      "docs": "docs"
-    },
-    "UI": {
-      "loading": "Loading...",
-      "toggleSidebar": "Toggle Sidebar",
-      "scrollToBottom": "Scroll to bottom",
-      "value": "Value"
-    },
-    "BrandConfiguration": {
-      "title": "Brand Configuration",
-      "description": "Manage API keys and settings for {companyName}",
-      "validatingBrand": "Validating brand access...",
-      "loadingSettings": "Loading settings...",
-      "brandNotSupported": {
-        "title": "Brand Not Supported",
-        "description": "Your brand is not supported or inactive.",
-        "contactAdmin": "Please contact your administrator to enable access for this brand.",
-        "brandCode": "Brand Code:",
-        "notAvailable": "Not available"
-      },
-      "verifiedBrand": "Verified Brand",
-      "company": "Company",
-      "brandCode": "Brand Code",
-      "companyDescription": "Description",
-      "securityNote": "API keys are encrypted • Flow IDs are stored as plain text",
-      "settings": {
-        "openaiApiKey": {
-          "title": "OpenAI API Key",
-          "description": "Configure OpenAI API access for AI-powered features"
+      "metadata": {
+        "key": {
+          "required": "Please select a key"
         },
-        "langflowApiKey": {
-          "title": "Langflow API Key",
-          "description": "Configure Langflow API access for workflow management"
-        },
-        "chatFlowId": {
-          "title": "Chat Flow ID",
-          "description": "Specify the Langflow chat workflow for {companyName}"
-        },
-        "embeddingsFlowId": {
-          "title": "Embeddings Flow ID",
-          "description": "Configure data processing workflow for {companyName}"
+        "value": {
+          "required": "Value is required",
+          "max": "Value must be less than {max} characters",
+          "empty": "Value cannot be empty"
         }
-      },
-      "errors": {
-        "noBrandInSession": "No brand found in user session",
-        "brandValidationFailed": "Brand validation failed",
-        "failedToValidate": "Failed to validate brand access",
-        "failedToLoadSettings": "Failed to load settings",
-        "failedToUpdateSetting": "Failed to update setting"
-      }
-    },
-    "SettingCard": {
-      "encrypted": "Encrypted",
-      "currentValue": "Current Value",
-      "notConfigured": "Not configured",
-      "configure": "Configure",
-      "update": "Update",
-      "save": "Save",
-      "saving": "Saving...",
-      "cancel": "Cancel",
-      "company": "Company",
-      "encryptedNote": "This value is encrypted and securely stored.",
-      "flowIdNote": "Flow ID format: alphanumeric with hyphens (e.g., flow-abc-123)",
-      "placeholders": {
-        "apiKey": "Enter API key...",
-        "chatFlowId": "e.g., chat-flow-123",
-        "embeddingsFlowId": "e.g., embeddings-flow-456",
-        "default": "Enter value..."
-      }
-    },
-    "PrivacyPolicy": {
-      "title": "Privacy Policy – ALGOSET SRL",
-      "lastUpdated": "Last updated: May 31, 2025",
-      "introduction": "This privacy notice is provided pursuant to Articles 13 and 14 of EU Regulation 2016/679 (GDPR) to users accessing the SaaS platform provided by ALGOSET SRL, accessible exclusively through authentication.",
-      "sections": {
-        "controller": {
-          "title": "1. Data Controller",
-          "content": "The data controller is:\nALGOSET SRL\nVia Lago d'Iseo 53, 36100 Vicenza (VI)\nVAT IT03976390249 - REA VI-369285\nEmail: info@algoset.it"
-        },
-        "purposes": {
-          "title": "2. Processing Purposes",
-          "content": "Users' personal data is processed exclusively to allow access and use of the SaaS service, which enables consultation and search of technical company documentation. No marketing, profiling, or behavioral analysis activities are carried out."
-        },
-        "dataTypes": {
-          "title": "3. Types of Data Collected",
-          "content": "During the use of the platform, the following personal data is processed:\n- First and last name (if provided through Identity Provider)\n- Business email address\n- Username or user ID\n- Session cookies (necessary for login functionality)"
-        },
-        "legalBasis": {
-          "title": "4. Legal Basis",
-          "content": "Data processing is based on the performance of a contract (art. 6, par. 1, letter b of GDPR), as it is necessary to allow authenticated access to the platform by users of client companies."
-        },
-        "security": {
-          "title": "5. Processing Methods and Security",
-          "content": "Data is processed using IT tools in compliance with the principles of lawfulness, fairness, and transparency.\nThe infrastructure is hosted on Amazon Web Services (AWS) – EU region (Frankfurt). Data is not transferred outside the European Economic Area (EEA).\nAll communications take place via encrypted connections (HTTPS). Authentication data is managed through Keycloak, with updated security policies."
-        },
-        "recipients": {
-          "title": "6. Data Recipients",
-          "content": "Data is not disclosed to third parties, except to service providers strictly necessary for the operation of the platform:\n- Amazon Web Services (AWS) – cloud hosting\n- Keycloak – identity management system\nThese entities act as data processors (Art. 28 GDPR), according to contractual agreements compliant with GDPR."
-        },
-        "retention": {
-          "title": "7. Retention Period",
-          "content": "Personal data is kept for the duration of the contractual relationship with the client company, and for a maximum of 12 months after account deactivation, unless different legal obligations apply."
-        },
-        "rights": {
-          "title": "8. Data Subject Rights",
-          "content": "Under GDPR, the user has the right to:\n- access their personal data\n- request rectification or erasure\n- restrict or object to processing\n- request data portability\nRequests can be sent to: info@algoset.it"
-        },
-        "cookies": {
-          "title": "9. Cookies",
-          "content": "The platform exclusively uses technical session cookies, necessary to ensure the security and continuity of authentication.\nThere are no profiling cookies or third-party cookies.\nConsequently, user consent is not required, nor is a cookie banner necessary."
-        },
-        "changes": {
-          "title": "10. Changes to this Privacy Notice",
-          "content": "ALGOSET SRL reserves the right to update this privacy notice. In case of significant changes, users will be informed through appropriate channels (e.g. email or platform notification)."
-        }
-      }
-    },
-    "CookiePolicy": {
-      "title": "Cookie Policy – ALGOSET SRL",
-      "lastUpdated": "Last updated: May 31, 2025",
-      "introduction": "This Cookie Policy explains how ALGOSET SRL uses cookies and similar technologies on our website and applications.",
-      "sections": {
-        "whatAreCookies": {
-          "title": "1. What are cookies?",
-          "content": "Cookies are small text files that are stored on your device when you visit a website. Cookies are widely used to make websites work or work more efficiently, as well as to provide information to the site owners."
-        },
-        "cookiesWeUse": {
-          "title": "2. Cookies we use",
-          "content": "We only use essential technical cookies (or \"strictly necessary\"), which enable basic functions such as authentication and session maintenance. These cookies are necessary for the proper functioning of the platform and cannot be disabled.\n\nWe do not use analytical, advertising, or profiling cookies, nor do we share data with third parties for such purposes."
-        },
-        "legalBasis": {
-          "title": "3. Legal basis",
-          "content": "According to EU Regulation 2016/679 (GDPR) and Directive 2002/58/EC (e-Privacy), as amended by Directive 2009/136/EC, essential technical cookies do not require prior user consent, as they are strictly necessary to provide the service.\n\nThe legal basis for the use of these cookies is Art. 6(1)(b) of the GDPR (performance of a contract or pre-contractual measures) and Art. 6(1)(f) (legitimate interest)."
-        },
-        "howToManage": {
-          "title": "4. How to manage cookies",
-          "content": "Since we exclusively use essential technical cookies, there is no option to disable them, as this would compromise the functioning of the platform.\n\nHowever, you can configure your browser to block or alert you about cookies. Please note that blocking all cookies will have a negative impact on the functionality of our platform, including the inability to access protected areas."
-        },
-        "changes": {
-          "title": "5. Changes to the Cookie Policy",
-          "content": "We reserve the right to modify this Cookie Policy at any time. Any changes will be posted on this page with the update date.\n\nWe encourage you to periodically review this page to stay informed about our cookie practices."
-        },
-        "contactUs": {
-          "title": "6. Contact us",
-          "content": "For any questions or clarifications about this Cookie Policy, you can contact us at: info@algoset.it"
-        }
-      }
-    },
-    "AdminDashboard": {
-      "title": "Admin Dashboard",
-      "tabs": {
-        "collections": "Collections",
-        "upload": "Upload Documents",
-        "settings": "Settings"
       }
     }
+  },
+  "collections": {
+    "loading": "Loading collections...",
+    "empty": "No collections found",
+    "title": "Collections",
+    "documents": "Documents",
+    "error": {
+      "fetch": "Failed to fetch collections",
+      "update": "Failed to update collection",
+      "delete": "Failed to delete collection",
+      "create": "Failed to create collection"
+    }
+  },
+  "createCollection": {
+    "button": "Create Collection",
+    "dialogTitle": "Create New Collection",
+    "dialogDescription": "Create a new collection to organize your documents. Provide a unique name and optional attributes to categorize your content effectively.",
+    "name": {
+      "label": "Collection Name",
+      "placeholder": "Insert the collection name..."
+    },
+    "description": {
+      "label": "Description",
+      "placeholder": "Add a description for the collection..."
+    },
+    "attributes": {
+      "label": "Attributes",
+      "addField": "Add Attribute",
+      "typePlaceholder": "Select attribute type",
+      "valuePlaceholder": "Value",
+      "inUse": "in use"
+    },
+    "cancel": "Cancel",
+    "submit": "Create"
+  },
+  "collectionDisplay": {
+    "onestore-user-guide": "OneStore Diesel",
+    "marni-user-guide": "OneStore Marni"
+  },
+  "Auth": {
+    "sessionExpired": {
+      "title": "Session Expired",
+      "description": "Your session has expired. To continue using the application you need to log in again.",
+      "backToLogin": "Back to Login",
+      "okButton": "OK"
+    }
+  },
+  "Common": {
+    "selectCollection": "Please select a collection from the sidebar",
+    "selectCollectionTitle": "Select a collection",
+    "noCollectionsAvailable": "No collections available",
+    "noDescription": "No description",
+    "documentsCount": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
+    "stopGenerating": "Stop generating",
+    "typeMessage": "Type your message...",
+    "pressShiftEnter": "Press Shift + ↵ for new line",
+    "sendMessage": "Send Message",
+    "pageOfTotal": "Page {page} of {totalPages}"
+  },
+  "Errors": {
+    "defaultTitle": "Error Occurred",
+    "defaultMessage": "An unexpected error occurred while processing your request.",
+    "technicalDetails": "Technical Details",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details",
+    "okButton": "OK",
+    "permissionDenied": "Permission Denied",
+    "authenticationFailed": "Authentication Failed",
+    "networkError": "Network Error",
+    "serverError": "Server Error",
+    "applicationErrorTitle": "Application Error",
+    "genericError": "An error occurred",
+    "unknownError": "Unknown error",
+    "unexpectedError": "An unexpected error occurred"
+  },
+  "Login": {
+    "authenticating": "Authenticating",
+    "redirectingToLogin": "Redirecting to secure login...",
+    "preparingConnection": "Preparing your secure connection..."
+  },
+  "Upload": {
+    "title": "Upload Documents",
+    "collectionName": "Collection Name",
+    "selectCollection": "Select a collection",
+    "dropFilesHere": "Drop the files here...",
+    "dragDropFiles": "Drag 'n' drop some files here, or click to select files",
+    "supportedFormats": "Supported formats: PDF, DOC, DOCX, TXT",
+    "selectedFiles": "Selected files:",
+    "uploading": "Uploading...",
+    "uploadDocuments": "Upload Documents",
+    "failedToUpload": "Failed to upload documents",
+    "pleaseSelectFiles": "Please select files to upload",
+    "failedToInitialize": "Failed to initialize upload stream",
+    "docs": "docs"
+  },
+  "UI": {
+    "loading": "Loading...",
+    "toggleSidebar": "Toggle Sidebar",
+    "scrollToBottom": "Scroll to bottom",
+    "value": "Value"
+  },
+  "BrandConfiguration": {
+    "title": "Brand Configuration",
+    "description": "Manage API keys and settings for {companyName}",
+    "validatingBrand": "Validating brand access...",
+    "loadingSettings": "Loading settings...",
+    "brandNotSupported": {
+      "title": "Brand Not Supported",
+      "description": "Your brand is not supported or inactive.",
+      "contactAdmin": "Please contact your administrator to enable access for this brand.",
+      "brandCode": "Brand Code:",
+      "notAvailable": "Not available"
+    },
+    "verifiedBrand": "Verified Brand",
+    "company": "Company",
+    "brandCode": "Brand Code",
+    "companyDescription": "Description",
+    "securityNote": "API keys are encrypted • Flow IDs are stored as plain text",
+    "settings": {
+      "openaiApiKey": {
+        "title": "OpenAI API Key",
+        "description": "Configure OpenAI API access for AI-powered features"
+      },
+      "langflowApiKey": {
+        "title": "Langflow API Key",
+        "description": "Configure Langflow API access for workflow management"
+      },
+      "chatFlowId": {
+        "title": "Chat Flow ID",
+        "description": "Specify the Langflow chat workflow for {companyName}"
+      },
+      "embeddingsFlowId": {
+        "title": "Embeddings Flow ID",
+        "description": "Configure data processing workflow for {companyName}"
+      }
+    },
+    "errors": {
+      "noBrandInSession": "No brand found in user session",
+      "brandValidationFailed": "Brand validation failed",
+      "failedToValidate": "Failed to validate brand access",
+      "failedToLoadSettings": "Failed to load settings",
+      "failedToUpdateSetting": "Failed to update setting"
+    }
+  },
+  "SettingCard": {
+    "encrypted": "Encrypted",
+    "currentValue": "Current Value",
+    "notConfigured": "Not configured",
+    "configure": "Configure",
+    "update": "Update",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "company": "Company",
+    "encryptedNote": "This value is encrypted and securely stored.",
+    "flowIdNote": "Flow ID format: alphanumeric with hyphens (e.g., flow-abc-123)",
+    "placeholders": {
+      "apiKey": "Enter API key...",
+      "chatFlowId": "e.g., chat-flow-123",
+      "embeddingsFlowId": "e.g., embeddings-flow-456",
+      "default": "Enter value..."
+    }
+  },
+  "PrivacyPolicy": {
+    "title": "Privacy Policy – ALGOSET SRL",
+    "lastUpdated": "Last updated: May 31, 2025",
+    "introduction": "This privacy notice is provided pursuant to Articles 13 and 14 of EU Regulation 2016/679 (GDPR) to users accessing the SaaS platform provided by ALGOSET SRL, accessible exclusively through authentication.",
+    "sections": {
+      "controller": {
+        "title": "1. Data Controller",
+        "content": "The data controller is:\nALGOSET SRL\nVia Lago d'Iseo 53, 36100 Vicenza (VI)\nVAT IT03976390249 - REA VI-369285\nEmail: info@algoset.it"
+      },
+      "purposes": {
+        "title": "2. Processing Purposes",
+        "content": "Users' personal data is processed exclusively to allow access and use of the SaaS service, which enables consultation and search of technical company documentation. No marketing, profiling, or behavioral analysis activities are carried out."
+      },
+      "dataTypes": {
+        "title": "3. Types of Data Collected",
+        "content": "During the use of the platform, the following personal data is processed:\n- First and last name (if provided through Identity Provider)\n- Business email address\n- Username or user ID\n- Session cookies (necessary for login functionality)"
+      },
+      "legalBasis": {
+        "title": "4. Legal Basis",
+        "content": "Data processing is based on the performance of a contract (art. 6, par. 1, letter b of GDPR), as it is necessary to allow authenticated access to the platform by users of client companies."
+      },
+      "security": {
+        "title": "5. Processing Methods and Security",
+        "content": "Data is processed using IT tools in compliance with the principles of lawfulness, fairness, and transparency.\nThe infrastructure is hosted on Amazon Web Services (AWS) – EU region (Frankfurt). Data is not transferred outside the European Economic Area (EEA).\nAll communications take place via encrypted connections (HTTPS). Authentication data is managed through Keycloak, with updated security policies."
+      },
+      "recipients": {
+        "title": "6. Data Recipients",
+        "content": "Data is not disclosed to third parties, except to service providers strictly necessary for the operation of the platform:\n- Amazon Web Services (AWS) – cloud hosting\n- Keycloak – identity management system\nThese entities act as data processors (Art. 28 GDPR), according to contractual agreements compliant with GDPR."
+      },
+      "retention": {
+        "title": "7. Retention Period",
+        "content": "Personal data is kept for the duration of the contractual relationship with the client company, and for a maximum of 12 months after account deactivation, unless different legal obligations apply."
+      },
+      "rights": {
+        "title": "8. Data Subject Rights",
+        "content": "Under GDPR, the user has the right to:\n- access their personal data\n- request rectification or erasure\n- restrict or object to processing\n- request data portability\nRequests can be sent to: info@algoset.it"
+      },
+      "cookies": {
+        "title": "9. Cookies",
+        "content": "The platform exclusively uses technical session cookies, necessary to ensure the security and continuity of authentication.\nThere are no profiling cookies or third-party cookies.\nConsequently, user consent is not required, nor is a cookie banner necessary."
+      },
+      "changes": {
+        "title": "10. Changes to this Privacy Notice",
+        "content": "ALGOSET SRL reserves the right to update this privacy notice. In case of significant changes, users will be informed through appropriate channels (e.g. email or platform notification)."
+      }
+    }
+  },
+  "CookiePolicy": {
+    "title": "Cookie Policy – ALGOSET SRL",
+    "lastUpdated": "Last updated: May 31, 2025",
+    "introduction": "This Cookie Policy explains how ALGOSET SRL uses cookies and similar technologies on our website and applications.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "1. What are cookies?",
+        "content": "Cookies are small text files that are stored on your device when you visit a website. Cookies are widely used to make websites work or work more efficiently, as well as to provide information to the site owners."
+      },
+      "cookiesWeUse": {
+        "title": "2. Cookies we use",
+        "content": "We only use essential technical cookies (or \"strictly necessary\"), which enable basic functions such as authentication and session maintenance. These cookies are necessary for the proper functioning of the platform and cannot be disabled.\n\nWe do not use analytical, advertising, or profiling cookies, nor do we share data with third parties for such purposes."
+      },
+      "legalBasis": {
+        "title": "3. Legal basis",
+        "content": "According to EU Regulation 2016/679 (GDPR) and Directive 2002/58/EC (e-Privacy), as amended by Directive 2009/136/EC, essential technical cookies do not require prior user consent, as they are strictly necessary to provide the service.\n\nThe legal basis for the use of these cookies is Art. 6(1)(b) of the GDPR (performance of a contract or pre-contractual measures) and Art. 6(1)(f) (legitimate interest)."
+      },
+      "howToManage": {
+        "title": "4. How to manage cookies",
+        "content": "Since we exclusively use essential technical cookies, there is no option to disable them, as this would compromise the functioning of the platform.\n\nHowever, you can configure your browser to block or alert you about cookies. Please note that blocking all cookies will have a negative impact on the functionality of our platform, including the inability to access protected areas."
+      },
+      "changes": {
+        "title": "5. Changes to the Cookie Policy",
+        "content": "We reserve the right to modify this Cookie Policy at any time. Any changes will be posted on this page with the update date.\n\nWe encourage you to periodically review this page to stay informed about our cookie practices."
+      },
+      "contactUs": {
+        "title": "6. Contact us",
+        "content": "For any questions or clarifications about this Cookie Policy, you can contact us at: info@algoset.it"
+      }
+    }
+  },
+  "AdminDashboard": {
+    "title": "Admin Dashboard",
+    "tabs": {
+      "collections": "Collections",
+      "upload": "Upload Documents",
+      "settings": "Settings"
+    }
+  }
 }

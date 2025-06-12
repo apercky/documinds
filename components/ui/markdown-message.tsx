@@ -1,12 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { SourceCitation } from "@/lib/utils/source-citations";
 import Image from "next/image";
 import ReactMarkdown, { Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { darcula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
+import { SourceCitationBadge } from "./source-citation";
 
 interface MarkdownMessageProps {
   content: string;
@@ -14,6 +16,29 @@ interface MarkdownMessageProps {
 }
 
 export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
+  // Simple citation processing - extract citations and replace with placeholders
+  const citations = new Map<number, SourceCitation>();
+  let citationNumber = 1;
+
+  // Replace citations with placeholders and collect citation data
+  const processedContent = content.replace(
+    /\[src name="([^"]+)" page="(\d+)" total_pages="(\d+)"\]/g,
+    (match, filename, page, totalPages) => {
+      const citation: SourceCitation = {
+        filename,
+        page: parseInt(page, 10),
+        totalPages: parseInt(totalPages, 10),
+        originalText: match,
+      };
+
+      citations.set(citationNumber, citation);
+      const placeholder = `<span class="citation-marker" data-citation="${citationNumber}">${citationNumber}</span>`;
+      citationNumber++;
+
+      return placeholder;
+    }
+  );
+
   // Preprocess content to remove excessive newlines
   const processContent = (text: string): string => {
     return (
@@ -41,18 +66,70 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
     return markdownPatterns.some((pattern) => pattern.test(text));
   };
 
-  const processedContent = processContent(content);
+  const finalProcessedContent = processContent(processedContent);
 
-  // If no markdown is detected, return plain text
-  if (!containsMarkdown(processedContent)) {
+  // If no markdown is detected, render as plain text with citations
+  if (!containsMarkdown(finalProcessedContent)) {
+    // Parse the content to replace citation markers with React components
+    const parts = finalProcessedContent.split(
+      /(<span class="citation-marker" data-citation="\d+">\d+<\/span>)/
+    );
+
     return (
       <div className={cn("whitespace-pre-line break-words text-sm", className)}>
-        {processedContent}
+        {parts.map((part, index) => {
+          const citationMatch = part.match(
+            /<span class="citation-marker" data-citation="(\d+)">(\d+)<\/span>/
+          );
+
+          if (citationMatch) {
+            const citationId = parseInt(citationMatch[1], 10);
+            const number = parseInt(citationMatch[2], 10);
+            const citation = citations.get(citationId);
+
+            if (citation) {
+              return (
+                <SourceCitationBadge
+                  key={`citation-${index}`}
+                  citation={citation}
+                  number={number}
+                />
+              );
+            }
+          }
+
+          return part;
+        })}
       </div>
     );
   }
 
   const components: Components = {
+    // Handle citation markers in markdown
+    span: ({ className, children, ...props }: any) => {
+      const spanClassName = className || props.className;
+
+      if (
+        spanClassName?.includes("citation-marker") ||
+        props["data-citation"]
+      ) {
+        const citationId = props["data-citation"];
+        if (citationId) {
+          const citation = citations.get(parseInt(citationId, 10));
+          const number = parseInt(children as string, 10);
+
+          if (citation) {
+            return <SourceCitationBadge citation={citation} number={number} />;
+          }
+        }
+      }
+
+      return (
+        <span className={spanClassName} {...props}>
+          {children}
+        </span>
+      );
+    },
     // Previous component definitions remain the same
     code({ className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || "");
@@ -107,8 +184,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
       );
     },
     p: ({ children, node: _node, ...props }) => {
-      // Check if this paragraph is inside a list item by examining the node
-      // Use optional chaining to safely access properties
+      // Check if this paragraph is inside a list item
       const isInListItem =
         _node &&
         typeof _node === "object" &&
@@ -118,7 +194,6 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
         "type" in _node.parent &&
         _node.parent.type === "listItem";
 
-      // Exclude node from props to prevent it from being rendered in HTML
       return (
         <p
           className={cn(
@@ -152,7 +227,6 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
       );
     },
     li: ({ children, node: _node, ...props }) => {
-      // Exclude node from props to prevent it from being rendered in HTML
       return (
         <li className="whitespace-normal leading-tight p-0 mb-0" {...props}>
           {children}
@@ -212,7 +286,7 @@ export function MarkdownMessage({ content, className }: MarkdownMessageProps) {
         rehypePlugins={[rehypeRaw]}
         components={components}
       >
-        {processedContent}
+        {finalProcessedContent}
       </ReactMarkdown>
     </div>
   );

@@ -79,7 +79,7 @@ seed:
 
 # Compila seed.ts in seed.js per Docker
 compile-seed:
-	@echo "🔧 Compiling seed.ts to seed.js..."
-	npx tsc prisma/seed.ts --outDir prisma --target es2020 --module commonjs --esModuleInterop --resolveJsonModule --skipLibCheck
-	@echo "✅ seed.js compiled successfully"
+	@echo "🔧 Compiling and bundling seed.ts to seed.js..."
+	npx esbuild prisma/seed.ts --bundle --platform=node --outfile=prisma/seed.js --external:@prisma/client --target=es2020
+	@echo "✅ seed.js compiled and bundled successfully"
 
