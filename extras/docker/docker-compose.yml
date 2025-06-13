@@ -82,6 +82,7 @@ services:
   documinds-app:
     image: ghcr.io/apercky/documinds:${VERSION:-latest}
     container_name: documinds-app
+    hostname: documinds-app
     env_file:
       - .env.documinds
     volumes:

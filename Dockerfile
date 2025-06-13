@@ -38,7 +38,7 @@ RUN npx prisma generate
 
 # Build the Next.js app (optimized for production)
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
+# NODE_ENV viene gestito tramite file .env - non forzare qui
 ENV NEXT_LINT_IGNORE=true
 ENV HOSTNAME="0.0.0.0"
 

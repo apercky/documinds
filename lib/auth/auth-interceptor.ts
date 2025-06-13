@@ -101,8 +101,16 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     debugLog(`Token found:`, !!token);
     debugLog(`Token sub:`, token?.sub);
 
-    if (!token?.sub || !session) {
-      debugLog(`Returning 401 - no session or token`);
+    // Fix for Next.js standalone mode: getToken() can fail to read JWT tokens from session cookies
+    // even when a valid session exists. This happens specifically in standalone builds due to
+    // different cookie handling mechanisms compared to the dev server.
+    //
+    // Fallback strategy: Use session.user.id when token.sub is not available, ensuring
+    // authentication works consistently across all deployment environments (dev, standalone, EKS).
+    const userSub = token?.sub || (session?.user as any)?.id;
+
+    if (!userSub || !session) {
+      debugLog(`Returning 401 - no session or user sub`);
       // Per richieste JSON (default)
       if (req.headers.get("Accept")?.includes("application/json")) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -128,10 +136,10 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
     }
 
     // Recupera token e privilegi da Redis usando il sub
-    debugLog(`Attempting to get tokens for user: ${token.sub}`);
+    debugLog(`Attempting to get tokens for user: ${userSub}`);
     debugLog(`Token object:`, JSON.stringify(token, null, 2));
 
-    const tokens = await getUserTokens(token.sub);
+    const tokens = await getUserTokens(userSub);
 
     debugLog(`getUserTokens result:`, tokens);
     debugLog(
@@ -181,7 +189,7 @@ export function withAuth<R extends NextRequest | Request, C = unknown>(
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       idToken: tokens.idToken,
-      userId: token.sub,
+      userId: userSub,
       brand: tokens.brand,
       roles: tokens.roles,
       session,
