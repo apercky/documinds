@@ -1,3 +1,12 @@
+# [0.2.0-beta.3](https://github.com/apercky/documinds/compare/v0.2.0-beta.2...v0.2.0-beta.3) (2025-06-13)
+
+
+### Bug Fixes
+
+* **auth:** add fallback for token retrieval in standalone mode ([d5e083e](https://github.com/apercky/documinds/commit/d5e083e2c6fae1dab86bb0a18b1181b9f0918177))
+* **i18n:** i18n/request fetch now has to use NEXT_APP_URL_INTERNAL environment variable for fetch internal call. ([e6b756f](https://github.com/apercky/documinds/commit/e6b756f1c1370e8218e1b47cf2aa26b3a5913f3a))
+* revert to previouse release ([baf380e](https://github.com/apercky/documinds/commit/baf380e3c69e5e782ffff27c5ad76227de54a232))
+
 ## [0.1.1-beta.9](https://github.com/apercky/documinds/compare/v0.1.1-beta.8...v0.1.1-beta.9) (2025-06-13)
 
 
