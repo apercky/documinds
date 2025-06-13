@@ -1,4 +1,11 @@
-# [0.2.0-beta.2](https://github.com/apercky/documinds/compare/v0.2.0-beta.1...v0.2.0-beta.2) (2025-06-12)
+## [0.1.1-beta.8](https://github.com/apercky/documinds/compare/v0.1.1-beta.7...v0.1.1-beta.8) (2025-06-13)
+
+
+### Bug Fixes
+
+* revert to previouse release ([baf380e](https://github.com/apercky/documinds/commit/baf380e3c69e5e782ffff27c5ad76227de54a232))
+
+## [0.1.1-beta.7](https://github.com/apercky/documinds/compare/v0.1.1-beta.6...v0.1.1-beta.7) (2025-06-09)
 
 
 ### Bug Fixes

@@ -377,11 +377,23 @@ const config: NextAuthConfig = {
     },
 
     async session({ session, token }) {
+      debugLog("🔍 SESSION CALLBACK:", {
+        hasToken: !!token,
+        tokenSub: token?.sub,
+        sessionBefore: session,
+      });
       // Includi solo i dati essenziali dell'utente e quelli richiesti dal tipo
       // Incluso il brand che è necessario per l'interfaccia esistente
-      if (!token.sub) return session;
+      if (!token.sub) {
+        debugLog("❌ No token.sub, returning empty session");
+        return session;
+      }
 
       const tokens = await getUserTokens(token.sub);
+      debugLog("🔍 Tokens from Redis:", {
+        found: !!tokens,
+        hasAccessToken: !!tokens?.accessToken,
+      });
       if (tokens) {
         session.user = {
           id: token.sub as string,
@@ -408,6 +420,15 @@ const config: NextAuthConfig = {
   },
 
   cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: isProd,
+      },
+    },
     csrfToken: {
       name: "next-auth.csrf-token",
       options: {
