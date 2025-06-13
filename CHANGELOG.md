@@ -1,3 +1,10 @@
+## [0.1.1-beta.9](https://github.com/apercky/documinds/compare/v0.1.1-beta.8...v0.1.1-beta.9) (2025-06-13)
+
+
+### Bug Fixes
+
+* **auth:** add fallback for token retrieval in standalone mode ([d5e083e](https://github.com/apercky/documinds/commit/d5e083e2c6fae1dab86bb0a18b1181b9f0918177))
+
 ## [0.1.1-beta.8](https://github.com/apercky/documinds/compare/v0.1.1-beta.7...v0.1.1-beta.8) (2025-06-13)
 
 
