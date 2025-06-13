@@ -13,9 +13,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   // Fetch messages from API route (avoids direct PrismaClient import in middleware)
   const response = await fetch(
-    `${
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    }/api/messages/locale/${locale}`
+    `${process.env.NEXT_APP_URL_INTERNAL}/api/messages/locale/${locale}`
   );
   const data = await response.json();
   const messages = data.messages;

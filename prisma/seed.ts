@@ -1,6 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { seedCompanies } from "./seeds/seed-companies";
-import { seedTranslations } from "./seeds/seed-translations";
 
 const prisma = new PrismaClient();
 
@@ -8,11 +6,13 @@ async function runAllSeeds() {
   console.log("🚀 Starting database seeding...");
 
   try {
-    // Esegui i seed in ordine sequenziale
-    await seedCompanies();
-    await seedTranslations();
+    // Run seeds in order
 
-    // Aggiungi qui altri seed future:
+    // Seeds already run
+    //await seedCompanies();
+    //await seedTranslations();
+
+    // Add other seeds here:
     // await seedSettings();
     // await seedBrands();
 
