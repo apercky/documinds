@@ -8,7 +8,19 @@
     "build:docker": "next build --no-lint",
     "start": "next start",
     "start:prod": "cp -r public .next/standalone/public && node .next/standalone/server.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed-translations": "tsx prisma/seed-translations.ts",
+    "db:studio": "prisma studio",
+    "sync:init": "tsx scripts/i18n/sync-translations.ts init",
+    "sync:upload": "tsx scripts/i18n/sync-translations.ts upload",
+    "sync:download": "tsx scripts/i18n/sync-translations.ts download",
+    "sync:sync": "tsx scripts/i18n/sync-translations.ts sync",
+    "sync:compare": "tsx scripts/i18n/sync-translations.ts compare",
+    "sync:generate-seed": "tsx scripts/i18n/sync-translations.ts generate-seed",
+    "sync:help": "tsx scripts/i18n/sync-translations.ts --help"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -16,7 +28,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.8",
     "@ai-sdk/openai": "^1.1.11",
-    "@datastax/langflow-client": "^0.2.0",
+    "@datastax/langflow-client": "^0.3.1",
     "@dqbd/tiktoken": "^1.0.20",
     "@fontsource/roboto": "^5.2.5",
     "@fontsource/roboto-mono": "^5.2.6",
@@ -98,6 +110,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "commander": "^14.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",

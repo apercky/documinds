@@ -5,14 +5,22 @@ export default getRequestConfig(async ({ requestLocale }) => {
   // This typically corresponds to the `[locale]` segment
   let locale = await requestLocale;
 
-  // Ensure that the incoming locale is valid
-  if (typeof locale !== "string" || !routing.locales.includes(locale)) {
+  // Validate that the incoming locale is valid
+  const validLocales = routing.locales;
+  if (typeof locale !== "string" || !validLocales.includes(locale)) {
     locale = routing.defaultLocale;
   }
 
+  // Fetch messages from API route (avoids direct PrismaClient import in middleware)
+  const response = await fetch(
+    `${process.env.NEXT_APP_URL_INTERNAL}/api/messages/locale/${locale}`
+  );
+  const data = await response.json();
+  const messages = data.messages;
+
   return {
     locale,
-    messages: (await import(`@/messages/${locale}.json`)).default,
+    messages,
     timeZone: "Europe/Rome",
   };
 });
