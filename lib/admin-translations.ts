@@ -53,6 +53,37 @@ export async function deleteTranslation(
   }
 }
 
+export async function deleteTranslationKey(
+  key: string,
+  namespace: string = "common"
+): Promise<boolean> {
+  try {
+    await prisma.translation.deleteMany({
+      where: {
+        key,
+        namespace,
+      },
+    });
+
+    await invalidateTranslationsCache();
+    return true;
+  } catch (error) {
+    console.error("Error deleting translation key:", error);
+    return false;
+  }
+}
+
+export async function getAllTranslations(): Promise<Translation[]> {
+  try {
+    return await prisma.translation.findMany({
+      orderBy: [{ namespace: "asc" }, { key: "asc" }, { locale: "asc" }],
+    });
+  } catch (error) {
+    console.error("Error fetching all translations:", error);
+    return [];
+  }
+}
+
 export async function getTranslationsByLocale(
   locale: string
 ): Promise<Translation[]> {
@@ -96,5 +127,20 @@ export async function getAllNamespaces(): Promise<string[]> {
   } catch (error) {
     console.error("Error fetching namespaces:", error);
     return ["common"];
+  }
+}
+
+export async function getTranslationsForExport(
+  namespace?: string
+): Promise<Translation[]> {
+  try {
+    const whereClause = namespace ? { namespace } : {};
+    return await prisma.translation.findMany({
+      where: whereClause,
+      orderBy: [{ namespace: "asc" }, { key: "asc" }, { locale: "asc" }],
+    });
+  } catch (error) {
+    console.error("Error fetching translations for export:", error);
+    return [];
   }
 }

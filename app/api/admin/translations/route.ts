@@ -1,35 +1,27 @@
+import { ROLES } from "@/consts/consts";
 import {
   createTranslation,
-  deleteTranslation,
-  getTranslationsByLocale,
+  deleteTranslationKey,
+  getAllTranslations,
 } from "@/lib/admin-translations";
+import { withAuth } from "@/lib/auth/auth-interceptor";
+import { handleApiError } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const locale = searchParams.get("locale");
-
-  if (!locale) {
-    return NextResponse.json(
-      { error: "Locale parameter is required" },
-      { status: 400 }
-    );
-  }
-
+// GET - Fetch all translations
+export const GET = withAuth<NextRequest>([ROLES.ADMIN], async (req) => {
   try {
-    const translations = await getTranslationsByLocale(locale);
+    const translations = await getAllTranslations();
     return NextResponse.json({ translations });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch translations" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
-}
+});
 
-export async function POST(request: NextRequest) {
+// POST - Create new translation
+export const POST = withAuth<NextRequest>([ROLES.ADMIN], async (req) => {
   try {
-    const { key, locale, value, namespace = "common" } = await request.json();
+    const { key, locale, value, namespace = "common" } = await req.json();
 
     if (!key || !locale || !value) {
       return NextResponse.json(
@@ -40,47 +32,66 @@ export async function POST(request: NextRequest) {
 
     const translation = await createTranslation(key, locale, value, namespace);
 
-    if (translation) {
-      return NextResponse.json({ success: true, translation });
-    } else {
+    if (!translation) {
       return NextResponse.json(
         { error: "Failed to create translation" },
         { status: 500 }
       );
     }
+
+    return NextResponse.json({ translation });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
-}
+});
 
-export async function DELETE(request: NextRequest) {
+// PUT - Update existing translation
+export const PUT = withAuth<NextRequest>([ROLES.ADMIN], async (req) => {
   try {
-    const { key, locale, namespace = "common" } = await request.json();
+    const { key, locale, value, namespace = "common" } = await req.json();
 
-    if (!key || !locale) {
+    if (!key || !locale || value === undefined) {
       return NextResponse.json(
-        { error: "Key and locale are required" },
+        { error: "Key, locale, and value are required" },
         { status: 400 }
       );
     }
 
-    const success = await deleteTranslation(key, locale, namespace);
+    const translation = await createTranslation(key, locale, value, namespace);
 
-    if (success) {
-      return NextResponse.json({ success: true });
-    } else {
+    if (!translation) {
       return NextResponse.json(
-        { error: "Failed to delete translation" },
+        { error: "Failed to update translation" },
         { status: 500 }
       );
     }
+
+    return NextResponse.json({ translation });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
-}
+});
+
+// DELETE - Delete translation key (all locales)
+export const DELETE = withAuth<NextRequest>([ROLES.ADMIN], async (req) => {
+  try {
+    const { key, namespace = "common" } = await req.json();
+
+    if (!key) {
+      return NextResponse.json({ error: "Key is required" }, { status: 400 });
+    }
+
+    const success = await deleteTranslationKey(key, namespace);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Failed to delete translation key" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return handleApiError(error);
+  }
+});

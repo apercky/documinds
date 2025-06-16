@@ -167,7 +167,8 @@
     "typeMessage": "Type your message...",
     "pressShiftEnter": "Press Shift + ↵ for new line",
     "sendMessage": "Send Message",
-    "pageOfTotal": "Page {page} of {totalPages}"
+    "pageOfTotal": "Page {page} of {totalPages}",
+    "collection-test": "Test collection"
   },
   "Errors": {
     "defaultTitle": "Error Occurred",
@@ -357,6 +358,81 @@
       "collections": "Collections",
       "upload": "Upload Documents",
       "settings": "Settings"
+    }
+  },
+  "Translations": {
+    "title": "Translations",
+    "subtitle": "Manage your app's translations efficiently",
+    "management": "Translations Management",
+    "description": "Manage your app's translations efficiently with inline editing and smart organization.",
+    "loading": "Loading translations...",
+    "allNamespaces": "All Namespaces",
+    "complete": "complete",
+    "searchKeys": "Search keys...",
+    "addKey": "Add Key",
+    "showAll": "Show: All",
+    "showMissing": "Missing only",
+    "showRecent": "Recent",
+    "noTranslationsFound": "No translations found matching your criteria.",
+    "export": "Export",
+    "import": "Import",
+    "refreshCache": "Refresh Cache",
+    "refreshing": "Refreshing...",
+    "card": {
+      "complete": "Complete",
+      "missing": "Missing",
+      "clickToAdd": "Click to add translation...",
+      "add": "Add",
+      "quickTranslate": "Quick Translate Missing",
+      "translating": "Translating...",
+      "deleteKey": "Delete Key"
+    },
+    "addDialog": {
+      "title": "Add New Translation Key",
+      "description": "Create a new translation key with an initial English value.",
+      "namespace": "Namespace",
+      "key": "Key",
+      "keyPlaceholder": "e.g., hero.callToAction",
+      "english": "English",
+      "englishPlaceholder": "Get Started Now",
+      "autoTranslate": "Auto-translate to all locales",
+      "cancel": "Cancel",
+      "adding": "Adding...",
+      "addKey": "Add Key"
+    },
+    "deleteDialog": {
+      "title": "Delete Translation Key",
+      "description": "Are you sure you want to delete the key \"{key}\" from namespace \"{namespace}\"? This will remove all translations for this key and cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "importDialog": {
+      "title": "Import Translations",
+      "description": "Preview the translations that will be imported. Existing translations will be overwritten.",
+      "cancel": "Cancel",
+      "import": "Import",
+      "importing": "Importing..."
+    },
+    "errors": {
+      "fetchTranslations": "Failed to fetch translations",
+      "fetchNamespaces": "Failed to fetch namespaces",
+      "updateTranslation": "Failed to update translation",
+      "deleteKey": "Failed to delete translation key",
+      "createKey": "Failed to create translation key",
+      "exportTranslations": "Failed to export translations",
+      "importTranslations": "Failed to import translations",
+      "invalidJson": "Invalid JSON file",
+      "selectJsonFile": "Please select a JSON file",
+      "fillRequiredFields": "Please fill in all required fields",
+      "refreshCache": "Failed to refresh messages cache"
+    },
+    "success": {
+      "translationUpdated": "Translation updated successfully",
+      "keyDeleted": "Translation key deleted successfully",
+      "keyCreated": "Translation key created successfully",
+      "translationsExported": "Translations exported successfully",
+      "translationsImported": "Translations imported successfully",
+      "cacheRefreshed": "Messages cache refreshed successfully"
     }
   }
 }
