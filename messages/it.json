@@ -167,7 +167,8 @@
     "typeMessage": "Scrivi il tuo messaggio...",
     "pressShiftEnter": "Premi Shift + ↵ per una nuova riga",
     "sendMessage": "Invia Messaggio",
-    "pageOfTotal": "Pagina {page} di {totalPages}"
+    "pageOfTotal": "Pagina {page} di {totalPages}",
+    "collection-test": "Collezione Prova"
   },
   "Errors": {
     "defaultTitle": "Errore",
@@ -357,6 +358,81 @@
       "collections": "Collezioni",
       "upload": "Carica Documenti",
       "settings": "Impostazioni"
+    }
+  },
+  "Translations": {
+    "title": "Traduzioni",
+    "subtitle": "Gestisci le traduzioni della tua app in modo efficiente",
+    "management": "Gestione Traduzioni",
+    "description": "Gestisci le traduzioni della tua app in modo efficiente con modifica inline e organizzazione intelligente.",
+    "loading": "Caricamento traduzioni...",
+    "allNamespaces": "Tutti i Namespace",
+    "complete": "completo",
+    "searchKeys": "Cerca chiavi...",
+    "addKey": "Aggiungi Chiave",
+    "showAll": "Mostra: Tutto",
+    "showMissing": "Solo mancanti",
+    "showRecent": "Recenti",
+    "noTranslationsFound": "Nessuna traduzione trovata che corrisponda ai tuoi criteri.",
+    "export": "Esporta",
+    "import": "Importa",
+    "refreshCache": "Aggiorna Cache",
+    "refreshing": "Aggiornamento...",
+    "card": {
+      "complete": "Completo",
+      "missing": "Mancante",
+      "clickToAdd": "Clicca per aggiungere traduzione...",
+      "add": "Aggiungi",
+      "quickTranslate": "Traduci Rapidamente Mancanti",
+      "translating": "Traduzione in corso...",
+      "deleteKey": "Elimina Chiave"
+    },
+    "addDialog": {
+      "title": "Aggiungi Nuova Chiave di Traduzione",
+      "description": "Crea una nuova chiave di traduzione con un valore iniziale in inglese.",
+      "namespace": "Namespace",
+      "key": "Chiave",
+      "keyPlaceholder": "es. hero.callToAction",
+      "english": "Inglese",
+      "englishPlaceholder": "Inizia Ora",
+      "autoTranslate": "Traduci automaticamente in tutte le lingue",
+      "cancel": "Annulla",
+      "adding": "Aggiunta in corso...",
+      "addKey": "Aggiungi Chiave"
+    },
+    "deleteDialog": {
+      "title": "Elimina Chiave di Traduzione",
+      "description": "Sei sicuro di voler eliminare la chiave \"{key}\" dal namespace \"{namespace}\"? Questo rimuoverà tutte le traduzioni per questa chiave e non può essere annullato.",
+      "cancel": "Annulla",
+      "delete": "Elimina"
+    },
+    "importDialog": {
+      "title": "Importa Traduzioni",
+      "description": "Anteprima delle traduzioni che verranno importate. Le traduzioni esistenti verranno sovrascritte.",
+      "cancel": "Annulla",
+      "import": "Importa",
+      "importing": "Importazione in corso..."
+    },
+    "errors": {
+      "fetchTranslations": "Impossibile recuperare le traduzioni",
+      "fetchNamespaces": "Impossibile recuperare i namespace",
+      "updateTranslation": "Impossibile aggiornare la traduzione",
+      "deleteKey": "Impossibile eliminare la chiave di traduzione",
+      "createKey": "Impossibile creare la chiave di traduzione",
+      "exportTranslations": "Impossibile esportare le traduzioni",
+      "importTranslations": "Impossibile importare le traduzioni",
+      "invalidJson": "File JSON non valido",
+      "selectJsonFile": "Seleziona un file JSON",
+      "fillRequiredFields": "Compila tutti i campi obbligatori",
+      "refreshCache": "Impossibile aggiornare la cache dei messaggi"
+    },
+    "success": {
+      "translationUpdated": "Traduzione aggiornata con successo",
+      "keyDeleted": "Chiave di traduzione eliminata con successo",
+      "keyCreated": "Chiave di traduzione creata con successo",
+      "translationsExported": "Traduzioni esportate con successo",
+      "translationsImported": "Traduzioni importate con successo",
+      "cacheRefreshed": "Cache dei messaggi aggiornata con successo"
     }
   }
 }

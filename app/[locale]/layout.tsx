@@ -11,6 +11,7 @@ import { routing } from "@/app/i18n/routing";
 import SessionProviderWrapper from "@/components/auth/session-provider-wrapper";
 import { TokenRefreshHandler } from "@/components/token-refresh-handler";
 import { ThemeProvider } from "@/components/ui/providers/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/lib/providers/providers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
@@ -84,6 +85,7 @@ export default async function RootLayout({
                 <div className="flex flex-col min-h-screen max-h-screen">
                   <main className="flex-1">{children}</main>
                 </div>
+                <Toaster />
               </Providers>
             </SessionProviderWrapper>
           </NextIntlClientProvider>

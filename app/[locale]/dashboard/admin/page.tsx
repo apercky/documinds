@@ -1,5 +1,6 @@
 import { CollectionsTab } from "@/components/admin/collections-tab";
 import { SettingsTab } from "@/components/admin/settings-tab";
+import { TranslationsTab } from "@/components/admin/translations-tab";
 import { UploadTab } from "@/components/admin/upload-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslations } from "next-intl";
@@ -13,11 +14,12 @@ export default function AdminPage() {
         <h1 className="text-3xl font-bold mb-8">{t("title")}</h1>
 
         <Tabs defaultValue="collections" className="w-full ">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="collections">
               {t("tabs.collections")}
             </TabsTrigger>
             <TabsTrigger value="upload">{t("tabs.upload")}</TabsTrigger>
+            <TabsTrigger value="translations">Translations</TabsTrigger>
             <TabsTrigger value="settings">{t("tabs.settings")}</TabsTrigger>
           </TabsList>
 
@@ -28,6 +30,10 @@ export default function AdminPage() {
 
             <TabsContent value="upload" className="pb-6">
               <UploadTab />
+            </TabsContent>
+
+            <TabsContent value="translations" className="pb-6">
+              <TranslationsTab />
             </TabsContent>
 
             <TabsContent value="settings" className="pb-6">
