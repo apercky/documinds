@@ -1,3 +1,10 @@
+# [0.2.0-beta.4](https://github.com/apercky/documinds/compare/v0.2.0-beta.3...v0.2.0-beta.4) (2025-06-16)
+
+
+### Bug Fixes
+
+* **chat:** The tooltip didn't work on iOS, now it is fixed. Improved the chat bubble visualization ([7782357](https://github.com/apercky/documinds/commit/7782357456fd226a7bf9b1132027e27d021777b2))
+
 # [0.2.0-beta.3](https://github.com/apercky/documinds/compare/v0.2.0-beta.2...v0.2.0-beta.3) (2025-06-13)
 
 
