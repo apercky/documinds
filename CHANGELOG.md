@@ -1,3 +1,15 @@
+# [0.2.0-beta.5](https://github.com/apercky/documinds/compare/v0.2.0-beta.4...v0.2.0-beta.5) (2025-06-16)
+
+
+### Bug Fixes
+
+* **translations:** Update translation seed ([7faf6f1](https://github.com/apercky/documinds/commit/7faf6f15fd36484547cdfeee3215976818f97480))
+
+
+### Features
+
+* **translations:** add translation manager ([46438a5](https://github.com/apercky/documinds/commit/46438a529dbbf8630c3399d8df6bd13d3da667d7))
+
 # [0.2.0-beta.4](https://github.com/apercky/documinds/compare/v0.2.0-beta.3...v0.2.0-beta.4) (2025-06-16)
 
 
