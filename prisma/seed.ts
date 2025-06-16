@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { seedTranslations } from "./seeds/seed-translations";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +11,7 @@ async function runAllSeeds() {
 
     // Seeds already run
     //await seedCompanies();
-    //await seedTranslations();
+    await seedTranslations();
 
     // Add other seeds here:
     // await seedSettings();
