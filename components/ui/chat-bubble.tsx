@@ -58,7 +58,12 @@ export function ChatBubbleMessage({
   };
 
   return (
-    <div className="relative group">
+    <div
+      className={cn(
+        "relative group",
+        isLoading && "flex items-center justify-center"
+      )}
+    >
       <div
         className={cn(
           "rounded-lg p-3 min-w-[60px] max-w-full",
@@ -66,13 +71,13 @@ export function ChatBubbleMessage({
             ? "bg-primary text-primary-foreground"
             : "bg-muted",
           variant === "received" && hasContent && "pb-8",
+          isLoading &&
+            "p-2 min-w-[40px] rounded-full flex items-center justify-center",
           className
         )}
       >
         {isLoading ? (
-          <div className="flex items-center space-x-2">
-            <MessageLoading />
-          </div>
+          <MessageLoading />
         ) : typeof children === "string" && variant === "received" ? (
           <MarkdownMessage content={children} />
         ) : (

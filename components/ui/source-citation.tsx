@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { SourceCitation } from "@/lib/utils/source-citations";
 import { FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 interface SourceCitationBadgeProps {
   citation: SourceCitation;
@@ -22,15 +23,32 @@ export function SourceCitationBadge({
   className,
 }: SourceCitationBadgeProps) {
   const t = useTranslations("Common");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleTouch = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleMouseEnter = () => {
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsOpen(false);
+  };
 
   return (
-    <Tooltip>
+    <Tooltip open={isOpen} onOpenChange={setIsOpen}>
       <TooltipTrigger asChild>
         <span
           className={cn(
             "inline-flex items-center justify-center w-4 h-4 text-xs font-medium text-white bg-slate-500 rounded-full cursor-pointer hover:bg-slate-300 transition-colors",
             className
           )}
+          onTouchStart={handleTouch}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onClick={handleTouch}
         >
           {number}
         </span>

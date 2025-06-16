@@ -20,7 +20,7 @@ const ChatBubbleMessageComponent = ({
 }: ChatBubbleMessageProps) => (
   <ChatBubble
     variant={message.role === "user" ? "sent" : "received"}
-    className={isLoading ? "justify-center items-center" : ""}
+    className={isLoading ? "justify-center items-center w-full max-w-full" : ""}
   >
     {!isLoading && message.id !== "loading" && (
       <ChatBubbleAvatar
