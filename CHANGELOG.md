@@ -1,3 +1,10 @@
+# [0.2.0-beta.6](https://github.com/apercky/documinds/compare/v0.2.0-beta.5...v0.2.0-beta.6) (2025-06-25)
+
+
+### Features
+
+* **metrics:** Add Prometheus metrics and removed unused dependecies ([caa47df](https://github.com/apercky/documinds/commit/caa47df323c3d0e276c4587cb530b6ba66ddb4f0))
+
 # [0.2.0-beta.5](https://github.com/apercky/documinds/compare/v0.2.0-beta.4...v0.2.0-beta.5) (2025-06-16)
 
 
