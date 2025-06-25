@@ -51,7 +51,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "15mb",
     },
   },
-  serverExternalPackages: ["tesseract.js"],
+  serverExternalPackages: [],
 } satisfies NextConfig;
 
 export default withNextIntl(nextConfig);
