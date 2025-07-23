@@ -1,3 +1,10 @@
+# [0.2.0-beta.7](https://github.com/apercky/documinds/compare/v0.2.0-beta.6...v0.2.0-beta.7) (2025-07-23)
+
+
+### Bug Fixes
+
+* **docker:** a problem with .next/cache directory permissions ([92e2d60](https://github.com/apercky/documinds/commit/92e2d604c2ea376ef47f24f059ac2dd3c4ee8a78))
+
 # [0.2.0-beta.6](https://github.com/apercky/documinds/compare/v0.2.0-beta.5...v0.2.0-beta.6) (2025-06-25)
 
 
