@@ -52,30 +52,32 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create a non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001 && \
-    mkdir -p /app/certs && \
-    chown -R nextjs:1001 /app/certs
+    adduser -S nextjs -u 1001
 
 # Install curl for healthcheck
 RUN apk add --no-cache curl
 
-# Create volume for custom certificates
-VOLUME /app/certs
-
 # Set working directory
 WORKDIR /app
 
+# Create directories and set proper ownership BEFORE switching to non-root user
+RUN mkdir -p /app/certs /app/.next/cache && \
+    chown -R nextjs:nodejs /app
+
+# Create volume for custom certificates
+VOLUME /app/certs
+
 # Copy only the necessary files for running the app
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy prisma client runtime and binary (necessario per le migrate e per il runtime app)
-COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client /app/node_modules/@prisma/client
 
 # Copy cartella prisma con seed.ts e schema.prisma (serve per migrazioni e seeding)
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 # Install only what we need to support migrations and seed on runner
 RUN npm install -g prisma
