@@ -79,7 +79,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client /app/
 # Copy cartella prisma con seed.ts e schema.prisma (serve per migrazioni e seeding)
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Install only what we need to support migrations and seed on runner
+# Install only what we need to support migrations and seed on runner 
 RUN npm install -g prisma
 
 # Define the path to the custom CA certificate
